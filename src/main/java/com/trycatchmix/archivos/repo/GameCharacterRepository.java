@@ -8,4 +8,7 @@ import java.util.UUID;
 
 public interface GameCharacterRepository extends JpaRepository<GameCharacter, UUID> {
     List<GameCharacter> findByUserIdOrderByNameAsc(UUID userId);
+
+    /** Para el admin/máster: todos los personajes de la mesa. */
+    List<GameCharacter> findAllByOrderByNameAsc();
 }

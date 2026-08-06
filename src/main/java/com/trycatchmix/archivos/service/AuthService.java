@@ -3,6 +3,7 @@ package com.trycatchmix.archivos.service;
 import com.trycatchmix.archivos.config.JwtProperties;
 import com.trycatchmix.archivos.domain.AppUser;
 import com.trycatchmix.archivos.domain.RefreshToken;
+import com.trycatchmix.archivos.domain.Role;
 import com.trycatchmix.archivos.error.ApiException;
 import com.trycatchmix.archivos.repo.AppUserRepository;
 import com.trycatchmix.archivos.repo.RefreshTokenRepository;
@@ -33,6 +34,38 @@ public class AuthService {
     private final PasswordEncoder encoder;
     private final JwtService jwt;
     private final JwtProperties props;
+
+    /**
+     * Alta de un jugador. Siempre nace con rol PLAYER: el rol nunca llega del
+     * cliente, así que nadie puede darse permisos de máster registrándose.
+     * Deja la sesión iniciada (devuelve tokens) para no pedir login justo
+     * después de crear la cuenta.
+     */
+    @Transactional
+    public TokenResponse register(String email, String displayName, String password) {
+        String correo = email == null ? "" : email.trim().toLowerCase();
+        String nombre = displayName == null ? "" : displayName.trim();
+
+        if (!correo.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"))
+            throw ApiException.badRequest("Ese correo no tiene buena pinta.");
+        if (nombre.isBlank())
+            throw ApiException.badRequest("Necesitas un nombre para mostrar.");
+        if (nombre.length() > 60)
+            throw ApiException.badRequest("El nombre para mostrar es demasiado largo.");
+        if (password == null || password.length() < 8)
+            throw ApiException.badRequest("La contraseña necesita al menos 8 caracteres.");
+        if (users.findByEmail(correo).isPresent())
+            throw ApiException.conflict("Ya hay una cuenta con ese correo.");
+
+        AppUser user = new AppUser();
+        user.setEmail(correo);
+        user.setDisplayName(nombre);
+        user.setPasswordHash(encoder.encode(password));
+        user.setRole(Role.PLAYER);
+        users.save(user);
+
+        return issue(user);
+    }
 
     @Transactional
     public TokenResponse login(String email, String password) {

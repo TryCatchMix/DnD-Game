@@ -16,6 +16,11 @@ public class AuthController {
 
     private final AuthService auth;
 
+    @PostMapping("/register")
+    public TokenResponse register(@RequestBody RegisterRequest req) {
+        return auth.register(req.email(), req.displayName(), req.password());
+    }
+
     @PostMapping("/login")
     public TokenResponse login(@RequestBody LoginRequest req) {
         return auth.login(req.email(), req.password());

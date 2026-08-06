@@ -31,8 +31,12 @@ public class GameService {
     // ---------------------------------------------------------- personajes ---
 
     @Transactional(readOnly = true)
-    public List<CharacterView> listCharacters(UUID userId) {
-        return characters.findByUserIdOrderByNameAsc(userId).stream()
+    public List<CharacterView> listCharacters(UUID userId, boolean admin) {
+        // El admin (máster) ve toda la mesa; un jugador, solo los suyos.
+        var lista = admin
+                ? characters.findAllByOrderByNameAsc()
+                : characters.findByUserIdOrderByNameAsc(userId);
+        return lista.stream()
                 .map(c -> new CharacterView(c.getId().toString(), c.getName(), null,
                         c.getClazz(), c.getLevel(), c.getVigor(), c.getMaxVigor(), c.getCity()))
                 .toList();
@@ -48,16 +52,16 @@ public class GameService {
 
     /** La hoja de personaje D&D 3.5 completa. */
     @Transactional(readOnly = true)
-    public FichaView ficha(UUID userId, UUID charId) {
-        GameCharacter c = ownedCharacter(userId, charId);
+    public FichaView ficha(UUID userId, UUID charId, boolean admin) {
+        GameCharacter c = accessibleCharacter(userId, charId, admin);
         return buildFicha(c, c.getSkills());
     }
 
     /** Editar la ficha. Reemplaza todos los campos editables y la lista de
      *  habilidades entera (el JSON que llega es la verdad). */
     @Transactional
-    public FichaView editarFicha(UUID userId, UUID charId, FichaEditRequest r) {
-        GameCharacter c = ownedCharacter(userId, charId);
+    public FichaView editarFicha(UUID userId, UUID charId, boolean admin, FichaEditRequest r) {
+        GameCharacter c = accessibleCharacter(userId, charId, admin);
 
         // identidad
         if (r.name() != null && !r.name().isBlank()) c.setName(r.name().trim());
@@ -399,6 +403,16 @@ public class GameService {
         GameCharacter c = characters.findById(charId)
                 .orElseThrow(() -> ApiException.notFound("No existe ese personaje."));
         if (!c.getUserId().equals(userId))
+            throw ApiException.forbidden("Ese personaje no es tuyo.");
+        return c;
+    }
+
+    /** Como {@link #ownedCharacter} pero el admin (máster) pasa el filtro para
+     *  cualquier personaje: es quien lleva la mesa. */
+    private GameCharacter accessibleCharacter(UUID userId, UUID charId, boolean admin) {
+        GameCharacter c = characters.findById(charId)
+                .orElseThrow(() -> ApiException.notFound("No existe ese personaje."));
+        if (!admin && !c.getUserId().equals(userId))
             throw ApiException.forbidden("Ese personaje no es tuyo.");
         return c;
     }

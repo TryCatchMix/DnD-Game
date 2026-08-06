@@ -47,7 +47,8 @@ public class SecurityConfig {
             .cors(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(reg -> {
-                reg.requestMatchers("/api/auth/login", "/api/auth/refresh", "/api/auth/logout").permitAll();
+                reg.requestMatchers("/api/auth/register", "/api/auth/login",
+                        "/api/auth/refresh", "/api/auth/logout").permitAll();
                 // Los endpoints de desarrollo solo existen y se abren en dev.
                 if (dev) reg.requestMatchers("/api/dev/**").permitAll();
                 reg.requestMatchers("/api/admin/**").hasRole("DM");

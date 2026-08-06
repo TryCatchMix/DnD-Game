@@ -26,7 +26,7 @@ public class GameController {
 
     @GetMapping
     public List<CharacterView> personajes(@AuthenticationPrincipal AuthPrincipal p) {
-        return game.listCharacters(user(p));
+        return game.listCharacters(user(p), isAdmin(p));
     }
 
     /** Crear un personaje nuevo. Devuelve su ficha ya montada. */
@@ -40,7 +40,7 @@ public class GameController {
     @GetMapping("/{charId}")
     public FichaView ficha(@AuthenticationPrincipal AuthPrincipal p,
                            @PathVariable UUID charId) {
-        return game.ficha(user(p), charId);
+        return game.ficha(user(p), charId, isAdmin(p));
     }
 
     /** Editar la ficha (todos los campos y la lista de habilidades). */
@@ -48,7 +48,7 @@ public class GameController {
     public FichaView editarFicha(@AuthenticationPrincipal AuthPrincipal p,
                                  @PathVariable UUID charId,
                                  @RequestBody FichaEditRequest req) {
-        return game.editarFicha(user(p), charId, req);
+        return game.editarFicha(user(p), charId, isAdmin(p), req);
     }
 
     @GetMapping("/{charId}/tablon")
@@ -81,5 +81,10 @@ public class GameController {
     private UUID user(AuthPrincipal p) {
         if (p == null) throw ApiException.sessionExpired();
         return p.userId();
+    }
+
+    /** El máster (DM) es el administrador de la mesa. */
+    private boolean isAdmin(AuthPrincipal p) {
+        return p != null && "DM".equals(p.role());
     }
 }
