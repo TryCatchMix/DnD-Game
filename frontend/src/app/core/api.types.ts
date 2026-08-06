@@ -16,6 +16,61 @@ export interface TokenResponse {
   role?: string;        // DM | PLAYER
 }
 
+/** Alta de una cuenta nueva. Siempre nace como PLAYER en el backend. */
+export interface RegisterRequest {
+  email: string;
+  displayName: string;
+  password: string;
+}
+
+// --- Propiedades (comprar y mejorar negocios) ---
+
+/** Un tipo de propiedad comprable, del catálogo. */
+export interface PropertyCatalogItem {
+  kind: string;
+  emoji: string;
+  nombre: string;
+  blurb: string;
+  buyPriceCp: number;
+  buyPrice: string;
+  incomePerDayCp: number;
+  incomePerDay: string;
+}
+
+/** Una propiedad ya comprada. */
+export interface Property {
+  id: string;
+  kind: string;
+  emoji: string;
+  tipo: string;
+  name: string;
+  level: number;
+  maxLevel: number;
+  city: string;
+  incomePerDayCp: number;
+  incomePerDay: string;
+  pendingCp: number;
+  pending: string;
+  upgradeCostCp: number | null;
+  upgradeCost: string | null;
+  canUpgrade: boolean;
+  saleValueCp: number;
+  saleValue: string;
+}
+
+/** Todo lo que pinta la pantalla de propiedades. */
+export interface Holdings {
+  purseCp: number;
+  purse: string;
+  properties: Property[];
+  catalog: PropertyCatalogItem[];
+}
+
+export interface PropertyBuyRequest {
+  kind: string;
+  name: string;
+}
+
 /** Un personaje del jugador. Lo lista la pantalla /personajes. */
 export interface Character {
   id: string;

@@ -20,6 +20,11 @@ export const routes: Routes = [
       import('./features/login/login.page').then(m => m.LoginPage),
   },
   {
+    path: 'registro',
+    loadComponent: () =>
+      import('./features/registro/registro.page').then(m => m.RegistroPage),
+  },
+  {
     path: 'personajes',
     loadComponent: () =>
       import('./features/characters/characters.page').then(m => m.CharactersPage),
@@ -53,6 +58,11 @@ export const routes: Routes = [
     path: 'personajes/:personajeId/notas',
     loadComponent: () =>
       import('./features/notas/notas.page').then(m => m.NotasPage),
+  },
+  {
+    path: 'personajes/:personajeId/propiedades',
+    loadComponent: () =>
+      import('./features/propiedades/propiedades.page').then(m => m.PropiedadesPage),
   },
   {
     path: 'personajes/:personajeId/cronica',

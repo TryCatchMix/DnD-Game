@@ -4,9 +4,9 @@ import { Observable } from 'rxjs';
 
 import {
   Character, CharacterCreate, ChronicleCreate, ChronicleEntry, Ficha, FichaEdit,
-  ImportResult, Inventory, Invocation, Note, NoteRequest, Notes, QuestCard,
-  QuestSummary, ResolutionView, SceneView, Shop, ShopOfferCreate, Spell,
-  ValidationReport,
+  Holdings, ImportResult, Inventory, Invocation, Note, NoteRequest, Notes,
+  PropertyBuyRequest, QuestCard, QuestSummary, ResolutionView, SceneView, Shop,
+  ShopOfferCreate, Spell, ValidationReport,
 } from './api.types';
 
 /**
@@ -146,6 +146,29 @@ export class JuegoService {
 
   eliminarNota(noteId: string): Observable<Notes> {
     return this.http.delete<Notes>(`/api/notas/${noteId}`);
+  }
+
+  // --- Propiedades (comprar y mejorar negocios) ---
+  // Todas devuelven el estado completo (monedero + propiedades + catálogo).
+
+  propiedades(personajeId: string): Observable<Holdings> {
+    return this.http.get<Holdings>(`/api/personajes/${personajeId}/propiedades`);
+  }
+
+  comprarPropiedad(personajeId: string, compra: PropertyBuyRequest): Observable<Holdings> {
+    return this.http.post<Holdings>(`/api/personajes/${personajeId}/propiedades`, compra);
+  }
+
+  mejorarPropiedad(personajeId: string, propId: string): Observable<Holdings> {
+    return this.http.post<Holdings>(`/api/personajes/${personajeId}/propiedades/${propId}/mejorar`, {});
+  }
+
+  recaudarPropiedad(personajeId: string, propId: string): Observable<Holdings> {
+    return this.http.post<Holdings>(`/api/personajes/${personajeId}/propiedades/${propId}/recaudar`, {});
+  }
+
+  venderPropiedad(personajeId: string, propId: string): Observable<Holdings> {
+    return this.http.delete<Holdings>(`/api/personajes/${personajeId}/propiedades/${propId}`);
   }
 
   // --- Hechizos ---

@@ -5,7 +5,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
 
 import { TokenStore } from './token-store';
-import { TokenResponse } from './api.types';
+import { RegisterRequest, TokenResponse } from './api.types';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -43,12 +43,22 @@ export class AuthService {
   login(email: string, password: string): Observable<TokenResponse> {
     return this.http
       .post<TokenResponse>('/api/auth/login', { email, password })
-      .pipe(tap(t => {
-        this.store.save(t);
-        this.avisoDeSesion.set(null);
-        this.rol.set(t.role ?? null);
-        this.programarRefresco(t.expiresIn);
-      }));
+      .pipe(tap(t => this.abrirSesion(t)));
+  }
+
+  /** Alta de cuenta nueva. Deja la sesión iniciada, igual que login. */
+  register(datos: RegisterRequest): Observable<TokenResponse> {
+    return this.http
+      .post<TokenResponse>('/api/auth/register', datos)
+      .pipe(tap(t => this.abrirSesion(t)));
+  }
+
+  /** Guardado común de login y registro. */
+  private abrirSesion(t: TokenResponse): void {
+    this.store.save(t);
+    this.avisoDeSesion.set(null);
+    this.rol.set(t.role ?? null);
+    this.programarRefresco(t.expiresIn);
   }
 
   /**

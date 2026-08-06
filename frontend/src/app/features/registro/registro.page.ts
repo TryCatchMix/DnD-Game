@@ -1,42 +1,53 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../core/auth.service';
 
+/**
+ * Alta de cuenta. El rol lo decide el backend (siempre PLAYER), aquí solo se
+ * piden nombre, correo y contraseña. Al crearla, la sesión queda abierta y se
+ * va directo a elegir personaje.
+ */
 @Component({
-  selector: 'arc-login',
+  selector: 'arc-registro',
   imports: [FormsModule, RouterLink],
   template: `
     <div class="marco">
       <div class="hoja carta">
 
-        <!-- El sello es la firma visual: todo lo que hace el clan va lacrado. -->
-        <div class="lacre" aria-hidden="true">
-          <span>LA</span>
-        </div>
+        <div class="lacre" aria-hidden="true"><span>LA</span></div>
 
-        <p class="rotulo">Registro de intermisión</p>
+        <p class="rotulo">Alta en el libro</p>
         <h1>Los Archivos</h1>
-        <p class="anno">Año 1127 después del Cataclismo · Ciudades Libres</p>
+        <p class="anno">Crea tu cuenta para llevar tus propios personajes</p>
 
         <hr class="regla" />
 
-        @if (auth.avisoDeSesion(); as aviso) {
-          <p class="aviso" role="status">{{ aviso }}</p>
-        }
-
-        <form (ngSubmit)="entrar()">
+        <form (ngSubmit)="crear()">
           <label class="campo">
-            <span class="rotulo">Nombre en el libro</span>
+            <span class="rotulo">Nombre para mostrar</span>
+            <input name="displayName" type="text" autocomplete="nickname"
+                   [(ngModel)]="displayName" required />
+          </label>
+
+          <label class="campo">
+            <span class="rotulo">Correo</span>
             <input name="email" type="email" autocomplete="username"
                    [(ngModel)]="email" required />
           </label>
 
           <label class="campo">
             <span class="rotulo">Contraseña</span>
-            <input name="password" type="password" autocomplete="current-password"
+            <input name="password" type="password" autocomplete="new-password"
                    [(ngModel)]="password" required />
+            <span class="pista">Al menos 8 caracteres.</span>
+          </label>
+
+          <label class="campo">
+            <span class="rotulo">Repite la contraseña</span>
+            <input name="password2" type="password" autocomplete="new-password"
+                   [(ngModel)]="password2" required />
           </label>
 
           @if (error(); as e) {
@@ -44,13 +55,13 @@ import { AuthService } from '../../core/auth.service';
           }
 
           <button class="boton boton--lacre ancho" type="submit"
-                  [disabled]="cargando() || !email() || !password()">
-            {{ cargando() ? 'Cotejando…' : 'Entrar' }}
+                  [disabled]="cargando() || !completo()">
+            {{ cargando() ? 'Registrando…' : 'Crear cuenta' }}
           </button>
         </form>
 
         <p class="alterna">
-          ¿No tienes cuenta? <a routerLink="/registro">Crear una</a>
+          ¿Ya tienes cuenta? <a routerLink="/entrar">Entrar</a>
         </p>
       </div>
 
@@ -67,17 +78,12 @@ import { AuthService } from '../../core/auth.service';
       position: relative;
       z-index: 1;
     }
-
     .carta {
       width: min(420px, 92vw);
       padding: 44px 32px 34px;
       text-align: center;
       position: relative;
     }
-
-    /* Lacre: círculo de cera con las iniciales del clan. Es el único elemento
-       decorativo de toda la interfaz, y va aquí porque entrar es el momento en
-       que te identificas ante Los Archivos. */
     .lacre {
       position: absolute;
       top: -22px; left: 50%;
@@ -96,14 +102,12 @@ import { AuthService } from '../../core/auth.service';
       letter-spacing: .06em;
       color: #f3dcc9;
     }
-
     h1 {
       font-size: 30px;
       letter-spacing: .02em;
       margin: 6px 0 4px;
       color: var(--tinta);
     }
-
     .anno {
       font-family: var(--dato);
       font-size: 10px;
@@ -112,19 +116,24 @@ import { AuthService } from '../../core/auth.service';
       color: var(--sepia);
       margin: 0;
     }
-
     .regla {
       border: 0;
       border-top: 1px solid var(--linea);
       margin: 22px 0 20px;
     }
-
     .campo { display: block; text-align: left; margin-bottom: 16px; }
     .campo .rotulo { display: block; margin-bottom: 6px; }
-
+    .pista {
+      display: block;
+      font-family: var(--dato);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--sepia);
+      margin-top: 5px;
+    }
     .ancho { width: 100%; margin-top: 6px; }
-
-    .error, .aviso {
+    .error {
       font-size: 14px;
       text-align: left;
       border-left: 2px solid var(--vino);
@@ -133,15 +142,12 @@ import { AuthService } from '../../core/auth.service';
       color: var(--sepia-hondo);
       background: rgba(143,46,34,.06);
     }
-    .aviso { border-left-color: var(--oro); background: rgba(157,122,47,.08); }
-
     .alterna {
       font-size: 14px;
       color: var(--sepia);
       margin: 18px 0 0;
     }
     .alterna a { color: var(--oro); }
-
     .pie {
       font-family: var(--cuerpo);
       font-style: italic;
@@ -152,32 +158,52 @@ import { AuthService } from '../../core/auth.service';
     }
   `,
 })
-export class LoginPage {
+export class RegistroPage {
 
-  readonly auth = inject(AuthService);
+  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
+  readonly displayName = signal('');
   readonly email = signal('');
   readonly password = signal('');
+  readonly password2 = signal('');
   readonly cargando = signal(false);
   readonly error = signal<string | null>(null);
 
-  entrar(): void {
+  readonly completo = computed(() =>
+    this.displayName().trim().length > 0 &&
+    this.email().trim().length > 0 &&
+    this.password().length > 0 &&
+    this.password2().length > 0);
+
+  crear(): void {
     if (this.cargando()) return;
+
+    // Comprobación local antes de molestar al servidor.
+    if (this.password().length < 8) {
+      this.error.set('La contraseña necesita al menos 8 caracteres.');
+      return;
+    }
+    if (this.password() !== this.password2()) {
+      this.error.set('Las dos contraseñas no coinciden.');
+      return;
+    }
 
     this.cargando.set(true);
     this.error.set(null);
 
-    this.auth.login(this.email(), this.password()).subscribe({
+    this.auth.register({
+      email: this.email().trim(),
+      displayName: this.displayName().trim(),
+      password: this.password(),
+    }).subscribe({
       next: () => {
         this.cargando.set(false);
         void this.router.navigate(['/personajes']);
       },
       error: err => {
         this.cargando.set(false);
-        // El backend devuelve el mismo mensaje para correo inexistente y
-        // contraseña mala, a propósito. Lo mostramos tal cual.
-        this.error.set(err?.error?.message ?? 'No se ha podido comprobar el registro.');
+        this.error.set(err?.error?.message ?? 'No se ha podido crear la cuenta.');
       },
     });
   }
