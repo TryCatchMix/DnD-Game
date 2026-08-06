@@ -73,13 +73,25 @@ publicar.**
 Mismo flujo con `@capacitor/ios` y `npx cap add ios`, pero **necesita un Mac**
 con Xcode. En Linux no se puede compilar para iOS.
 
+## Sesión persistente (ya implementada)
+
+La app **recuerda la sesión entre reinicios**. Cómo:
+
+- El *refresh token* se guarda con `@capacitor/preferences` (almacenamiento
+  nativo de Android/iOS, aislado de otras apps). El *access token* sigue solo en
+  memoria (dura 15 min).
+- Al arrancar, un app-initializer (`AuthService.restaurarSesion`) recupera ese
+  token y lo canjea por una sesión nueva antes de pintar nada. Si el token
+  caducó o fue revocado, limpia y manda al login.
+- **Solo en la app nativa.** En el navegador NO se persiste nada
+  (`Capacitor.isNativePlatform()` lo decide): un token en `localStorage` lo
+  leería cualquier script, así que en web la sesión sigue siendo en memoria.
+
+Requiere el plugin `@capacitor/preferences` (ya está en `package.json`); tras
+`npm install` haz `npx cap sync` para que el proyecto nativo lo registre.
+
 ## Limitaciones conocidas y mejoras futuras
 
-- **La sesión no se recuerda entre reinicios.** El token vive en memoria (una
-  decisión de seguridad del proyecto), así que al cerrar la app hay que volver a
-  entrar. Para móvil lo suyo sería guardar el *refresh token* con
-  `@capacitor/preferences` (almacenamiento nativo) y rehidratar la sesión al
-  abrir. Es la primera mejora recomendada.
 - **App online.** Al cargar el sitio en vivo, la app necesita conexión para
   arrancar. Si en el futuro quieres que funcione sin conexión, hay que
   empaquetar los assets (quitar `server.url`), apuntar las llamadas a la URL

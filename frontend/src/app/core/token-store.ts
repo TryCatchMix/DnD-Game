@@ -1,14 +1,22 @@
 import { Injectable, signal } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
+import { Preferences } from '@capacitor/preferences';
 import { TokenResponse } from './api.types';
 
+const CLAVE_REFRESH = 'archivos.refreshToken';
+
 /**
- * La sesión, EN MEMORIA a propósito.
+ * La sesión.
  *
- * Un token en localStorage lo lee cualquier script que acabe en la página, y
- * aquí no hay nada que compense ese riesgo: el access token dura 15 minutos.
- * Al recargar la pestaña se pierde la sesión y toca volver a entrar; es el
- * precio correcto. Si algún día hace falta "recuérdame", va con una cookie
- * httpOnly puesta por el backend, no moviendo esto a localStorage.
+ * El ACCESS token vive siempre en memoria (dura 15 min, no merece la pena
+ * persistirlo). El REFRESH token se persiste SOLO en la app nativa
+ * (@capacitor/preferences → almacenamiento nativo de Android/iOS, aislado),
+ * para que la app recuerde la sesión entre reinicios.
+ *
+ * En la WEB NO se persiste nada, a propósito: un token en localStorage lo lee
+ * cualquier script que acabe en la página. Por eso la persistencia va detrás de
+ * `Capacitor.isNativePlatform()`; en el navegador el comportamiento es el de
+ * siempre (sesión en memoria, se pierde al recargar).
  */
 @Injectable({ providedIn: 'root' })
 export class TokenStore {
@@ -16,17 +24,35 @@ export class TokenStore {
   private readonly _access = signal<string | null>(null);
   private readonly _refresh = signal<string | null>(null);
 
-  /** Se leen como funciones: accessToken() devuelve el valor actual. */
   readonly accessToken = this._access.asReadonly();
   readonly refreshToken = this._refresh.asReadonly();
+
+  /** Solo la app nativa persiste el refresh token. */
+  private readonly persiste = Capacitor.isNativePlatform();
 
   save(t: TokenResponse): void {
     this._access.set(t.accessToken);
     this._refresh.set(t.refreshToken);
+    if (this.persiste && t.refreshToken) {
+      // Fire-and-forget: el guardado nativo no debe bloquear el login.
+      void Preferences.set({ key: CLAVE_REFRESH, value: t.refreshToken });
+    }
   }
 
   clear(): void {
     this._access.set(null);
     this._refresh.set(null);
+    if (this.persiste) void Preferences.remove({ key: CLAVE_REFRESH });
+  }
+
+  /**
+   * Arranque: recupera el refresh token guardado (solo nativo) y lo deja en
+   * memoria para que AuthService pueda canjearlo. Devuelve el token o null.
+   */
+  async restaurar(): Promise<string | null> {
+    if (!this.persiste) return null;
+    const { value } = await Preferences.get({ key: CLAVE_REFRESH });
+    if (value) this._refresh.set(value);
+    return value ?? null;
   }
 }

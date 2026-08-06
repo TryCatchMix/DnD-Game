@@ -1,8 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../core/auth.service';
+import { TokenStore } from '../../core/token-store';
 
 @Component({
   selector: 'arc-login',
@@ -152,10 +153,17 @@ import { AuthService } from '../../core/auth.service';
     }
   `,
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
 
   readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly store = inject(TokenStore);
+
+  ngOnInit(): void {
+    // Si al llegar ya hay sesión (la app nativa la restauró al arrancar), no
+    // enseñamos el formulario: directos a elegir personaje.
+    if (this.store.accessToken()) void this.router.navigate(['/personajes']);
+  }
 
   readonly email = signal('');
   readonly password = signal('');

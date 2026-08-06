@@ -1,8 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, throwError } from 'rxjs';
-import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
+import { firstValueFrom, Observable, throwError } from 'rxjs';
+import { catchError, finalize, map, shareReplay, tap, timeout } from 'rxjs/operators';
 
 import { TokenStore } from './token-store';
 import { RegisterRequest, TokenResponse } from './api.types';
@@ -51,6 +51,28 @@ export class AuthService {
     return this.http
       .post<TokenResponse>('/api/auth/register', datos)
       .pipe(tap(t => this.abrirSesion(t)));
+  }
+
+  /**
+   * ARRANQUE EN MÓVIL. Si hay un refresh token guardado (solo lo hay en la app
+   * nativa), lo canjea por una sesión nueva y devuelve true. En web no hay nada
+   * guardado, así que devuelve false al instante y no molesta.
+   *
+   * Lo llama un app-initializer, así que la app espera a esto antes de pintar:
+   * cuando resuelve, o hay sesión (access token en memoria) o no la hay.
+   */
+  async restaurarSesion(): Promise<boolean> {
+    const guardado = await this.store.restaurar();
+    if (!guardado) return false;
+    try {
+      // timeout para no colgar el arranque si el móvil está sin cobertura.
+      await firstValueFrom(this.refrescar().pipe(timeout(6000)));
+      return true;
+    } catch {
+      // Si el token estaba caducado o quemado, refrescar() ya limpió la sesión
+      // (y el almacenamiento). Un timeout deja el token para el próximo intento.
+      return false;
+    }
   }
 
   /** Guardado común de login y registro. */

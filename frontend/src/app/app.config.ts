@@ -1,9 +1,12 @@
-import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig, inject, provideAppInitializer, provideZonelessChangeDetection,
+} from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/auth.interceptor';
+import { AuthService } from './core/auth.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,5 +19,9 @@ export const appConfig: ApplicationConfig = {
 
     // El interceptor pone el token y refresca ante un 401.
     provideHttpClient(withInterceptors([authInterceptor])),
+
+    // Al arrancar, intenta restaurar la sesión guardada (solo hace algo en la
+    // app nativa; en web resuelve al instante sin sesión).
+    provideAppInitializer(() => inject(AuthService).restaurarSesion()),
   ],
 };
