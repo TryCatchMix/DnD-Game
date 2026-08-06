@@ -18,6 +18,7 @@ signals, zoneless) · JWT con rotación de refresh tokens.
 ├── pom.xml              build del backend (Maven)
 ├── probar.sh            prueba de humo end-to-end (curl + jq)
 ├── ejemplo_aguas_dorakan.json   encargo de ejemplo para el editor del DM
+├── CAPACITOR.md         cómo empaquetar el frontend como app Android
 └── COMO_ARRANCAR*.md    guías de puesta en marcha (general y Manjaro)
 ```
 
@@ -36,7 +37,9 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 Queda escuchando en `http://localhost:8080`. Flyway aplica las migraciones y
-siembra los datos (usuario DM `mix@trycatchmix.com` / `archivos`).
+siembra los datos, incluidas dos cuentas de máster (DM): `mix@trycatchmix.com`
+y `admin@trycatchmix.com`, ambas con contraseña `archivos`. **Cámbialas en
+producción** (ver «Cuentas y roles»).
 
 **3. Frontend** (necesita Node 22.22+):
 
@@ -73,8 +76,57 @@ cd frontend && npm run check   # compila y valida plantillas (strictTemplates)
 | **Crónica del clan** | Memoria compartida del mundo; el DM anota y revela verdades selladas |
 | **Hechizos** | Grimorio con el bloque de estadísticas completo + invocaciones de warlock |
 | **Bloc de notas** | Notas del jugador (PNJ, ciudades…) con categorías, fijado y búsqueda |
+| **Propiedades** | Comprar negocios (taberna, mina, puerto…), recaudar renta, mejorar y vender |
 | **Tablón / Escena** | Encargos con los bloqueados a la vista; escena con la tirada lacrada |
 | **Editor del DM** | Crear/validar/publicar encargos (`/api/admin/encargos`) |
+| **Cuentas** | Registro público (`/registro`); cada jugador solo ve y edita sus personajes |
+
+## Cuentas y roles
+
+Hay dos roles: **PLAYER** (jugador) y **DM** (máster, que hace de administrador).
+
+- **Registro** (`POST /api/auth/register`, pantalla `/registro`): cualquiera crea
+  su cuenta. Nace **siempre como PLAYER** — el rol nunca llega desde el cliente,
+  así que nadie puede darse permisos de máster registrándose.
+- **Propiedad de personajes**: un jugador solo lista, ve y edita **sus propios**
+  personajes. Intentar tocar el de otro devuelve `403`. Esto lo enforce el
+  backend (`GameService`), no solo la interfaz.
+- **Admin (DM)**: ve **todos** los personajes de la mesa y puede editar
+  cualquier ficha (es quien lleva la partida). Además gestiona la tienda, la
+  crónica y el editor de encargos (`/api/admin/**`, protegido con rol DM).
+- El único modo de tener un DM es sembrarlo por migración (`V10__admin_user.sql`)
+  o promover una cuenta a mano en la base de datos:
+  ```sql
+  update users set role = 'DM' where email = 'tu-correo@ejemplo.com';
+  ```
+
+Para cambiar la contraseña de las cuentas sembradas, lo más simple es
+registrarte con el correo que quieras y luego promover esa cuenta a DM con el
+`update` de arriba (y borrar las de ejemplo).
+
+## Propiedades (mini-juego de gestión)
+
+Cada personaje puede comprar negocios con el oro de su monedero y sacarles renta.
+Hay 11 tipos (🍺 taberna, 🏨 posada, ⚒️ herrería, 🧙 tienda de magia, 🐴 establos,
+🌾 granja, ⛏️ mina, 🚢 puerto, 🏛️ gremio, 🎭 teatro, 🌹 burdel), cada uno con su
+precio y su renta.
+
+- **Renta pasiva**: se acumula sola con el tiempo real (no hay proceso en
+  segundo plano; el backend la calcula al vuelo desde la última recaudación, con
+  un tope de 30 días). Se **recauda** a mano y va al monedero.
+- **Mejoras**: hasta nivel 5. Cada nivel multiplica la renta (nivel N = base × N).
+- **Venta**: devuelve la mitad de lo invertido más la renta pendiente.
+
+La economía de cada tipo (precios, renta, fórmula de mejora) vive en
+`PropertyKind` (Java), no en la BD, para poder ajustar el balance sin migrar.
+Endpoints en `/api/personajes/{id}/propiedades` (tabla `properties`, migración
+`V11`). Como todo lo del personaje, un jugador solo gestiona los suyos y el
+admin (DM) los de cualquiera.
+
+## App móvil (Android)
+
+El frontend se empaqueta como app nativa con **Capacitor**, reutilizando el
+mismo código. Los pasos completos están en `CAPACITOR.md`.
 
 ## Decisiones de diseño que importan
 

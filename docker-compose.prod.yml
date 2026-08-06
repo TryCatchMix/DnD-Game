@@ -1,0 +1,41 @@
+# Despliegue en el VPS: base de datos + backend.
+# El frontend NO va aquí: se compila a estáticos y los sirve el nginx del host.
+#
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Los secretos vienen de un fichero .env junto a este (ver .env.prod.example).
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: archivos-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: archivos
+      POSTGRES_USER: archivos
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Sin `ports`: la BD solo es accesible desde la red interna de compose,
+    # nunca desde fuera del VPS.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U archivos"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: .
+    container_name: archivos-api
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/archivos
+      SPRING_DATASOURCE_USERNAME: archivos
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      ARCHIVOS_JWT_SECRET: ${ARCHIVOS_JWT_SECRET}
+    # Solo escucha en localhost del VPS; nginx hace de portero hacia fuera.
+    ports:
+      - "127.0.0.1:8080:8080"
+
+volumes:
+  pgdata:

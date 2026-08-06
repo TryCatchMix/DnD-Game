@@ -12,6 +12,19 @@ frontend/.angular/
 npm-debug.log*
 yarn-error.log*
 
+# === App móvil (Capacitor / Android) ===
+# La carpeta android/ SÍ se sube (config del proyecto nativo), pero no sus builds.
+frontend/android/build/
+frontend/android/app/build/
+frontend/android/.gradle/
+frontend/android/local.properties
+frontend/android/app/src/main/assets/public/
+frontend/android/capacitor-cordova-android-plugins/
+
+# === Secretos de producción (el .example SÍ se sube) ===
+.env
+!.env.prod.example
+
 # === Herramientas locales de Claude Code ===
 .claude/
 
