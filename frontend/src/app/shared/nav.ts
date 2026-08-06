@@ -22,8 +22,8 @@ import { AuthService } from '../core/auth.service';
            routerLinkActive="activa">Tienda</a>
         <a class="tab" [routerLink]="['/personajes', personajeId(), 'cronica']"
            routerLinkActive="activa">Crónica</a>
-        <a class="tab tab--arcano" [routerLink]="['/personajes', personajeId(), 'hechizos']"
-           routerLinkActive="activa">Hechizos</a>
+        <a class="tab tab--arcano" [routerLink]="['/personajes', personajeId(), 'habilidades']"
+           routerLinkActive="activa">Habilidades</a>
         <a class="tab tab--nota" [routerLink]="['/personajes', personajeId(), 'notas']"
            routerLinkActive="activa">Notas</a>
         <a class="tab tab--casa" [routerLink]="['/personajes', personajeId(), 'propiedades']"

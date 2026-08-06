@@ -50,9 +50,9 @@ export const routes: Routes = [
       import('./features/dm/dm.page').then(m => m.DmPage),
   },
   {
-    path: 'personajes/:personajeId/hechizos',
+    path: 'personajes/:personajeId/habilidades',
     loadComponent: () =>
-      import('./features/hechizos/hechizos.page').then(m => m.HechizosPage),
+      import('./features/habilidades/habilidades.page').then(m => m.HabilidadesPage),
   },
   {
     path: 'personajes/:personajeId/notas',

@@ -37,6 +37,19 @@ public final class SpellDtos {
             String source,
             List<SpellClassView> classes) {}
 
+    /** Una página de conjuros: los que caben en el límite pedido más el total
+     *  que hay tras el filtro, para que el frontend sepa cuántos quedan. */
+    public record SpellPage(int total, List<SpellView> items) {}
+
+    /** Una aptitud de clase (Bárbaro, Guerrero, Monje). No es un conjuro. */
+    public record FeatureView(
+            String clazz,
+            String name,
+            int level,
+            String kind,
+            String description,
+            String source) {}
+
     /** Una invocación de warlock. No tiene nivel de conjuro 0-9: tiene grado y
      *  se usa a voluntad. */
     public record InvocationView(

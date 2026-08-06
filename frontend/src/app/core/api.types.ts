@@ -265,6 +265,22 @@ export interface Spell {
   classes: SpellClassLevel[];
 }
 
+/** Una página de conjuros: los que caben en el límite + cuántos hay en total. */
+export interface SpellPage {
+  total: number;
+  items: Spell[];
+}
+
+/** Una aptitud de clase (Bárbaro, Guerrero, Monje). No es un conjuro. */
+export interface ClassFeature {
+  clazz: string;
+  name: string;
+  level: number;
+  kind: string;
+  description: string;
+  source: string;
+}
+
 /** Una invocación de warlock: no es un conjuro (se usa a voluntad y va por
  *  grado, no por nivel de conjuro 0-9). */
 export interface Invocation {

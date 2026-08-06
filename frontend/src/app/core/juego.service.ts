@@ -3,10 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import {
-  Character, CharacterCreate, ChronicleCreate, ChronicleEntry, Ficha, FichaEdit,
-  Holdings, ImportResult, Inventory, Invocation, Note, NoteRequest, Notes,
+  Character, CharacterCreate, ChronicleCreate, ChronicleEntry, ClassFeature, Ficha,
+  FichaEdit, Holdings, ImportResult, Inventory, Invocation, Note, NoteRequest, Notes,
   PropertyBuyRequest, QuestCard, QuestSummary, ResolutionView, SceneView, Shop,
-  ShopOfferCreate, Spell, ValidationReport,
+  ShopOfferCreate, SpellPage, ValidationReport,
 } from './api.types';
 
 /**
@@ -171,17 +171,25 @@ export class JuegoService {
     return this.http.delete<Holdings>(`/api/personajes/${personajeId}/propiedades/${propId}`);
   }
 
-  // --- Hechizos ---
+  // --- Habilidades (conjuros + invocaciones + aptitudes) ---
 
-  /** Todos los hechizos, con las clases que los aprenden. El filtro y la
-   *  búsqueda se hacen en el frontend (instantáneos). */
-  hechizos(): Observable<Spell[]> {
-    return this.http.get<Spell[]>('/api/hechizos');
+  /** Conjuros filtrados y paginados EN EL SERVIDOR (por defecto 25), para no
+   *  traer los ~500 de golpe. `limite <= 0` = todos. */
+  hechizos(clase: string, q: string, limite: number, offset = 0): Observable<SpellPage> {
+    const params: Record<string, string> = {
+      clase, q, limite: String(limite), offset: String(offset),
+    };
+    return this.http.get<SpellPage>('/api/habilidades/hechizos', { params });
   }
 
-  /** Las invocaciones de warlock (van aparte: no son conjuros). */
+  /** Las invocaciones de warlock (van aparte: no son conjuros). Son pocas. */
   invocaciones(): Observable<Invocation[]> {
-    return this.http.get<Invocation[]>('/api/hechizos/invocaciones');
+    return this.http.get<Invocation[]>('/api/habilidades/invocaciones');
+  }
+
+  /** Aptitudes de clase de Bárbaro, Guerrero y Monje. Son pocas. */
+  aptitudes(clase: string): Observable<ClassFeature[]> {
+    return this.http.get<ClassFeature[]>('/api/habilidades/aptitudes', { params: { clase } });
   }
 
   // --- Editor de encargos del DM ---

@@ -74,7 +74,7 @@ cd frontend && npm run check   # compila y valida plantillas (strictTemplates)
 | **Personajes** | Elegir, crear (`/personajes/nuevo`) y ficha D&D 3.5 completa y editable |
 | **Tienda** | Comprar/vender en la ciudad; panel del DM para poner cosas a la venta |
 | **Crónica del clan** | Memoria compartida del mundo; el DM anota y revela verdades selladas |
-| **Hechizos** | Grimorio con el bloque de estadísticas completo + invocaciones de warlock |
+| **Habilidades** | Conjuros (7 clases, stat block completo) + invocaciones de warlock + aptitudes de clase (Bárbaro/Guerrero/Monje); paginado en servidor (25 por defecto) |
 | **Bloc de notas** | Notas del jugador (PNJ, ciudades…) con categorías, fijado y búsqueda |
 | **Propiedades** | Comprar negocios (taberna, mina, puerto…), recaudar renta, mejorar y vender |
 | **Tablón / Escena** | Encargos con los bloqueados a la vista; escena con la tirada lacrada |
