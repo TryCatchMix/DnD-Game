@@ -1,0 +1,114 @@
+{
+  "code": "aguas_dorakan",
+  "title": "Aguas de Dorakan",
+  "hook": "El agua de la fuente vieja sabe a hierro desde la última luna. El concejo quiere saber por qué antes de que lo pregunte el pueblo.",
+  "location": "dorakan",
+  "kind": "SOLO",
+  "minLevel": 1,
+  "vigorCost": 2,
+  "durationMin": 300,
+  "rewardGoldCp": 20000,
+  "rewardXp": 200,
+  "rewardNote": "200 po",
+  "skills": ["buscar", "supervivencia"],
+
+  "scenes": [
+    {
+      "key": "fuente",
+      "title": "La fuente vieja",
+      "body": "El caño escupe agua parda. Una mujer llena un cántaro, lo mira, y lo vacía en el suelo sin decir nada.",
+      "options": [
+        {
+          "label": "Seguir el canal aguas arriba",
+          "skill": "supervivencia",
+          "dc": 14,
+          "vigorCost": 1,
+          "risk": "MEDIUM",
+          "outcomes": {
+            "1": { "text": "Te pierdes en los canales y sales por donde entraste, seis horas después.", "end": true },
+            "2": { "text": "El canal se bifurca tres veces y ninguna rama lleva a ningún sitio.", "end": true },
+            "3": { "text": "Encuentras el punto donde el agua cambia de color, pero has perdido el día entero.", "next": "compuerta" },
+            "4": { "text": "El rastro es claro: el agua se enturbia justo pasada la compuerta norte.", "next": "compuerta" },
+            "5": { "text": "No solo encuentras el punto: cuentas las marcas de bota en el barro. Tres personas, ida y vuelta, varias veces.", "next": "compuerta" }
+          }
+        },
+        {
+          "label": "Preguntar a quien lleva más años llenando aquí",
+          "skill": "diplomacia",
+          "dc": 12,
+          "vigorCost": 0,
+          "note": "No gasta Vigor",
+          "outcomes": {
+            "1": { "text": "Te toma por recaudador y no vuelve a abrir la boca.", "end": true },
+            "2": { "text": "Se encoge de hombros. El agua está mala. Qué más da por qué.", "end": true },
+            "3": { "text": "Habla, pero pide algo a cambio y no lleva suelto encima.", "next": "compuerta" },
+            "4": { "text": "Lleva cuarenta años llenando aquí. Dice que empezó tres días después de que cerraran la compuerta norte.", "next": "compuerta" },
+            "5": { "text": "Habla, y de paso te cuenta quién tiene la llave de la compuerta.", "next": "compuerta" }
+          }
+        }
+      ]
+    },
+    {
+      "key": "compuerta",
+      "title": "La compuerta norte",
+      "body": "Está cerrada con una cadena nueva sobre un candado viejo. Al otro lado, el agua está quieta y tiene película.",
+      "options": [
+        {
+          "label": "Forzar el candado",
+          "skill": "abrir_cerraduras",
+          "dc": 20,
+          "vigorCost": 1,
+          "risk": "HIGH",
+          "modifiers": [
+            { "label": "Candado viejo y oxidado", "value": 2 },
+            { "label": "Ganzúas de maestro", "value": 2, "when": "HAS_ITEM", "item": "ganzuas_maestro" }
+          ],
+          "outcomes": {
+            "1": { "text": "La ganzúa se parte dentro. Ahora nadie va a abrir eso.", "end": true },
+            "2": { "text": "No cede. Te quedas media hora peleándote con él y lo dejas.", "end": true },
+            "3": { "text": "Cede, pero la cadena cae al agua y el ruido se oye desde el camino.", "next": "deposito" },
+            "4": { "text": "El candado se abre limpio.", "next": "deposito" },
+            "5": { "text": "Se abre sin un ruido y lo vuelves a dejar puesto, para que nadie sepa que estuviste.", "next": "deposito" }
+          }
+        },
+        {
+          "label": "Escuchar antes de tocar nada",
+          "skill": "escuchar",
+          "dc": 12,
+          "vigorCost": 0,
+          "note": "No gasta Vigor",
+          "outcomes": {
+            "1": { "text": "No oyes nada y te confías. Alguien te ve desde el camino.", "end": true },
+            "2": { "text": "Solo oyes el agua.", "end": true },
+            "3": { "text": "Oyes voces al otro lado. Se van antes de que puedas distinguir cuántas.", "next": "deposito" },
+            "4": { "text": "Dos voces. Hablan de cantidades y de un plazo.", "next": "deposito" },
+            "5": { "text": "Dos voces, un nombre y una fecha: la próxima entrega es en cuatro días.", "next": "deposito" }
+          }
+        }
+      ]
+    },
+    {
+      "key": "deposito",
+      "title": "Lo que hay en el depósito",
+      "body": "No es un vertido. Es un almacén. Alguien ha estado guardando barriles bajo el agua, donde nadie mira, y uno de ellos ha reventado.",
+      "options": [
+        {
+          "label": "Sacar un barril como prueba y avisar al concejo",
+          "vigorCost": 0,
+          "outcomes": {
+            "4": {
+              "text": "El concejo paga sin preguntar de dónde salió. La fuente vieja tarda tres semanas en volver a estar limpia, pero vuelve.",
+              "end": true,
+              "effects": [
+                { "kind": "FLAG_SET", "flag": "deposito_norte_descubierto", "flagState": true,
+                  "label": "El depósito bajo la compuerta norte deja de ser un secreto" },
+                { "kind": "FAVOR", "faction": "los_archivos", "amount": 1,
+                  "label": "+1 de favor con Los Archivos" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: archivos-db
+    environment:
+      POSTGRES_DB: archivos
+      POSTGRES_USER: archivos
+      POSTGRES_PASSWORD: archivos
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U archivos"]
+      interval: 5s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # api y web se quedan comentados hasta que existan sus Dockerfile.
+  # De momento el backend se arranca a mano con `mvn spring-boot:run`, que ademas
+  # es mas comodo mientras desarrollas: recompila sin reconstruir la imagen.
+  # ---------------------------------------------------------------------------
+  #
+  # api:
+  #   build: ./backend
+  #   depends_on:
+  #     db: { condition: service_healthy }
+  #   environment:
+  #     SPRING_PROFILES_ACTIVE: dev
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/archivos
+  #     SPRING_DATASOURCE_USERNAME: archivos
+  #     SPRING_DATASOURCE_PASSWORD: archivos
+  #   ports: ["8080:8080"]
+  #
+  # web:
+  #   build: ./frontend
+  #   depends_on: [api]
+  #   ports: ["4200:80"]
+
+volumes:
+  pgdata:

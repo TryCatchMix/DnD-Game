@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: archivos
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/archivos}
+    username: ${SPRING_DATASOURCE_USERNAME:archivos}
+    password: ${SPRING_DATASOURCE_PASSWORD:archivos}
+  jpa:
+    open-in-view: false
+    hibernate:
+      # Flyway manda en el esquema. Hibernate no lo toca en el mínimo:
+      # 'none' evita cualquier choque de validación al arrancar. Endurécelo a
+      # 'validate' cuando el esquema esté estable.
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+archivos:
+  jwt:
+    # Sin valor por defecto a propósito: en prod DEBE venir de entorno y tener
+    # al menos 32 bytes. El perfil dev pone uno para poder arrancar sin más.
+    secret: ${ARCHIVOS_JWT_SECRET:}
+    access-ttl-seconds: 900        # 15 min
+    refresh-ttl-days: 30
+
+server:
+  port: 8080

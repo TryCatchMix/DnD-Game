@@ -1,0 +1,149 @@
+/* ============================================================================
+   LOS ARCHIVOS — sistema visual
+   Los valores salen literalmente de los mockups: pergamino sobre tinta parda,
+   acento vino, sellos en oro y verde musgo. Nada de esto es invención mía.
+   ========================================================================= */
+
+:root {
+  /* --- superficies --- */
+  --noche:      #1e1810;   /* el fondo de la mesa */
+  --noche-honda:#171208;
+  --tinta:      #2b2117;   /* texto principal y cabeceras oscuras */
+  --pergamino:  #efe4cd;   /* la ficha, las tarjetas */
+  --pergamino-claro: #f2e9d5;
+  --pergamino-hueso: #e8dcc0;
+
+  /* --- tintas --- */
+  --sepia:      #7a6749;   /* el gris de este mundo: etiquetas, secundario */
+  --sepia-hondo:#5c4d38;
+  --sepia-claro:#a9997c;
+  --linea:      rgba(43, 33, 23, .22);
+  --linea-fuerte: rgba(43, 33, 23, .35);
+  --linea-clara:  rgba(43, 33, 23, .14);
+  --linea-noche:  rgba(239, 228, 205, .16);
+
+  /* --- acentos --- */
+  --vino:  #8f2e22;   /* lacre, peligro, el sello del clan */
+  --oro:   #9d7a2f;   /* recompensa, favor */
+  --musgo: #4c6a37;   /* éxito, disponible */
+
+  /* --- tipografía --- */
+  --display: 'IM Fell English', Georgia, serif;
+  --cuerpo:  'EB Garamond', Georgia, serif;
+  --dato:    'IBM Plex Mono', ui-monospace, monospace;
+
+  --radio: 2px;       /* casi recto: esto son documentos, no botones de app */
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--noche);
+  color: var(--pergamino);
+  font-family: var(--cuerpo);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* La textura del papel. Un ruido muy sutil evita que el pergamino parezca
+   plástico, que es lo que delata a las interfaces "de fantasía". */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .035;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, #fff 0 1px, transparent 1px),
+    radial-gradient(circle at 70% 60%, #fff 0 1px, transparent 1px),
+    radial-gradient(circle at 45% 85%, #fff 0 1px, transparent 1px);
+  background-size: 37px 41px, 53px 47px, 61px 59px;
+}
+
+h1, h2, h3 { font-family: var(--display); font-weight: 400; margin: 0; }
+
+/* --------------------------------------------------------------- utilidades */
+
+/* La versalita de tracking ancho es la voz del sistema: todo lo que es
+   metadato (no narrativa) habla así. */
+.rotulo {
+  font-family: var(--dato);
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--sepia);
+}
+
+.dato { font-family: var(--dato); font-size: 11px; letter-spacing: .06em; }
+
+.hoja {
+  background: var(--pergamino);
+  color: var(--tinta);
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio);
+  box-shadow: 0 1px 0 rgba(255,255,255,.35) inset,
+              0 12px 28px rgba(0,0,0,.45);
+}
+
+.contenedor {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px 18px 64px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ------------------------------------------------------------------ botones */
+
+button { font: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+
+.boton {
+  font-family: var(--dato);
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  padding: 11px 18px;
+  border-radius: var(--radio);
+  border: 1px solid var(--linea-fuerte);
+  background: transparent;
+  color: var(--tinta);
+  transition: background .15s ease, color .15s ease;
+}
+.boton:hover:not(:disabled) { background: rgba(43,33,23,.07); }
+.boton--lacre {
+  background: var(--vino);
+  border-color: var(--vino);
+  color: var(--pergamino-claro);
+}
+.boton--lacre:hover:not(:disabled) { background: #7d2820; }
+.boton:disabled { opacity: .4; }
+
+/* Foco visible siempre: se juega desde el móvil y desde el teclado. */
+:focus-visible {
+  outline: 2px solid var(--oro);
+  outline-offset: 2px;
+}
+
+input {
+  font: inherit;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio);
+  background: var(--pergamino-claro);
+  color: var(--tinta);
+}
+
+a { color: inherit; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}
