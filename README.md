@@ -78,7 +78,7 @@ cd frontend && npm run check   # compila y valida plantillas (strictTemplates)
 
 ## Decisiones de diseño que importan
 
-**El refresco de token va serializado.** El backend rota los refresh tokens:
+**El refresco de tokens va serializado.** El backend rota los refresh tokens:
 cada refresco quema el anterior y, si le llega uno ya quemado, asume robo y
 cierra la sesión entera. `AuthService` comparte el observable en vuelo para que
 dos peticiones que reciben 401 a la vez no disparen dos refrescos en paralelo
