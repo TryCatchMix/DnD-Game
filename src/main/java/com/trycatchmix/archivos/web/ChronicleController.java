@@ -4,6 +4,7 @@ import com.trycatchmix.archivos.error.ApiException;
 import com.trycatchmix.archivos.security.AuthPrincipal;
 import com.trycatchmix.archivos.service.ChronicleService;
 import com.trycatchmix.archivos.web.dto.ChronicleDtos.ChronicleCreateRequest;
+import com.trycatchmix.archivos.web.dto.ChronicleDtos.ChronicleUpdateRequest;
 import com.trycatchmix.archivos.web.dto.ChronicleDtos.ChronicleView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,5 +41,32 @@ public class ChronicleController {
     @PreAuthorize("hasRole('DM')")
     public List<ChronicleView> anotar(@RequestBody ChronicleCreateRequest req) {
         return chronicle.anotar(req);
+    }
+
+    // === Panel de administración (solo el DM) ==============================
+    // Devuelven la lista SIN censurar, para poder gestionar hasta lo sellado.
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('DM')")
+    public List<ChronicleView> listaAdmin() {
+        return chronicle.cronicaAdmin();
+    }
+
+    @PostMapping("/admin")
+    @PreAuthorize("hasRole('DM')")
+    public List<ChronicleView> crear(@RequestBody ChronicleCreateRequest req) {
+        return chronicle.crearAdmin(req);
+    }
+
+    @PutMapping("/admin/{id}")
+    @PreAuthorize("hasRole('DM')")
+    public List<ChronicleView> editar(@PathVariable UUID id, @RequestBody ChronicleUpdateRequest req) {
+        return chronicle.editar(id, req);
+    }
+
+    @DeleteMapping("/admin/{id}")
+    @PreAuthorize("hasRole('DM')")
+    public List<ChronicleView> eliminar(@PathVariable UUID id) {
+        return chronicle.eliminar(id);
     }
 }

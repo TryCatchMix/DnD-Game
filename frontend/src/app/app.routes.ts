@@ -45,9 +45,9 @@ export const routes: Routes = [
       import('./features/shop/shop.page').then(m => m.ShopPage),
   },
   {
-    path: 'personajes/:personajeId/dm',
+    path: 'personajes/:personajeId/admin',
     loadComponent: () =>
-      import('./features/dm/dm.page').then(m => m.DmPage),
+      import('./features/admin/admin.page').then(m => m.AdminPage),
   },
   {
     path: 'personajes/:personajeId/habilidades',

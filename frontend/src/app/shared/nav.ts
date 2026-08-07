@@ -29,8 +29,8 @@ import { AuthService } from '../core/auth.service';
         <a class="tab tab--casa" [routerLink]="['/personajes', personajeId(), 'propiedades']"
            routerLinkActive="activa">Propiedades</a>
         @if (esDM()) {
-          <a class="tab tab--dm" [routerLink]="['/personajes', personajeId(), 'dm']"
-             routerLinkActive="activa">Encargos (DM)</a>
+          <a class="tab tab--dm" [routerLink]="['/personajes', personajeId(), 'admin']"
+             routerLinkActive="activa">Admin (DM)</a>
         }
         <a class="tab tab--fin" [routerLink]="['/personajes']">Cambiar de personaje</a>
       </div>

@@ -349,6 +349,8 @@ export interface ChronicleCreate {
   category?: string;
   faction?: string;
   sealed?: boolean;
+  /** Solo al editar desde el panel: marca la entrada sellada como destapada. */
+  revealed?: boolean;
 }
 
 export type QuestAvailability =

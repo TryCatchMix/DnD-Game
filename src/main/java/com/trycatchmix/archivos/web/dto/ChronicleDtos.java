@@ -27,4 +27,16 @@ public final class ChronicleDtos {
             String category,
             String faction,
             Boolean sealed) {}
+
+    /** Editar una entrada (solo el DM). Como crear, pero permite además tocar
+     *  el estado de revelada, para el panel de administración. */
+    public record ChronicleUpdateRequest(
+            Integer year,
+            String era,
+            String title,
+            String body,
+            String category,
+            String faction,
+            Boolean sealed,
+            Boolean revealed) {}
 }

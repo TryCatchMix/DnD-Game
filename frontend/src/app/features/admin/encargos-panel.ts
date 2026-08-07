@@ -1,9 +1,8 @@
-import { Component, inject, input, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { JuegoService } from '../../core/juego.service';
 import { QuestSummary, ValidationReport } from '../../core/api.types';
-import { NavBar } from '../../shared/nav';
 
 const PLANTILLA = `{
   "code": "mi_encargo",
@@ -57,95 +56,89 @@ const PLANTILLA = `{
 }`;
 
 /**
- * Editor de encargos del DM (pantalla del clan de Los Archivos). Se escribe un
- * encargo en JSON, se comprueba, se guarda y se publica. Lo que se publica
- * aparece jugable en el tablón al instante.
+ * Editor de encargos: se escribe un encargo en JSON, se comprueba, se guarda y
+ * se publica. Lo publicado sale jugable en el tablón al instante. Vive dentro
+ * del panel de administración (sin barra propia).
  */
 @Component({
-  selector: 'arc-dm',
-  imports: [NavBar, FormsModule],
+  selector: 'arc-encargos-panel',
+  imports: [FormsModule],
   template: `
-    <arc-nav [personajeId]="personajeId()" />
+    <header class="cabecera">
+      <p class="rotulo">Editor de encargos · Los Archivos</p>
+      <p class="intro">Escribe un encargo, compruébalo y publícalo. Lo publicado sale jugable en el tablón.</p>
+    </header>
 
-    <div class="contenedor">
-      <header class="cabecera">
-        <p class="rotulo">Editor de encargos · Los Archivos</p>
-        <h1>Escribir el tablón</h1>
-        <p class="intro">Escribe un encargo, compruébalo y publícalo. Lo publicado sale jugable en el tablón.</p>
-      </header>
+    <!-- Lista -->
+    <p class="rotulo separador">Encargos</p>
+    @if (encargos().length === 0) {
+      <p class="estado">Aún no hay encargos.</p>
+    } @else {
+      <ul class="lista">
+        @for (q of encargos(); track q.code) {
+          <li class="hoja fila">
+            <div class="info">
+              <h2>{{ q.title }}</h2>
+              <p class="meta">
+                {{ q.code }} · {{ q.location }} · {{ q.sceneCount }} escenas ·
+                <span [class]="q.published ? 'pub' : 'bor'">{{ q.published ? 'publicado' : 'borrador' }}</span>
+              </p>
+            </div>
+            <div class="acc">
+              <button class="boton" [disabled]="ocupado()" (click)="editar(q.code)">Editar</button>
+              @if (q.published) {
+                <button class="boton" [disabled]="ocupado()" (click)="despublicar(q.code)">Despublicar</button>
+              } @else {
+                <button class="boton boton--lacre" [disabled]="ocupado()" (click)="publicar(q.code)">Publicar</button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
 
-      <!-- Lista -->
-      <p class="rotulo separador">Encargos</p>
-      @if (encargos().length === 0) {
-        <p class="estado">Aún no hay encargos.</p>
-      } @else {
-        <ul class="lista">
-          @for (q of encargos(); track q.code) {
-            <li class="hoja fila">
-              <div class="info">
-                <h2>{{ q.title }}</h2>
-                <p class="meta">
-                  {{ q.code }} · {{ q.location }} · {{ q.sceneCount }} escenas ·
-                  <span [class]="q.published ? 'pub' : 'bor'">{{ q.published ? 'publicado' : 'borrador' }}</span>
-                </p>
-              </div>
-              <div class="acc">
-                <button class="boton" [disabled]="ocupado()" (click)="editar(q.code)">Editar</button>
-                @if (q.published) {
-                  <button class="boton" [disabled]="ocupado()" (click)="despublicar(q.code)">Despublicar</button>
-                } @else {
-                  <button class="boton boton--lacre" [disabled]="ocupado()" (click)="publicar(q.code)">Publicar</button>
-                }
-              </div>
-            </li>
+    <div class="acciones">
+      <button class="boton" (click)="nuevo()">+ Encargo nuevo (plantilla)</button>
+    </div>
+
+    <!-- Editor -->
+    <p class="rotulo separador">Borrador (JSON)</p>
+    <textarea class="editor" spellcheck="false" [(ngModel)]="draftText"
+              placeholder="Pulsa «Editar» en un encargo o «Encargo nuevo»…"></textarea>
+
+    <div class="acciones">
+      <button class="boton" [disabled]="ocupado()" (click)="comprobar()">Comprobar</button>
+      <button class="boton boton--lacre" [disabled]="ocupado()" (click)="guardar()">Guardar</button>
+    </div>
+
+    @if (mensaje(); as m) { <p class="ok" role="status">{{ m }}</p> }
+    @if (error(); as e) { <p class="mal" role="alert">{{ e }}</p> }
+
+    @if (report(); as r) {
+      @if (r.errors.length === 0 && r.warnings.length === 0) {
+        <p class="ok">Sin problemas. Listo para guardar.</p>
+      }
+      @if (r.errors.length > 0) {
+        <p class="rotulo separador">Errores</p>
+        <ul class="problemas">
+          @for (p of r.errors; track $index) {
+            <li class="prob prob--err"><span class="campo">{{ p.field }}</span>{{ p.message }}</li>
           }
         </ul>
       }
-
-      <div class="acciones">
-        <button class="boton" (click)="nuevo()">+ Encargo nuevo (plantilla)</button>
-      </div>
-
-      <!-- Editor -->
-      <p class="rotulo separador">Borrador (JSON)</p>
-      <textarea class="editor" spellcheck="false" [(ngModel)]="draftText"
-                placeholder="Pulsa «Editar» en un encargo o «Encargo nuevo»…"></textarea>
-
-      <div class="acciones">
-        <button class="boton" [disabled]="ocupado()" (click)="comprobar()">Comprobar</button>
-        <button class="boton boton--lacre" [disabled]="ocupado()" (click)="guardar()">Guardar</button>
-      </div>
-
-      @if (mensaje(); as m) { <p class="ok" role="status">{{ m }}</p> }
-      @if (error(); as e) { <p class="mal" role="alert">{{ e }}</p> }
-
-      @if (report(); as r) {
-        @if (r.errors.length === 0 && r.warnings.length === 0) {
-          <p class="ok">Sin problemas. Listo para guardar.</p>
-        }
-        @if (r.errors.length > 0) {
-          <p class="rotulo separador">Errores</p>
-          <ul class="problemas">
-            @for (p of r.errors; track $index) {
-              <li class="prob prob--err"><span class="campo">{{ p.field }}</span>{{ p.message }}</li>
-            }
-          </ul>
-        }
-        @if (r.warnings.length > 0) {
-          <p class="rotulo separador">Avisos</p>
-          <ul class="problemas">
-            @for (p of r.warnings; track $index) {
-              <li class="prob prob--warn"><span class="campo">{{ p.field }}</span>{{ p.message }}</li>
-            }
-          </ul>
-        }
+      @if (r.warnings.length > 0) {
+        <p class="rotulo separador">Avisos</p>
+        <ul class="problemas">
+          @for (p of r.warnings; track $index) {
+            <li class="prob prob--warn"><span class="campo">{{ p.field }}</span>{{ p.message }}</li>
+          }
+        </ul>
       }
-    </div>
+    }
   `,
   styles: `
-    .cabecera { margin: 18px 0 18px; }
+    .cabecera { margin: 0 0 8px; }
     .cabecera .rotulo { color: var(--sepia-claro); }
-    .cabecera h1 { font-size: 28px; color: var(--pergamino); margin-top: 4px; }
     .intro { color: var(--sepia-claro); font-style: italic; margin: 8px 0 0; }
 
     .separador { margin: 24px 0 10px; color: var(--sepia); }
@@ -180,9 +173,7 @@ const PLANTILLA = `{
     .estado { font-style: italic; color: var(--sepia-claro); padding: 12px 0; }
   `,
 })
-export class DmPage implements OnInit {
-
-  readonly personajeId = input.required<string>();
+export class EncargosPanel implements OnInit {
 
   private readonly juego = inject(JuegoService);
 

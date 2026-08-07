@@ -106,6 +106,29 @@ export class JuegoService {
     return this.http.post<ChronicleEntry[]>('/api/cronica', entrada);
   }
 
+  // --- Crónica: panel de administración (solo DM) ---
+  // Devuelven la lista SIN censurar, para poder gestionar hasta lo sellado.
+
+  /** Lista completa para gestionar (sin censura). */
+  cronicaAdmin(): Observable<ChronicleEntry[]> {
+    return this.http.get<ChronicleEntry[]>('/api/cronica/admin');
+  }
+
+  /** Crear una entrada desde el panel. */
+  crearCronica(entrada: ChronicleCreate): Observable<ChronicleEntry[]> {
+    return this.http.post<ChronicleEntry[]>('/api/cronica/admin', entrada);
+  }
+
+  /** Editar una entrada existente. */
+  editarCronica(id: string, entrada: ChronicleCreate): Observable<ChronicleEntry[]> {
+    return this.http.put<ChronicleEntry[]>(`/api/cronica/admin/${id}`, entrada);
+  }
+
+  /** Eliminar una entrada. */
+  eliminarCronica(id: string): Observable<ChronicleEntry[]> {
+    return this.http.delete<ChronicleEntry[]>(`/api/cronica/admin/${id}`);
+  }
+
   // --- Inventario (bolsa) ---
 
   inventario(personajeId: string): Observable<Inventory> {
