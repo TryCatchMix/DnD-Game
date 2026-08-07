@@ -22,6 +22,15 @@ export class AuthService {
   readonly rol = signal<string | null>(null);
 
   /**
+   * Hay una sesión abierta en esta pestaña. En web el refresh token vive en
+   * una cookie httpOnly invisible para el JS, así que no podemos preguntar
+   * «¿tengo token?»; en su lugar recordamos si abrimos sesión (login o un
+   * refresco con éxito). El interceptor lo usa para decidir si merece la pena
+   * intentar un refresco ante un 401.
+   */
+  readonly sesionActiva = signal(false);
+
+  /**
    * EL REFRESCO EN VUELO. Esta única variable es la razón de ser de esta clase.
    *
    * El backend rota los refresh tokens: cada refresco quema el anterior, y si
@@ -42,15 +51,34 @@ export class AuthService {
 
   login(email: string, password: string): Observable<TokenResponse> {
     return this.http
-      .post<TokenResponse>('/api/auth/login', { email, password })
+      .post<TokenResponse>('/api/auth/login', { email, password }, this.opcionesAuth())
       .pipe(tap(t => this.abrirSesion(t)));
   }
 
   /** Alta de cuenta nueva. Deja la sesión iniciada, igual que login. */
   register(datos: RegisterRequest): Observable<TokenResponse> {
     return this.http
-      .post<TokenResponse>('/api/auth/register', datos)
+      .post<TokenResponse>('/api/auth/register', datos, this.opcionesAuth())
       .pipe(tap(t => this.abrirSesion(t)));
+  }
+
+  /**
+   * Opciones comunes de las llamadas de autenticación:
+   *  - X-Client-Platform le dice al backend si somos web (cookie httpOnly para
+   *    el refresh token) o nativo (token en el cuerpo, como siempre).
+   *  - withCredentials para que la cookie viaje en las peticiones a /api/auth.
+   */
+  private opcionesAuth() {
+    return {
+      headers: { 'X-Client-Platform': this.store.esNativo ? 'native' : 'web' },
+      withCredentials: true,
+    };
+  }
+
+  /** ¿Merece la pena intentar un refresco? Nativo: si hay token guardado.
+   *  Web: si teníamos sesión abierta (la cookie httpOnly no se puede consultar). */
+  puedeRefrescar(): boolean {
+    return this.store.esNativo ? !!this.store.refreshToken() : this.sesionActiva();
   }
 
   /**
@@ -62,15 +90,29 @@ export class AuthService {
    * cuando resuelve, o hay sesión (access token en memoria) o no la hay.
    */
   async restaurarSesion(): Promise<boolean> {
-    const guardado = await this.store.restaurar();
-    if (!guardado) return false;
+    if (this.store.esNativo) {
+      const guardado = await this.store.restaurar();
+      if (!guardado) return false;
+      try {
+        // timeout para no colgar el arranque si el móvil está sin cobertura.
+        await firstValueFrom(this.refrescar().pipe(timeout(6000)));
+        return true;
+      } catch {
+        // Si el token estaba caducado o quemado, refrescar() ya limpió la sesión
+        // (y el almacenamiento). Un timeout deja el token para el próximo intento.
+        return false;
+      }
+    }
+
+    // WEB: la sesión, si la hay, vive en la cookie httpOnly. Intentamos
+    // canjearla por un access token. Si no hay cookie (visitante nuevo o
+    // sesión caducada), el backend responde 401 y arrancamos sin sesión, en
+    // silencio: nada de «tu sesión ha caducado» a quien nunca entró.
     try {
-      // timeout para no colgar el arranque si el móvil está sin cobertura.
       await firstValueFrom(this.refrescar().pipe(timeout(6000)));
       return true;
     } catch {
-      // Si el token estaba caducado o quemado, refrescar() ya limpió la sesión
-      // (y el almacenamiento). Un timeout deja el token para el próximo intento.
+      this.avisoDeSesion.set(null);
       return false;
     }
   }
@@ -80,6 +122,7 @@ export class AuthService {
     this.store.save(t);
     this.avisoDeSesion.set(null);
     this.rol.set(t.role ?? null);
+    this.sesionActiva.set(true);
     this.programarRefresco(t.expiresIn);
   }
 
@@ -90,15 +133,20 @@ export class AuthService {
   refrescar(): Observable<string> {
     if (this.refrescoEnVuelo) return this.refrescoEnVuelo;
 
+    // Nativo: el token va en el cuerpo y debe existir. Web: el token viaja en
+    // la cookie httpOnly, así que mandamos el cuerpo vacío y deja que el
+    // backend lo lea (o responda 401 si no hay cookie).
     const refreshToken = this.store.refreshToken();
-    if (!refreshToken) return throwError(() => new Error('Sin sesión'));
+    if (this.store.esNativo && !refreshToken) return throwError(() => new Error('Sin sesión'));
+    const cuerpo = this.store.esNativo ? { refreshToken } : {};
 
     this.refrescoEnVuelo = this.http
-      .post<TokenResponse>('/api/auth/refresh', { refreshToken })
+      .post<TokenResponse>('/api/auth/refresh', cuerpo, this.opcionesAuth())
       .pipe(
         tap(t => {
           this.store.save(t);
           this.rol.set(t.role ?? null);
+          this.sesionActiva.set(true);
           this.programarRefresco(t.expiresIn);
         }),
         map(t => t.accessToken),
@@ -123,14 +171,14 @@ export class AuthService {
   }
 
   logout(): void {
+    // No esperamos la respuesta: el cierre local es lo que le importa al
+    // jugador. En nativo mandamos el token del cuerpo; en web el backend lee
+    // (y borra) la cookie httpOnly. Si la petición falla, el token caduca solo.
     const refreshToken = this.store.refreshToken();
-    if (refreshToken) {
-      // No esperamos la respuesta: el cierre local es lo que le importa al
-      // jugador, y si la petición falla el token caduca solo en 30 días.
-      this.http.post('/api/auth/logout', { refreshToken }).subscribe({
-        error: () => { /* da igual */ },
-      });
-    }
+    const cuerpo = this.store.esNativo ? { refreshToken } : {};
+    this.http.post('/api/auth/logout', cuerpo, this.opcionesAuth()).subscribe({
+      error: () => { /* da igual */ },
+    });
     this.cerrarSesionLocal(null);
   }
 
@@ -138,6 +186,7 @@ export class AuthService {
     this.cancelarRefrescoProgramado();
     this.store.clear();
     this.rol.set(null);
+    this.sesionActiva.set(false);
     this.avisoDeSesion.set(aviso);
     void this.router.navigate(['/entrar']);
   }
@@ -160,7 +209,7 @@ export class AuthService {
     this.refrescoProgramado = setTimeout(() => {
       this.refrescoProgramado = null;
       // Sin sesión no hay nada que renovar; si falla, refrescar() ya cierra.
-      if (this.store.refreshToken()) this.refrescar().subscribe({ error: () => {} });
+      if (this.puedeRefrescar()) this.refrescar().subscribe({ error: () => {} });
     }, margen * 1000);
   }
 

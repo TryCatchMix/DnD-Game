@@ -16,6 +16,13 @@ public class JwtProperties {
     private long accessTtlSeconds = 900;
     private int refreshTtlDays = 30;
 
+    /**
+     * Marca Secure en la cookie del refresh token de la web. En producción
+     * (HTTPS) debe ser true; el perfil dev la pone en false para poder probar
+     * en http://localhost sin que el navegador descarte la cookie.
+     */
+    private boolean cookieSecure = true;
+
     @PostConstruct
     void check() {
         if (secret == null || secret.getBytes(StandardCharsets.UTF_8).length < 32) {
@@ -33,4 +40,7 @@ public class JwtProperties {
 
     public int getRefreshTtlDays() { return refreshTtlDays; }
     public void setRefreshTtlDays(int refreshTtlDays) { this.refreshTtlDays = refreshTtlDays; }
+
+    public boolean isCookieSecure() { return cookieSecure; }
+    public void setCookieSecure(boolean cookieSecure) { this.cookieSecure = cookieSecure; }
 }

@@ -27,12 +27,19 @@ export class TokenStore {
   readonly accessToken = this._access.asReadonly();
   readonly refreshToken = this._refresh.asReadonly();
 
+  /**
+   * En nativo la sesión se persiste aquí (Preferences) y el refresh token
+   * viaja en el cuerpo. En web el refresh token vive en una cookie httpOnly
+   * que gestiona el backend: este store no lo ve ni lo guarda.
+   */
+  readonly esNativo = Capacitor.isNativePlatform();
+
   /** Solo la app nativa persiste el refresh token. */
-  private readonly persiste = Capacitor.isNativePlatform();
+  private readonly persiste = this.esNativo;
 
   save(t: TokenResponse): void {
     this._access.set(t.accessToken);
-    this._refresh.set(t.refreshToken);
+    this._refresh.set(t.refreshToken ?? null);
     if (this.persiste && t.refreshToken) {
       // Fire-and-forget: el guardado nativo no debe bloquear el login.
       void Preferences.set({ key: CLAVE_REFRESH, value: t.refreshToken });

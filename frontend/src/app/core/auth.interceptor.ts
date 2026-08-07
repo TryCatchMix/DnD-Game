@@ -30,7 +30,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(peticion).pipe(
     catchError((err: HttpErrorResponse) => {
-      if (err.status !== 401 || !store.refreshToken()) return throwError(() => err);
+      if (err.status !== 401 || !auth.puedeRefrescar()) return throwError(() => err);
 
       // auth.refrescar() serializa: si ya hay uno en vuelo, se engancha a él.
       return auth.refrescar().pipe(

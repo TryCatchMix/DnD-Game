@@ -9,7 +9,9 @@
 /** Respuesta de /api/auth/login y /api/auth/refresh. */
 export interface TokenResponse {
   accessToken: string;
-  refreshToken: string;
+  /** Solo en la app nativa. En web el refresh token viaja en una cookie
+   *  httpOnly y el backend lo deja a null aquí. */
+  refreshToken?: string;
   /** Segundos de vida del access token. Útil para refrescar por adelantado. */
   expiresIn?: number;
   displayName?: string;
