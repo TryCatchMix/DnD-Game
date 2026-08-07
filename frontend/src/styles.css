@@ -31,6 +31,7 @@
   --display: 'IM Fell English', Georgia, serif;
   --cuerpo:  'EB Garamond', Georgia, serif;
   --dato:    'IBM Plex Mono', ui-monospace, monospace;
+  --gotica:  'UnifrakturMaguntia', 'IM Fell English', Georgia, serif;  /* rótulos tallados: letreros, no interfaz */
 
   --radio: 2px;       /* casi recto: esto son documentos, no botones de app */
 }

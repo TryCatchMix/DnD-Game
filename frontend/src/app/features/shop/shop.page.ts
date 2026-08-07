@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, input, signal } from '@angular/core';
 import { InventoryItem, Shop, ShopOffer } from '../../core/api.types';
 
 import { AuthService } from '../../core/auth.service';
@@ -106,12 +106,26 @@ const ICONO_CATEGORIA: Record<string, string> = {
 };
 
 /**
+ * Lo que se lee bajo la escena mientras el tendero espera. Va rotando para que
+ * el mostrador no se quede quieto del todo si el cliente tarda en decidirse.
+ */
+const FRASES_TENDERO = [
+  'El enano cuenta la plata sin levantar la vista.',
+  'Se atusa la barba y espera.',
+  'No tiene prisa. Lleva ochenta años tras ese mostrador.',
+];
+
+/**
  * Pantalla 06: la tienda.
  *
  * El mostrador es una vitrina: cada artículo va en su tarjeta con su icono,
  * y arriba está lo que gobierna la compra (el monedero, la búsqueda y los
  * gremios de mercancía). Lo que llevas encima se lee abajo en una fila corta,
  * porque vender es un gesto de repaso, no de exploración.
+ *
+ * Coronando la pantalla está la escena: un grabado animado del tendero enano
+ * tras el mostrador. Es decoración, no interfaz — no hay nada que pulsar en
+ * ella —, pero reacciona a la compra levantando la jarra.
  */
 @Component({
   selector: 'arc-shop',
@@ -121,12 +135,202 @@ const ICONO_CATEGORIA: Record<string, string> = {
 
     <div class="contenedor contenedor--tienda">
 
+      <!-- ============ LA ESCENA: EL TENDERO ============ -->
+      <figure class="escena" [class.escena--brindis-a]="brindis() > 0 && brindis() % 2 === 1"
+                             [class.escena--brindis-b]="brindis() > 0 && brindis() % 2 === 0">
+        <!-- Los colores son los de la tinta y el pergamino (var(--tinta) y
+             var(--pergamino)); van literales porque los atributos SVG no
+             admiten var(). -->
+        <svg class="escena-lienzo" viewBox="0 0 1000 300"
+             role="img" aria-label="El tendero enano espera tras el mostrador">
+          <defs>
+            <pattern id="tramaDiag" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+              <line x1="0" y1="0" x2="0" y2="7" stroke="#2b2117" stroke-width="1" opacity=".55" />
+            </pattern>
+            <pattern id="tramaFina" width="4.5" height="4.5" patternUnits="userSpaceOnUse" patternTransform="rotate(-40)">
+              <line x1="0" y1="0" x2="0" y2="4.5" stroke="#2b2117" stroke-width=".8" opacity=".16" />
+            </pattern>
+            <pattern id="tramaBarba" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)">
+              <line x1="0" y1="0" x2="0" y2="9" stroke="#2b2117" stroke-width="1.1" opacity=".55" />
+            </pattern>
+            <clipPath id="tras"><rect x="0" y="0" width="1000" height="238" /></clipPath>
+          </defs>
+
+          <rect x="0" y="0" width="1000" height="238" fill="#efe4cd" />
+          <rect x="0" y="0" width="1000" height="238" fill="url(#tramaFina)" />
+
+          <!-- La trastienda: anaqueles, barriles y el farol que se mece --><g clip-path="url(#tras)" fill="none" stroke="#2b2117" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M40 78h380M580 78h380M40 150h300M660 150h300" stroke-width="2.4" />
+            <path d="M40 82v6M418 82v6M582 82v6M958 82v6M40 154v6M338 154v6M662 154v6M958 154v6" />
+
+            <g>
+              <path d="M78 34h120v44H78z" fill="url(#tramaDiag)" />
+              <path d="M78 34c0-9 120-9 120 0M78 78c0-9 120-9 120 0M108 34v44M138 34v44M168 34v44" />
+              <path d="M96 26h84l-6 8H102z" />
+            </g>
+            <g>
+              <path d="M232 44c-6 0-9 5-9 12v22h18V56c0-7-3-12-9-12z" fill="url(#tramaDiag)" />
+              <path d="M228 30h8v14h-8z" />
+              <path d="M262 50c-7 0-11 6-11 14v14h22V64c0-8-4-14-11-14z" />
+              <path d="M258 38h6v12h-6z" />
+              <path d="M292 56c-8 0-12 6-12 13v9h24v-9c0-7-4-13-12-13z" fill="url(#tramaDiag)" />
+              <path d="M288 44h8v12h-8z" />
+            </g>
+            <g>
+              <path d="M340 118h58v32h-58z" fill="url(#tramaDiag)" />
+              <path d="M340 126h58M340 142h58" />
+              <path d="M300 130c-8 0-13 6-13 13v7h26v-7c0-7-5-13-13-13z" />
+              <path d="M296 120h8v10h-8z" />
+            </g>
+            <g>
+              <path d="M700 96h150v54H700z" fill="url(#tramaDiag)" />
+              <path d="M700 96c0-11 150-11 150 0M700 150c0-11 150-11 150 0M738 96v54M775 96v54M812 96v54" />
+              <path d="M700 118h150M700 128h150" stroke-width="1" />
+              <path d="M760 90h30l-4 6h-22z" />
+            </g>
+            <g>
+              <path d="M888 22c-9 0-14 6-14 15v28h28V37c0-9-5-15-14-15z" />
+              <path d="M882 6h12v16h-12z" />
+              <path d="M874 48h28" />
+              <path d="M918 34c-7 0-11 5-11 12v19h22V46c0-7-4-12-11-12z" fill="url(#tramaDiag)" />
+              <path d="M914 22h8v12h-8z" />
+            </g>
+            <g>
+              <path d="M700 168h40v22h-40zM748 168h40v22h-40zM796 168h40v22h-40z" stroke-width="1.2" />
+              <path d="M714 176h12M762 176h12M810 176h12" stroke-width="1" />
+            </g>
+
+            <g class="farol">
+              <path d="M604 0v26" />
+              <path d="M590 26h28l-4 8h-20z" />
+              <path d="M588 34h32v34h-32z" fill="url(#tramaDiag)" />
+              <path d="M588 68h32l-4 8h-24z" />
+              <path d="M598 42c0 8 6 10 6 16 0-6 6-8 6-16 0-6-4-8-6-12-2 4-6 6-6 12z" stroke-width="1.2" />
+            </g>
+          </g>
+
+          <!-- El enano: respira entero, y encima corren los gestos del bucle --><g class="tendero">
+            <g fill="#efe4cd" stroke="#2b2117" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M372 250c4-32 24-52 54-62l40-14 34 16 34-16 40 14c30 10 50 30 54 62z" />
+              <path d="M372 250c4-32 24-52 54-62l40-14 34 16 34-16 40 14c30 10 50 30 54 62z" fill="url(#tramaDiag)" stroke="none" />
+              <path d="M426 188c10 12 22 14 32 6 8 10 20 12 30 6M574 188c-10 12-22 14-32 6-8 10-20 12-30 6" fill="none" stroke-width="1.6" />
+              <path d="M414 214c14 6 22 18 24 36M586 214c-14 6-22 18-24 36" fill="none" stroke-width="1.2" />
+              <path d="M392 250c0-22 9-38 24-44 8 8 10 22 6 44z" stroke-width="2.2" />
+              <path d="M608 250c0-22-9-38-24-44-8 8-10 22-6 44z" stroke-width="2.2" />
+              <path d="M400 246c2-16 8-28 16-34M600 246c-2-16-8-28-16-34" fill="none" stroke-width="1.1" />
+              <path d="M452 196l96 44" fill="none" stroke-width="8" />
+              <path d="M452 196l96 44" fill="none" stroke="#efe4cd" stroke-width="4" />
+            </g>
+
+            <g class="cabeza">
+              <g fill="#efe4cd" stroke="#2b2117" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M454 106c0-30 20-48 46-48s46 18 46 48c0 20-6 36-18 46h-56c-12-10-18-26-18-46z" />
+                <path d="M448 102c-2-34 22-52 52-52s54 18 52 52c-14-14-30-20-52-20s-38 6-52 20z" fill="#2b2117" />
+                <path d="M448 102c14-10 30-14 52-14s38 4 52 14" fill="none" stroke-width="1.4" />
+                <path d="M456 110c-10-4-18 0-18 9s8 15 18 13" fill="#efe4cd" stroke-width="1.8" />
+                <path d="M544 110c10-4 18 0 18 9s-8 15-18 13" fill="#efe4cd" stroke-width="1.8" />
+                <path d="M450 118c-4 0-6 3-5 7M550 118c4 0 6 3 5 7" fill="none" stroke-width="1.1" />
+
+                <path class="cejas" d="M462 116c8-8 22-8 30 0M508 116c8-8 22-8 30 0" fill="none" stroke-width="4.4" />
+
+                <g class="ojos">
+                  <ellipse cx="477" cy="132" rx="8.5" ry="6.5" fill="#efe4cd" />
+                  <ellipse cx="523" cy="132" rx="8.5" ry="6.5" fill="#efe4cd" />
+                  <circle cx="478" cy="133" r="3" fill="#2b2117" stroke="none" />
+                  <circle cx="522" cy="133" r="3" fill="#2b2117" stroke="none" />
+                  <path d="M468 130c5-5 14-6 18-2M514 128c5-4 13-3 18 2" fill="none" stroke-width="1.8" />
+                </g>
+                <path d="M466 142c5 3 14 3 19-1M515 141c5 4 14 4 19 1" fill="none" stroke-width="1.1" />
+
+                <path d="M500 126c-7 14-13 24-13 31 0 8 6 13 13 13s13-5 13-13c0-7-6-17-13-31z" />
+                <path d="M493 155c-2 3-2 6 1 8M507 155c2 3 2 6-1 8" fill="none" stroke-width="1.2" />
+                <path d="M492 140c-3 5-4 10-3 14M508 140c3 5 4 10 3 14" fill="none" stroke-width="1" />
+
+                <!-- Barba y bigote son un solo contorno: baja por la mejilla,
+                     se abre bajo la nariz y sube por el otro lado. -->
+                <path d="M456 144C440 156 430 178 428 202C425 228 430 248 440 260L560 260C570 248 575 228 572 202C570 178 560 156 544 144C548 160 552 172 556 180C544 184 528 180 518 174C513 171 510 169 507 168C504 172 496 172 493 168C490 169 487 171 482 174C472 180 456 184 444 180C448 172 452 160 456 144Z" stroke-width="2.6" />
+                <path d="M456 144C440 156 430 178 428 202C425 228 430 248 440 260L560 260C570 248 575 228 572 202C570 178 560 156 544 144C548 160 552 172 556 180C544 184 528 180 518 174C513 171 510 169 507 168C504 172 496 172 493 168C490 169 487 171 482 174C472 180 456 184 444 180C448 172 452 160 456 144Z" fill="url(#tramaBarba)" stroke="none" />
+                <path d="M464 188c-4 24-3 48 4 72M536 188c4 24 3 48-4 72M484 194c-2 24-2 46 2 66M516 194c2 24 2 46-2 66M500 196v64" fill="none" stroke-width="1.2" />
+                <path d="M480 218c12 6 28 6 40 0" fill="none" stroke-width="1.4" />
+                <path d="M486 176c-8 3-17 4-25 3M514 176c8 3 17 4 25 3M446 168c-6 8-11 18-13 30M554 168c6 8 11 18 13 30" fill="none" stroke-width="1.1" />
+              </g>
+            </g>
+
+            <!-- Brazo derecho: se atusa la barba --><g class="brazo-barba">
+              <path d="M596 244c14-20 12-38-4-50" fill="none" stroke="#2b2117" stroke-width="20" stroke-linecap="round" />
+              <path d="M596 244c14-20 12-38-4-50" fill="none" stroke="#efe4cd" stroke-width="14" stroke-linecap="round" />
+              <path d="M596 232c8-12 8-22-2-30" fill="none" stroke="#2b2117" stroke-width="1.1" />
+              <path d="M594 173c9 1 16 8 16 16 0 9-8 16-18 16-10 0-17-7-17-15 0-8 5-14 13-16z" fill="#efe4cd" stroke="#2b2117" stroke-width="2" />
+              <path d="M580 180c-6-1-10 3-10 8 0 5 4 8 9 8" fill="#efe4cd" stroke="#2b2117" stroke-width="2" />
+              <path d="M604 180c-5-2-10-1-13 1M605 189c-5-2-10-1-13 1M602 197c-4-2-8-1-11 1" fill="none" stroke="#2b2117" stroke-width="1.1" />
+              <path d="M592 206c-6 2-11 1-15-2" fill="none" stroke="#2b2117" stroke-width="1.6" />
+            </g>
+
+            <!-- Brazo izquierdo: cuenta y hace saltar una moneda --><g class="brazo-moneda">
+              <path d="M404 244c-14-18-12-34 2-46" fill="none" stroke="#2b2117" stroke-width="20" stroke-linecap="round" />
+              <path d="M404 244c-14-18-12-34 2-46" fill="none" stroke="#efe4cd" stroke-width="14" stroke-linecap="round" />
+              <path d="M404 232c-8-12-6-20 2-28" fill="none" stroke="#2b2117" stroke-width="1.1" />
+              <path d="M402 175c-9 1-16 8-16 16 0 9 8 16 18 16 10 0 17-7 17-15 0-8-5-14-13-16z" fill="#efe4cd" stroke="#2b2117" stroke-width="2" />
+              <path d="M416 182c6-1 10 3 10 8 0 5-4 8-9 8" fill="#efe4cd" stroke="#2b2117" stroke-width="2" />
+              <path d="M392 182c5-2 10-1 13 1M391 191c5-2 10-1 13 1M394 199c4-2 8-1 11 1" fill="none" stroke="#2b2117" stroke-width="1.1" />
+              <path d="M404 208c6 2 11 1 15-2" fill="none" stroke="#2b2117" stroke-width="1.6" />
+              <g class="pieza">
+                <circle cx="408" cy="182" r="7" fill="#efe4cd" stroke="#2b2117" stroke-width="1.6" />
+                <circle cx="408" cy="182" r="2.6" fill="none" stroke="#2b2117" stroke-width="1" />
+              </g>
+            </g>
+          </g>
+
+          <!-- Lo que hay sobre el mostrador, y el mostrador --><g fill="none" stroke="#2b2117" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <g>
+              <ellipse cx="344" cy="228" rx="17" ry="5.5" fill="#efe4cd" />
+              <path d="M327 228v-6M361 228v-6" />
+              <ellipse cx="344" cy="222" rx="17" ry="5.5" fill="#efe4cd" />
+              <path d="M327 222v-6M361 222v-6" />
+              <ellipse cx="344" cy="216" rx="17" ry="5.5" fill="#efe4cd" />
+              <circle cx="344" cy="216" r="4" stroke-width="1" />
+              <ellipse cx="300" cy="230" rx="15" ry="5" fill="#efe4cd" />
+              <path d="M285 230v-5M315 230v-5" />
+              <ellipse cx="300" cy="225" rx="15" ry="5" fill="#efe4cd" />
+              <circle cx="300" cy="225" r="3.5" stroke-width="1" />
+            </g>
+
+            <g class="jarra">
+              <path d="M654 190h44v44a10 10 0 01-10 10h-24a10 10 0 01-10-10z" fill="#efe4cd" />
+              <path d="M654 190h44v44a10 10 0 01-10 10h-24a10 10 0 01-10-10z" fill="url(#tramaDiag)" stroke="none" />
+              <path d="M698 200h11a11 11 0 010 22h-11" />
+              <path d="M654 202h44" />
+              <path d="M660 184c4-5 10-5 14 0s10 5 14 0 8-4 10-1" stroke-width="1.2" />
+            </g>
+
+            <rect x="0" y="236" width="1000" height="12" fill="#efe4cd" />
+            <path d="M0 236h1000M0 248h1000" stroke-width="2.4" />
+            <rect x="0" y="248" width="1000" height="52" fill="#e8dcc0" />
+            <rect x="0" y="248" width="1000" height="52" fill="url(#tramaDiag)" stroke="none" />
+            <path d="M0 268h1000" stroke-width="1" />
+            <path d="M120 248v52M124 248v52M420 248v52M424 248v52M700 248v52M704 248v52M880 248v52" stroke-width="1" />
+            <path d="M40 258c30 6 70 6 100 0M520 288c40 5 90 5 130 0M760 258c30 5 70 5 100 0" stroke-width="1" />
+          </g>
+
+          <g class="salud">
+            <text x="500" y="46" text-anchor="middle">¡SALUD!</text>
+          </g>
+        </svg>
+
+        <figcaption class="escena-pie">
+          <span class="escena-tendero">
+            <span class="bazar-nombre">{{ tendero }}</span>
+            <span class="rotulo">· tras el mostrador</span>
+          </span>
+          <span class="escena-frase">{{ frase() }}</span>
+        </figcaption>
+      </figure>
+
       <!-- ============ CABECERA ============ -->
       <header class="cabecera">
         <div class="cab-alto">
           <div>
-            <p class="rotulo">Mercado · Dorakan</p>
-            <h1>La tienda</h1>
+            <p class="bazar-nombre">El Bazar de Retán</p>
           </div>
           @if (tienda(); as t) {
             <div class="monedero" title="Tu monedero">
@@ -319,11 +523,142 @@ const ICONO_CATEGORIA: Record<string, string> = {
   styles: `
     .contenedor--tienda { max-width: 1040px; }
 
+    /* ---------------- la escena del tendero ---------------- */
+    /* El bucle entero dura --ritmo: los gestos se reparten dentro de ese
+       compás, así que cambiando una sola variable el enano va más o menos
+       despacio sin que se descuadre nada. */
+    .escena {
+      --ritmo: 10s;
+      margin: 18px 0 20px; padding: 0; overflow: hidden;
+      border: 1px solid var(--linea-fuerte); border-radius: var(--radio);
+      background: var(--pergamino-hueso);
+      box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 12px 28px rgba(0,0,0,.45);
+    }
+    .escena-lienzo { display: block; width: 100%; height: auto; color: var(--tinta); }
+    .escena-pie {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      padding: 9px 14px; border-top: 1px dashed var(--linea); background: var(--pergamino-hueso);
+    }
+    .escena-pie .rotulo { color: var(--sepia); }
+    .escena-frase { font-style: italic; font-size: 14px; color: var(--sepia-hondo); }
+
+    /* El nombre del tendero lleva el letrero; el "tras el mostrador" sigue
+       siendo metadato y se queda en versalita. */
+    .escena-tendero { display: inline-flex; align-items: baseline; gap: 7px; flex-wrap: wrap; }
+    .escena-tendero .bazar-nombre {
+      /* La tira del pie es estrecha y el fondo es claro: mismo letrero, más
+         contenido de tamaño y sin el halo que sólo funciona sobre la noche. */
+      font-size: 19px;
+      text-shadow: 0 1px 0 rgba(255,255,255,.4);
+    }
+
+    /* Los gestos del bucle ocioso. */
+    .tendero { animation: arcRespira 4.2s ease-in-out infinite; }
+    .cabeza { transform-origin: 500px 176px; animation: arcCabeza var(--ritmo) ease-in-out infinite; }
+    .cejas { transform-origin: 500px 116px; animation: arcCeja var(--ritmo) ease-in-out infinite; }
+    .ojos { transform-origin: 500px 132px; animation: arcParpadeo var(--ritmo) ease-in-out infinite; }
+    .brazo-barba { transform-origin: 596px 244px; animation: arcBarba var(--ritmo) ease-in-out infinite; }
+    .brazo-moneda { transform-origin: 404px 244px; animation: arcMoneda var(--ritmo) ease-in-out infinite; }
+    .pieza { transform-origin: 408px 190px; animation: arcPieza var(--ritmo) ease-in-out infinite; }
+    .farol { transform-origin: 604px 0; animation: arcFarol 5.6s ease-in-out infinite; }
+
+    /* El brindis de la compra. Dos nombres de animación alternos: cambiar de
+       nombre es lo que reinicia el gesto en compras seguidas. */
+    .jarra { transform-origin: 676px 244px; }
+    .salud text {
+      opacity: 0; fill: var(--vino);
+      font-family: var(--dato); font-size: 17px; letter-spacing: 6px;
+    }
+    .escena--brindis-a .jarra { animation: arcBrindisA 2.2s cubic-bezier(.34,1.4,.5,1) 1; }
+    .escena--brindis-b .jarra { animation: arcBrindisB 2.2s cubic-bezier(.34,1.4,.5,1) 1; }
+    .escena--brindis-a .salud text { animation: arcSaludA 2.2s ease-out 1; }
+    .escena--brindis-b .salud text { animation: arcSaludB 2.2s ease-out 1; }
+
+    @keyframes arcRespira { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes arcBarba {
+      0% { transform: rotate(0deg); }   3% { transform: rotate(-34deg); }
+      9% { transform: rotate(-13deg); } 15% { transform: rotate(-34deg); }
+      21% { transform: rotate(-11deg); } 27% { transform: rotate(-30deg); }
+      33% { transform: rotate(-2deg); } 38%, 100% { transform: rotate(0deg); }
+    }
+    @keyframes arcMoneda {
+      0%, 42% { transform: rotate(0deg); } 47% { transform: rotate(-19deg); }
+      53% { transform: rotate(-13deg); } 59% { transform: rotate(-20deg); }
+      65% { transform: rotate(-13deg); } 71% { transform: rotate(-20deg); }
+      77% { transform: rotate(-14deg); } 84%, 100% { transform: rotate(0deg); }
+    }
+    @keyframes arcPieza {
+      0%, 50% { opacity: 0; transform: translate(0,0) rotate(0deg); }
+      53% { opacity: 1; transform: translate(2px,-14px) rotate(40deg); }
+      59% { opacity: 1; transform: translate(8px,2px) rotate(120deg); }
+      60%, 65% { opacity: 0; transform: translate(0,0) rotate(0deg); }
+      68% { opacity: 1; transform: translate(3px,-16px) rotate(60deg); }
+      74% { opacity: 1; transform: translate(9px,2px) rotate(150deg); }
+      75%, 100% { opacity: 0; transform: translate(0,0) rotate(0deg); }
+    }
+    @keyframes arcCabeza {
+      0%, 40% { transform: rotate(0deg); } 50% { transform: rotate(5deg) translateY(3px); }
+      76% { transform: rotate(5deg) translateY(3px); } 86%, 100% { transform: rotate(0deg); }
+    }
+    @keyframes arcParpadeo {
+      0%, 20.5%, 22.5%, 58%, 60%, 89%, 91%, 100% { transform: scaleY(1); }
+      21.5%, 59%, 90% { transform: scaleY(.08); }
+    }
+    @keyframes arcCeja {
+      0%, 44%, 54%, 100% { transform: translateY(0); }
+      47%, 51% { transform: translateY(-4px); }
+    }
+    @keyframes arcFarol { 0%, 100% { transform: rotate(2.6deg); } 50% { transform: rotate(-2.6deg); } }
+    @keyframes arcBrindisA {
+      0% { transform: translate(0,0) rotate(0deg); }
+      18% { transform: translate(-14px,-56px) rotate(-8deg); }
+      34% { transform: translate(-16px,-62px) rotate(-16deg); }
+      60% { transform: translate(-16px,-60px) rotate(-14deg); }
+      100% { transform: translate(0,0) rotate(0deg); }
+    }
+    @keyframes arcBrindisB {
+      0% { transform: translate(0,0) rotate(0deg); }
+      18% { transform: translate(-14px,-56px) rotate(-8deg); }
+      34% { transform: translate(-16px,-62px) rotate(-16deg); }
+      60% { transform: translate(-16px,-60px) rotate(-14deg); }
+      100% { transform: translate(0,0) rotate(0deg); }
+    }
+    @keyframes arcSaludA {
+      0% { opacity: 0; transform: translateY(6px); }
+      20%, 65% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-8px); }
+    }
+    @keyframes arcSaludB {
+      0% { opacity: 0; transform: translateY(6px); }
+      20%, 65% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-8px); }
+    }
+
+    /* Quien no quiera movimiento se queda con el grabado quieto. */
+    @media (prefers-reduced-motion: reduce) {
+      .escena *, .escena { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+    }
+
+    @media (max-width: 640px) { .escena { display: none; } }
+
     /* ---------------- cabecera ---------------- */
     .cabecera { margin: 18px 0 20px; padding-bottom: 14px; border-bottom: 1px solid var(--linea-noche, rgba(239,228,205,.18)); }
     .cab-alto { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
     .cabecera .rotulo { color: var(--sepia-claro); }
     .cabecera h1 { font-size: 34px; line-height: 1.1; margin-top: 4px; color: var(--pergamino); }
+
+    /* El nombre del bazar no es metadato: es el letrero colgado sobre la puerta.
+       Gótica en oro, engrosada a trazo porque la UnifrakturMaguntia no trae bold. */
+    .bazar-nombre {
+      font-family: var(--gotica);
+      font-size: clamp(22px, 6vw, 30px);
+      line-height: 1.05;
+      letter-spacing: .015em;
+      margin: 0;
+      color: var(--oro);
+      -webkit-text-stroke: .55px currentColor;
+      text-shadow: 0 1px 0 rgba(0,0,0,.6), 0 0 20px rgba(157,122,47,.28);
+    }
 
     /* El monedero manda en esta pantalla: se lee como una pieza acuñada. */
     .monedero {
@@ -453,7 +788,7 @@ const ICONO_CATEGORIA: Record<string, string> = {
     .estado--mal { color: #d98a7c; font-style: normal; }
   `,
 })
-export class ShopPage implements OnInit {
+export class ShopPage implements OnInit, OnDestroy {
 
   readonly personajeId = input.required<string>();
 
@@ -469,6 +804,16 @@ export class ShopPage implements OnInit {
 
   /** Solo el DM ve la trastienda y los botones de quitar. */
   readonly esDM = computed(() => this.auth.rol() === 'DM');
+
+  // --- la escena del tendero ---
+
+  /** El nombre que va bajo el grabado. */
+  readonly tendero = 'Retán';
+  /** Cuenta de brindis: su paridad elige la animación y así se reinicia. */
+  readonly brindis = signal(0);
+  private readonly fraseIdx = signal(0);
+  readonly frase = computed(() => FRASES_TENDERO[this.fraseIdx()]);
+  private rotarFrases?: ReturnType<typeof setInterval>;
 
   // --- filtros del mostrador (estado de interfaz, no del personaje) ---
   readonly busca = signal('');
@@ -591,6 +936,13 @@ export class ShopPage implements OnInit {
         this.error.set('No se ha podido abrir la tienda.');
       },
     });
+
+    this.rotarFrases = setInterval(
+      () => this.fraseIdx.set((this.fraseIdx() + 1) % FRASES_TENDERO.length), 9000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.rotarFrases);
   }
 
   comprar(o: ShopOffer): void {
@@ -598,7 +950,12 @@ export class ShopPage implements OnInit {
     this.ocupado.set(o.itemCode);
     this.error.set(null);
     this.juego.comprar(this.personajeId(), o.itemCode).subscribe({
-      next: t => { this.tienda.set(t); this.ocupado.set(null); },
+      next: t => {
+        this.tienda.set(t);
+        this.ocupado.set(null);
+        // El tendero levanta la jarra: solo cuando la compra ha cuajado.
+        this.brindis.set(this.brindis() + 1);
+      },
       error: err => {
         this.ocupado.set(null);
         this.error.set(err?.error?.message ?? 'No se ha podido comprar.');
