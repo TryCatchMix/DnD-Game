@@ -32,6 +32,8 @@ import { AuthService } from '../core/auth.service';
           <a class="tab tab--dm" [routerLink]="['/personajes', personajeId(), 'admin']"
              routerLinkActive="activa">Admin (DM)</a>
         }
+        <a class="tab tab--ajuste" [routerLink]="['/personajes', personajeId(), 'ajustes']"
+           routerLinkActive="activa">Diseño</a>
         <a class="tab tab--fin" [routerLink]="['/personajes']">Cambiar de personaje</a>
       </div>
     </nav>
@@ -80,6 +82,8 @@ import { AuthService } from '../core/auth.service';
     .tab--nota.activa { color: #c69a3d; border-color: rgba(157, 122, 47, .5); }
     .tab--casa { color: var(--musgo); }
     .tab--casa.activa { color: #6a8a4f; border-color: rgba(76, 106, 55, .5); }
+    .tab--ajuste { color: var(--sepia); }
+    .tab--ajuste.activa { color: var(--sepia-claro); }
     .tab--fin { margin-left: auto; }
   `,
 })

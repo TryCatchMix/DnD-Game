@@ -70,6 +70,11 @@ export const routes: Routes = [
       import('./features/cronica/cronica.page').then(m => m.CronicaPage),
   },
   {
+    path: 'personajes/:personajeId/ajustes',
+    loadComponent: () =>
+      import('./features/ajustes/ajustes.page').then(m => m.AjustesPage),
+  },
+  {
     path: 'personajes/:personajeId/tablon',
     loadComponent: () =>
       import('./features/board/board.page').then(m => m.BoardPage),

@@ -7,6 +7,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/auth.interceptor';
 import { AuthService } from './core/auth.service';
+import { DisenoService } from './core/diseno/diseno.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,5 +24,9 @@ export const appConfig: ApplicationConfig = {
     // Al arrancar, intenta restaurar la sesión guardada (solo hace algo en la
     // app nativa; en web resuelve al instante sin sesión).
     provideAppInitializer(() => inject(AuthService).restaurarSesion()),
+
+    // Y el diseño elegido para cada pantalla, antes de la primera pintada: así
+    // no se ve un instante el diseño de fábrica antes de cambiar al elegido.
+    provideAppInitializer(() => inject(DisenoService).restaurar()),
   ],
 };

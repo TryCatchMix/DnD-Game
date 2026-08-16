@@ -155,3 +155,15 @@ versalitas de tracking ancho en IBM Plex Mono para los metadatos; IM Fell
 English para títulos, EB Garamond para narrativa. El **lacre** es el elemento con
 el que se recuerda la interfaz: su color cuenta el desenlace de una tirada antes
 de leer nada —vino para desastre, oro para éxito con coste, musgo para éxito.
+
+### Diseños intercambiables
+
+Una pantalla puede tener varias caras, y el jugador elige la suya en
+**Ajustes → Diseño** (`/personajes/:id/ajustes`). Hoy la ficha viene con dos:
+*Pergamino* (la hoja impresa de siempre, la de fábrica) y *Mesa de noche* (una
+sola columna sobre fondo oscuro, sin pestañas, pensada para el móvil en partida).
+
+El truco es que un diseño solo tiene plantilla y estilos: el estado y las cuentas
+viven en un store aparte (`features/ficha/ficha.store.ts`), así que añadir una
+hoja nueva no duplica ni una línea de lógica. Cómo hacerlo, en
+[`frontend/src/app/core/diseno/README.md`](frontend/src/app/core/diseno/README.md).
