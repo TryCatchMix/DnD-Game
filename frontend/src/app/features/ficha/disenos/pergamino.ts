@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 
 import { FichaEditor } from '../ficha-editor';
 import { FichaStore } from '../ficha.store';
+import { KgPipe } from '../../../shared/peso.pipe';
 
 /**
  * DISEÑO «PERGAMINO» — el de fábrica.
@@ -16,7 +17,7 @@ import { FichaStore } from '../ficha.store';
  */
 @Component({
   selector: 'arc-ficha-pergamino',
-  imports: [FormsModule, FichaEditor],
+  imports: [FormsModule, FichaEditor, KgPipe],
   template: `
     <div class="contenedor contenedor--hoja">
       @if (store.cargando()) {
@@ -255,7 +256,7 @@ import { FichaStore } from '../ficha.store';
             <div class="franja">
               <p class="rotulo titulo-panel">Bolsa</p>
               @if (store.inventario(); as inv) {
-                <span class="carga-total">Carga total · {{ inv.totalWeight }} lb @if (f.carga) { · {{ f.carga }} }</span>
+                <span class="carga-total">Carga total · {{ inv.totalWeight }} lb ({{ inv.totalWeight | kg }}) @if (f.carga) { · {{ f.carga }} }</span>
               }
             </div>
 
@@ -286,7 +287,7 @@ import { FichaStore } from '../ficha.store';
                         <span class="cant">{{ it.quantity }}</span>
                         <button type="button" (click)="store.ajustar(it, 1)" aria-label="Más">+</button>
                       </span>
-                      <span class="obj-peso">{{ it.weightLb }} lb/ud · <strong>{{ it.lineWeight }} lb</strong></span>
+                      <span class="obj-peso"><strong>{{ it.lineWeight }} lb ({{ it.lineWeight | kg }})</strong></span>
                       <button type="button" class="obj-quitar" (click)="store.eliminar(it)" aria-label="Quitar">✕</button>
                     </li>
                   }

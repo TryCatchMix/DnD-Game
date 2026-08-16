@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 
 import { FichaEditor } from '../ficha-editor';
 import { FichaStore } from '../ficha.store';
+import { KgPipe } from '../../../shared/peso.pipe';
 
 /**
  * DISEÑO «MESA DE NOCHE» — alternativa al pergamino.
@@ -17,7 +18,7 @@ import { FichaStore } from '../ficha.store';
  */
 @Component({
   selector: 'arc-ficha-mesa',
-  imports: [FormsModule, FichaEditor],
+  imports: [FormsModule, FichaEditor, KgPipe],
   template: `
     <div class="contenedor contenedor--mesa">
       @if (store.cargando()) {
@@ -127,7 +128,7 @@ import { FichaStore } from '../ficha.store';
             <div class="alto">
               <p class="rotulo">Bolsa</p>
               @if (store.inventario(); as inv) {
-                <span class="dato carga">{{ inv.totalWeight }} lb @if (f.carga) { · {{ f.carga }} }</span>
+                <span class="dato carga">{{ inv.totalWeight }} lb ({{ inv.totalWeight | kg }}) @if (f.carga) { · {{ f.carga }} }</span>
               }
             </div>
 
@@ -155,7 +156,7 @@ import { FichaStore } from '../ficha.store';
                         <span class="cant">{{ it.quantity }}</span>
                         <button type="button" (click)="store.ajustar(it, 1)" aria-label="Más">+</button>
                       </span>
-                      <span class="dato obj-peso">{{ it.lineWeight }} lb</span>
+                      <span class="dato obj-peso">{{ it.lineWeight }} lb ({{ it.lineWeight | kg }})</span>
                       <button type="button" class="obj-quitar" (click)="store.eliminar(it)" aria-label="Quitar">✕</button>
                     </li>
                   }
@@ -303,7 +304,7 @@ import { FichaStore } from '../ficha.store';
     .stepper button { width: 30px; height: 30px; border: 1px solid var(--linea-noche); background: rgba(239,228,205,.04); color: var(--pergamino); border-radius: var(--radio); font-size: 16px; line-height: 1; }
     .stepper button:hover { background: rgba(239,228,205,.1); }
     .stepper .cant { min-width: 26px; text-align: center; font-family: var(--dato); font-variant-numeric: tabular-nums; color: var(--pergamino); }
-    .obj-peso { flex: 0 0 62px; text-align: right; color: var(--sepia); white-space: nowrap; }
+    .obj-peso { flex: 0 0 118px; text-align: right; color: var(--sepia); white-space: nowrap; }
     .obj-quitar { flex: 0 0 auto; width: 28px; height: 28px; border: 1px solid rgba(143,46,34,.4); background: transparent; color: #d98a7c; border-radius: var(--radio); }
 
     /* ---------------- filiación y líneas ---------------- */

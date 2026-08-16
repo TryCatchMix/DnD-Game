@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 
 import { FichaEditor } from '../ficha-editor';
 import { FichaStore } from '../ficha.store';
+import { KgPipe } from '../../../shared/peso.pipe';
 
 /** Números romanos para el sello de nivel. Formato, no lógica: solo se pinta. */
 function romano(n: number): string {
@@ -30,7 +31,7 @@ function romano(n: number): string {
  */
 @Component({
   selector: 'arc-ficha-celeste',
-  imports: [FormsModule, FichaEditor],
+  imports: [FormsModule, FichaEditor, KgPipe],
   template: `
     <!-- El cielo cubre la pantalla entera, también por detrás de la barra. -->
     <div class="cielo" aria-hidden="true"></div>
@@ -320,7 +321,7 @@ function romano(n: number): string {
             <div class="franja">
               <p class="rotulo titulo-panel">Bolsa</p>
               @if (store.inventario(); as inv) {
-                <span class="carga-total">Carga total · {{ inv.totalWeight }} lb @if (f.carga) { · {{ f.carga }} }</span>
+                <span class="carga-total">Carga total · {{ inv.totalWeight }} lb ({{ inv.totalWeight | kg }}) @if (f.carga) { · {{ f.carga }} }</span>
               }
             </div>
 
@@ -351,7 +352,7 @@ function romano(n: number): string {
                         <span class="cant">{{ it.quantity }}</span>
                         <button type="button" (click)="store.ajustar(it, 1)" aria-label="Más">+</button>
                       </span>
-                      <span class="obj-peso">{{ it.weightLb }} lb/ud · <strong>{{ it.lineWeight }} lb</strong></span>
+                      <span class="obj-peso"><strong>{{ it.lineWeight }} lb ({{ it.lineWeight | kg }})</strong></span>
                       <button type="button" class="obj-quitar" (click)="store.eliminar(it)" aria-label="Quitar">✕</button>
                     </li>
                   }
