@@ -51,7 +51,7 @@ public class SecurityConfig {
                         "/api/auth/refresh", "/api/auth/logout").permitAll();
                 // Los endpoints de desarrollo solo existen y se abren en dev.
                 if (dev) reg.requestMatchers("/api/dev/**").permitAll();
-                reg.requestMatchers("/api/admin/**").hasRole("DM");
+                reg.requestMatchers("/api/admin/**", "/api/mesa/**").hasRole("DM");
                 reg.anyRequest().authenticated();
             })
             .exceptionHandling(e -> e.authenticationEntryPoint((req, res, ex) -> {

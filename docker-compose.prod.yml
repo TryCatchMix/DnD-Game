@@ -33,9 +33,16 @@ services:
       SPRING_DATASOURCE_USERNAME: archivos
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       ARCHIVOS_JWT_SECRET: ${ARCHIVOS_JWT_SECRET}
+      # El material de La Mesa (mapas, retratos, PDF) vive en disco, no en la BD.
+      ARCHIVOS_MESA_DIR: /var/archivos/mesa
+    volumes:
+      # Sin este volumen, cada `up --build` se llevaría por delante todo el
+      # material subido: las fichas seguirían en la BD y los ficheros no.
+      - mesa:/var/archivos/mesa
     # Solo escucha en localhost del VPS; nginx hace de portero hacia fuera.
     ports:
       - "127.0.0.1:8080:8080"
 
 volumes:
   pgdata:
+  mesa:

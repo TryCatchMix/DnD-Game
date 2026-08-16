@@ -1,6 +1,7 @@
 import { Component, ElementRef, effect, inject, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { ConjurosPanel } from '../conjuros-panel';
 import { FichaEditor } from '../ficha-editor';
 import { FichaStore } from '../ficha.store';
 import { KgPipe } from '../../../shared/peso.pipe';
@@ -17,7 +18,7 @@ import { KgPipe } from '../../../shared/peso.pipe';
  */
 @Component({
   selector: 'arc-ficha-pergamino',
-  imports: [FormsModule, FichaEditor, KgPipe],
+  imports: [FormsModule, FichaEditor, ConjurosPanel, KgPipe],
   template: `
     <div class="contenedor contenedor--hoja">
       @if (store.cargando()) {
@@ -81,6 +82,10 @@ import { KgPipe } from '../../../shared/peso.pipe';
             <button role="tab" class="pest" [class.activa]="store.vista() === 'habilidades'"
                     [attr.aria-selected]="store.vista() === 'habilidades'" (click)="store.vista.set('habilidades')">
               Habilidades <span class="cuenta">{{ f.skills.length }}</span>
+            </button>
+            <button role="tab" class="pest" [class.activa]="store.vista() === 'conjuros'"
+                    [attr.aria-selected]="store.vista() === 'conjuros'" (click)="store.vista.set('conjuros')">
+              Conjuros @if (store.totalPreparados(); as n) { <span class="cuenta">{{ n }}</span> }
             </button>
           </div>
         }
@@ -294,6 +299,17 @@ import { KgPipe } from '../../../shared/peso.pipe';
                 </ul>
               }
             }
+          </section>
+        }
+
+        <!-- ============ VISTA · CONJUROS ============ -->
+        @if (!store.editando() && store.vista() === 'conjuros') {
+          <section class="hoja panel">
+            <div class="franja">
+              <p class="rotulo titulo-panel">Conjuros preparados</p>
+              <span class="carga-total">{{ store.totalPreparados() }} preparados</span>
+            </div>
+            <arc-conjuros-panel />
           </section>
         }
 

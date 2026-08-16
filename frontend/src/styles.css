@@ -98,6 +98,10 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; margin: 0; }
   z-index: 1;
 }
 
+/* Las pantallas de trabajo del DM (La Mesa) necesitan ancho: son rejillas de
+   tarjetas, no documentos que se leen en columna. */
+.contenedor--ancho { max-width: 1180px; }
+
 /* ------------------------------------------------------------------ botones */
 
 button { font: inherit; cursor: pointer; }

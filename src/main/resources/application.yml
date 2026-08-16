@@ -18,8 +18,18 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+  servlet:
+    multipart:
+      # El material de La Mesa: mapas y PDF. El tope real lo pone MesaStorage
+      # (25 MB por archivo); esto es el corte del contenedor, un poco por encima.
+      max-file-size: 26MB
+      max-request-size: 30MB
 
 archivos:
+  # Dónde caen las imágenes y los PDF que sube el DM. En Docker, MÓNTALO COMO
+  # VOLUMEN: si no, el material se va al recrear el contenedor.
+  mesa:
+    dir: ${ARCHIVOS_MESA_DIR:data/mesa}
   jwt:
     # Sin valor por defecto a propósito: en prod DEBE venir de entorno y tener
     # al menos 32 bytes. El perfil dev pone uno para poder arrancar sin más.

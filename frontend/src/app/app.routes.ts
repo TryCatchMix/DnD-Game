@@ -50,6 +50,11 @@ export const routes: Routes = [
       import('./features/admin/admin.page').then(m => m.AdminPage),
   },
   {
+    path: 'personajes/:personajeId/mesa',
+    loadComponent: () =>
+      import('./features/mesa/mesa.page').then(m => m.MesaPage),
+  },
+  {
     path: 'personajes/:personajeId/habilidades',
     loadComponent: () =>
       import('./features/habilidades/habilidades.page').then(m => m.HabilidadesPage),

@@ -21,6 +21,10 @@ export class AuthService {
    *  hacer el DM, como revelar verdades en la crónica. */
   readonly rol = signal<string | null>(null);
 
+  /** Con qué nombre ha entrado. Se enseña al lado de «Cerrar sesión» para que
+   *  se vea de quién es la sesión que estás cerrando. */
+  readonly nombre = signal<string | null>(null);
+
   /**
    * Hay una sesión abierta en esta pestaña. En web el refresh token vive en
    * una cookie httpOnly invisible para el JS, así que no podemos preguntar
@@ -122,6 +126,7 @@ export class AuthService {
     this.store.save(t);
     this.avisoDeSesion.set(null);
     this.rol.set(t.role ?? null);
+    this.nombre.set(t.displayName ?? null);
     this.sesionActiva.set(true);
     this.programarRefresco(t.expiresIn);
   }
@@ -146,6 +151,7 @@ export class AuthService {
         tap(t => {
           this.store.save(t);
           this.rol.set(t.role ?? null);
+          this.nombre.set(t.displayName ?? null);
           this.sesionActiva.set(true);
           this.programarRefresco(t.expiresIn);
         }),
@@ -186,6 +192,7 @@ export class AuthService {
     this.cancelarRefrescoProgramado();
     this.store.clear();
     this.rol.set(null);
+    this.nombre.set(null);
     this.sesionActiva.set(false);
     this.avisoDeSesion.set(aviso);
     void this.router.navigate(['/entrar']);

@@ -1,6 +1,7 @@
 import { Component, ElementRef, effect, inject, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { ConjurosPanel } from '../conjuros-panel';
 import { FichaEditor } from '../ficha-editor';
 import { FichaStore } from '../ficha.store';
 import { KgPipe } from '../../../shared/peso.pipe';
@@ -31,7 +32,7 @@ function romano(n: number): string {
  */
 @Component({
   selector: 'arc-ficha-celeste',
-  imports: [FormsModule, FichaEditor, KgPipe],
+  imports: [FormsModule, FichaEditor, ConjurosPanel, KgPipe],
   template: `
     <!-- El cielo cubre la pantalla entera, también por detrás de la barra. -->
     <div class="cielo" aria-hidden="true"></div>
@@ -121,6 +122,10 @@ function romano(n: number): string {
             <button role="tab" class="pest" [class.activa]="store.vista() === 'habilidades'"
                     [attr.aria-selected]="store.vista() === 'habilidades'" (click)="store.vista.set('habilidades')">
               Habilidades <span class="cuenta">{{ f.skills.length }}</span>
+            </button>
+            <button role="tab" class="pest" [class.activa]="store.vista() === 'conjuros'"
+                    [attr.aria-selected]="store.vista() === 'conjuros'" (click)="store.vista.set('conjuros')">
+              Conjuros @if (store.totalPreparados(); as n) { <span class="cuenta">{{ n }}</span> }
             </button>
 
             <!-- Las fases de la luna: adorno, no dato. -->
@@ -359,6 +364,17 @@ function romano(n: number): string {
                 </ul>
               }
             }
+          </section>
+        }
+
+        <!-- ============ VISTA · CONJUROS ============ -->
+        @if (!store.editando() && store.vista() === 'conjuros') {
+          <section class="panel">
+            <div class="franja">
+              <p class="rotulo titulo-panel">Conjuros preparados</p>
+              <span class="carga-total">{{ store.totalPreparados() }} preparados</span>
+            </div>
+            <arc-conjuros-panel />
           </section>
         }
 

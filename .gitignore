@@ -21,6 +21,9 @@ frontend/android/local.properties
 frontend/android/app/src/main/assets/public/
 frontend/android/capacitor-cordova-android-plugins/
 
+# === Material subido por el DM en La Mesa (mapas, PDF) ===
+data/
+
 # === Secretos de producción (el .example SÍ se sube) ===
 .env
 !.env.prod.example

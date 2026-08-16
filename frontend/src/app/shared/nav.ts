@@ -13,7 +13,7 @@ import { AuthService } from '../core/auth.service';
   imports: [RouterLink, RouterLinkActive],
   template: `
     <nav class="barra">
-      <div class="interior">
+      <div class="interior" [class.ancha]="ancho()">
         <a class="tab" [routerLink]="['/personajes', personajeId(), 'tablon']"
            routerLinkActive="activa">Tablón</a>
         <a class="tab" [routerLink]="['/personajes', personajeId(), 'ficha']"
@@ -29,6 +29,8 @@ import { AuthService } from '../core/auth.service';
         <a class="tab tab--casa" [routerLink]="['/personajes', personajeId(), 'propiedades']"
            routerLinkActive="activa">Propiedades</a>
         @if (esDM()) {
+          <a class="tab tab--mesa" [routerLink]="['/personajes', personajeId(), 'mesa']"
+             routerLinkActive="activa">La Mesa</a>
           <a class="tab tab--dm" [routerLink]="['/personajes', personajeId(), 'admin']"
              routerLinkActive="activa">Admin (DM)</a>
         }
@@ -47,6 +49,7 @@ import { AuthService } from '../core/auth.service';
       backdrop-filter: blur(6px);
       border-bottom: 1px solid var(--linea-noche);
     }
+    .interior.ancha { max-width: 1180px; }
     .interior {
       max-width: 720px;
       margin: 0 auto;
@@ -74,6 +77,8 @@ import { AuthService } from '../core/auth.service';
     }
     .tab--oro { color: var(--oro); }
     .tab--oro.activa { color: #c69a3d; border-color: rgba(157, 122, 47, .5); }
+    .tab--mesa { color: var(--vino); }
+    .tab--mesa.activa { color: #c4614f; border-color: rgba(143, 46, 34, .55); }
     .tab--dm { color: var(--musgo); }
     .tab--dm.activa { color: #6a8a4f; border-color: rgba(76, 106, 55, .5); }
     .tab--arcano { color: #8a7bb0; }
@@ -89,6 +94,10 @@ import { AuthService } from '../core/auth.service';
 })
 export class NavBar {
   readonly personajeId = input.required<string>();
+
+  /** La Mesa usa el ancho completo; la barra tiene que acompañarla o el
+   *  contenido queda desalineado con sus propias pestañas. */
+  readonly ancho = input(false);
 
   private readonly auth = inject(AuthService);
   readonly esDM = computed(() => this.auth.rol() === 'DM');

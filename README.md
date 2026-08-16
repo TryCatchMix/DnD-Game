@@ -79,6 +79,7 @@ cd frontend && npm run check   # compila y valida plantillas (strictTemplates)
 | **Propiedades** | Comprar negocios (taberna, mina, puerto…), recaudar renta, mejorar y vender |
 | **Tablón / Escena** | Encargos con los bloqueados a la vista; escena con la tirada lacrada |
 | **Editor del DM** | Crear/validar/publicar encargos (`/api/admin/encargos`) |
+| **La Mesa** (DM) | Preparar partidas: tarjetas de misión con portada, guion por pasos y material (imágenes y PDF subidos al servidor) + modo mesa para jugar (`/api/mesa`) |
 | **Cuentas** | Registro público (`/registro`); cada jugador solo ve y edita sus personajes |
 
 ## Cuentas y roles
@@ -122,6 +123,35 @@ La economía de cada tipo (precios, renta, fórmula de mejora) vive en
 Endpoints en `/api/personajes/{id}/propiedades` (tabla `properties`, migración
 `V11`). Como todo lo del personaje, un jugador solo gestiona los suyos y el
 admin (DM) los de cualquiera.
+
+## La Mesa (preparar partidas, solo DM)
+
+Pestaña **La Mesa** (`/personajes/:id/mesa`, endpoints `/api/mesa/**`, migración
+`V15`). Es el escritorio del máster, no una pantalla de juego:
+
+- **Misiones**: una rejilla de tarjetas, cada una con su **portada**, su sello de
+  estado (idea → preparando → lista → jugada), sus etiquetas y lo que lleva
+  dentro ("3 láminas · 1 PDF · 5 pasos"). Crear, editar y eliminar desde la
+  propia tarjeta. El orden lo pone el servidor: lo que toca preparar antes sale
+  primero; lo ya jugado se apaga al final.
+- **Guion**: los pasos de la misión en orden, cada uno de un tipo (leer en voz
+  alta, escena, PNJ, botín, nota). Se reordenan con ↑ ↓. El texto de lectura va
+  destacado, como el recuadro de un módulo.
+- **Material**: imágenes y PDF **subidos al servidor** (arrastrar y soltar; 25 MB
+  por archivo; JPG/PNG/WEBP/GIF/PDF). Se ven a pantalla completa con el visor,
+  se pasa de una a otra con las flechas y cualquier imagen puede hacerse portada.
+- **Biblioteca**: todo lo subido, esté o no en una misión. Un mapa se reparte a
+  la misión que sea sin volver a subirlo, y al borrar una misión su material
+  vuelve aquí en vez de perderse.
+- **Modo mesa**: pantalla completa, letra grande, un paso cada vez con las
+  flechas y una tira de láminas para enseñar. Es lo que se usa *jugando*.
+
+Los ficheros van a **disco**, no a la base de datos: ruta en `archivos.mesa.dir`
+(`ARCHIVOS_MESA_DIR`, por defecto `data/mesa`). En producción está montado como
+volumen `mesa` en `docker-compose.prod.yml` — sin ese volumen, cada
+`up --build` se llevaría por delante todo el material subido. El nombre en disco
+lo genera el servidor (uuid + extensión del MIME); nada de lo que manda el
+navegador toca la ruta.
 
 ## App móvil (Android)
 

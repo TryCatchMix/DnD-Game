@@ -1,7 +1,9 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Ficha, Inventory, InventoryLine, SkillDetail } from '../../core/api.types';
+import {
+  DomainDetail, DomainSummary, Ficha, Inventory, InventoryLine, PreparedSpell, SkillDetail, Spell,
+} from '../../core/api.types';
 import { JuegoService } from '../../core/juego.service';
 
 export interface EditRow { name: string; keyAbility: string; ranks: number; miscMod: number; }
@@ -10,6 +12,7 @@ export interface EditModel {
   name: string; player: string; clazz: string; level: number; race: string;
   alignment: string; deity: string; size: string; age: string; sex: string;
   height: string; weight: string; campaign: string; location: string;
+  domain1: string; domain2: string;
   strScore: number; dexScore: number; conScore: number;
   intScore: number; wisScore: number; chaScore: number;
   hpCurrent: number; hpMax: number; acTotal: number; acTouch: number; acFlatFooted: number;
@@ -21,7 +24,7 @@ export interface EditModel {
 export const CARACTS = ['', 'FUE', 'DES', 'CON', 'INT', 'SAB', 'CAR'];
 
 /** Pestaña visible. Es estado de interfaz, no del personaje. */
-export type Vista = 'ficha' | 'bolsa' | 'habilidades';
+export type Vista = 'ficha' | 'bolsa' | 'habilidades' | 'conjuros';
 
 /**
  * Toda la ficha, sin una sola línea de HTML: estado, cuentas y llamadas al
@@ -74,6 +77,21 @@ export class FichaStore {
    */
   readonly itemAnadido = signal(0);
 
+  // --- conjuros preparados ---
+  readonly conjuros = signal<PreparedSpell[]>([]);
+  readonly errorConjuros = signal<string | null>(null);
+  /** Lo que se escribe en el buscador para preparar un conjuro nuevo. */
+  readonly buscaConjuro = signal('');
+  readonly resultados = signal<Spell[]>([]);
+  readonly buscandoConjuro = signal(false);
+  /** El conjuro cuyo detalle está desplegado (por nombre), o ''. */
+  readonly conjuroAbierto = signal('');
+
+  // --- dominios (clérigo) ---
+  readonly dominios = signal<DomainSummary[]>([]);
+  /** Detalle de los dominios elegidos, en el orden domain1, domain2. */
+  readonly misDominios = signal<DomainDetail[]>([]);
+
   // --- ajuste rápido de PG y vigor ---
   readonly ajustandoPg = signal(false);
   readonly ajustandoVigor = signal(false);
@@ -121,18 +139,46 @@ export class FichaStore {
     return q ? todas.filter(s => s.name.toLowerCase().includes(q)) : todas;
   });
 
+  /** Los conjuros preparados agrupados por nivel, que es como se leen en la
+   *  mesa ("los de 1.º", "los de 2.º"). */
+  readonly conjurosPorNivel = computed(() => {
+    const grupos = new Map<number, PreparedSpell[]>();
+    for (const c of this.conjuros()) {
+      const lista = grupos.get(c.level) ?? [];
+      lista.push(c);
+      grupos.set(c.level, lista);
+    }
+    return [...grupos.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map(([nivel, items]) => ({ nivel, items }));
+  });
+
+  /** Cuántos conjuros lleva preparados en total (contando repeticiones). */
+  readonly totalPreparados = computed(() =>
+    this.conjuros().reduce((n, c) => n + c.prepared, 0));
+
+  /** Solo el clérigo elige dominios; el resto no ve esa sección. */
+  readonly esClerigo = computed(() =>
+    (this.ficha()?.clazz ?? '').trim().toLowerCase().startsWith('cléri')
+    || (this.ficha()?.clazz ?? '').trim().toLowerCase().startsWith('cleri'));
+
   /** Lo llama la página al entrar, con el id de la URL. */
   iniciar(personajeId: string): void {
     if (this.personajeId() === personajeId) return;
     this.personajeId.set(personajeId);
     this.cargar();
     this.cargarInventario();
+    this.cargarConjuros();
   }
 
   private cargar(): void {
     this.cargando.set(true);
     this.juego.ficha(this.personajeId()).subscribe({
-      next: f => { this.ficha.set(f); this.cargando.set(false); },
+      next: f => {
+        this.ficha.set(f);
+        this.cargando.set(false);
+        this.cargarDominios(f);
+      },
       error: () => {
         this.cargando.set(false);
         this.error.set('No se ha podido abrir la ficha.');
@@ -148,6 +194,7 @@ export class FichaStore {
       name: f.name, player: f.player, clazz: f.clazz, level: f.level, race: f.race,
       alignment: f.alignment, deity: f.deity, size: f.size, age: f.age, sex: f.sex,
       height: f.height, weight: f.weight, campaign: f.campaign, location: f.location,
+      domain1: f.domain1 ?? '', domain2: f.domain2 ?? '',
       strScore: s('FUE'), dexScore: s('DES'), conScore: s('CON'),
       intScore: s('INT'), wisScore: s('SAB'), chaScore: s('CAR'),
       hpCurrent: f.hpCurrent, hpMax: f.hpMax, acTotal: f.acTotal, acTouch: f.acTouch, acFlatFooted: f.acFlatFooted,
@@ -163,6 +210,7 @@ export class FichaStore {
     this.purseCobre.set(cp % 10);
     this.errorEdit.set(null);
     this.editando.set(true);
+    if (this.esClerigo()) this.cargarCatalogoDominios();
   }
 
   anadirHabilidad(): void {
@@ -191,6 +239,7 @@ export class FichaStore {
         this.guardando.set(false);
         this.editando.set(false);
         this.edit = null;
+        this.cargarDominios(f);   // puede haber cambiado de dominios
       },
       error: err => {
         this.guardando.set(false);
@@ -295,6 +344,99 @@ export class FichaStore {
     this.juego.eliminarItem(this.personajeId(), it.id).subscribe({
       next: inv => this.inventario.set(inv),
       error: () => this.errorBolsa.set('No se ha podido quitar el objeto.'),
+    });
+  }
+
+  // --- conjuros preparados ---
+
+  private cargarConjuros(): void {
+    this.juego.conjuros(this.personajeId()).subscribe({
+      next: l => this.conjuros.set(l.items),
+      error: () => { /* secundario: no bloquea la ficha */ },
+    });
+  }
+
+  /**
+   * Busca en el grimorio para preparar. Pide al servidor los conjuros de la
+   * clase del personaje que casen con el texto; si no hay texto, no busca (la
+   * lista entera son ~500 y no aporta nada en un desplegable).
+   */
+  buscarConjuro(): void {
+    const q = this.buscaConjuro().trim();
+    if (q.length < 2) { this.resultados.set([]); return; }
+
+    this.buscandoConjuro.set(true);
+    const clase = this.ficha()?.clazz ?? '';
+    this.juego.hechizos(clase, q, 15).subscribe({
+      next: p => { this.resultados.set(p.items); this.buscandoConjuro.set(false); },
+      error: () => {
+        this.buscandoConjuro.set(false);
+        this.errorConjuros.set('No se ha podido buscar en el grimorio.');
+      },
+    });
+  }
+
+  /** Añade el conjuro a la lista preparada. Si ya estaba, suma una preparación. */
+  preparar(nombre: string): void {
+    this.errorConjuros.set(null);
+    this.juego.prepararConjuro(this.personajeId(), nombre).subscribe({
+      next: l => {
+        this.conjuros.set(l.items);
+        this.buscaConjuro.set('');
+        this.resultados.set([]);
+      },
+      error: err => this.errorConjuros.set(err?.error?.message ?? 'No se ha podido preparar.'),
+    });
+  }
+
+  /** +1 / −1 preparaciones. Al llegar a 0 el backend lo quita de la lista. */
+  ajustarConjuro(c: PreparedSpell, delta: number): void {
+    this.juego.fijarConjuro(this.personajeId(), c.id, c.prepared + delta).subscribe({
+      next: l => this.conjuros.set(l.items),
+      error: () => this.errorConjuros.set('No se ha podido cambiar la cantidad.'),
+    });
+  }
+
+  quitarConjuro(c: PreparedSpell): void {
+    this.juego.quitarConjuro(this.personajeId(), c.id).subscribe({
+      next: l => this.conjuros.set(l.items),
+      error: () => this.errorConjuros.set('No se ha podido quitar el conjuro.'),
+    });
+  }
+
+  /** Despliega o pliega el detalle de un conjuro preparado. */
+  alternarConjuro(nombre: string): void {
+    this.conjuroAbierto.update(a => (a === nombre ? '' : nombre));
+  }
+
+  // --- dominios (clérigo) ---
+
+  /** Carga el detalle de los dominios elegidos (poder otorgado + conjuros).
+   *  La lista para elegir solo hace falta al editar. */
+  private cargarDominios(f: Ficha): void {
+    const codigos = [f.domain1, f.domain2].filter(c => !!c && c.trim() !== '');
+    if (codigos.length === 0) { this.misDominios.set([]); return; }
+
+    const detalles: DomainDetail[] = [];
+    for (const code of codigos) {
+      this.juego.dominio(code).subscribe({
+        next: d => {
+          detalles.push(d);
+          // Reordenar como los eligió: domain1 primero.
+          this.misDominios.set(
+            codigos.map(c => detalles.find(x => x.code === c)).filter((x): x is DomainDetail => !!x));
+        },
+        error: () => { /* un código inválido no rompe la ficha */ },
+      });
+    }
+  }
+
+  /** El selector de dominios del editor: se pide una sola vez. */
+  cargarCatalogoDominios(): void {
+    if (this.dominios().length > 0) return;
+    this.juego.dominios().subscribe({
+      next: d => this.dominios.set(d),
+      error: () => { /* sin catálogo, los campos quedan vacíos */ },
     });
   }
 }

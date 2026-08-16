@@ -118,6 +118,8 @@ export interface Ficha {
   name: string; player: string; clazz: string; level: number; race: string;
   alignment: string; deity: string; size: string; age: string; sex: string;
   height: string; weight: string; campaign: string; location: string;
+  /** Los dos dominios del clérigo, por código (ver /api/dominios). '' si no aplica. */
+  domain1: string; domain2: string;
   abilities: Ability[];
   hpCurrent: number; hpMax: number;
   acTotal: number; acTouch: number; acFlatFooted: number;
@@ -137,6 +139,7 @@ export interface FichaEdit {
   name?: string; player?: string; clazz?: string; level?: number; race?: string;
   alignment?: string; deity?: string; size?: string; age?: string; sex?: string;
   height?: string; weight?: string; campaign?: string; location?: string;
+  domain1?: string; domain2?: string;
   strScore?: number; dexScore?: number; conScore?: number;
   intScore?: number; wisScore?: number; chaScore?: number;
   hpCurrent?: number; hpMax?: number;
@@ -271,6 +274,46 @@ export interface Spell {
 export interface SpellPage {
   total: number;
   items: Spell[];
+}
+
+// --- Conjuros preparados (la lista que se arma antes de jugar) ---
+
+/** Un conjuro preparado: cuántas veces se lleva y el conjuro completo. `level`
+ *  es el nivel al que lo lanza ESTE personaje (según su clase). */
+export interface PreparedSpell {
+  id: string;
+  prepared: number;
+  level: number;
+  spell: Spell;
+}
+
+export interface PreparedList {
+  items: PreparedSpell[];
+}
+
+// --- Dominios divinos (clérigo) ---
+
+/** Un dominio en el selector. */
+export interface DomainSummary {
+  code: string;
+  nombre: string;
+}
+
+/** Un conjuro de dominio. Si `inGrimoire`, `name` es el nombre español del
+ *  grimorio; si no, el inglés del SRD (no lo tenemos fichado). */
+export interface DomainSpell {
+  level: number;
+  name: string;
+  nameEn: string;
+  inGrimoire: boolean;
+}
+
+/** El detalle de un dominio: el poder otorgado (la pasiva) y sus 9 conjuros. */
+export interface DomainDetail {
+  code: string;
+  nombre: string;
+  poder: string;
+  spells: DomainSpell[];
 }
 
 /** Una aptitud de clase (Bárbaro, Guerrero, Monje). No es un conjuro. */

@@ -3,10 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import {
-  Character, CharacterCreate, ChronicleCreate, ChronicleEntry, ClassFeature, Ficha,
-  FichaEdit, Holdings, ImportResult, Inventory, Invocation, Note, NoteRequest, Notes,
-  PropertyBuyRequest, QuestCard, QuestSummary, ResolutionView, SceneView, Shop,
-  ShopOfferCreate, SpellPage, ValidationReport,
+  Character, CharacterCreate, ChronicleCreate, ChronicleEntry, ClassFeature, DomainDetail,
+  DomainSummary, Ficha, FichaEdit, Holdings, ImportResult, Inventory, Invocation, Note,
+  NoteRequest, Notes, PreparedList, PropertyBuyRequest, QuestCard, QuestSummary,
+  ResolutionView, SceneView, Shop, ShopOfferCreate, SpellPage, ValidationReport,
 } from './api.types';
 
 /**
@@ -213,6 +213,41 @@ export class JuegoService {
   /** Aptitudes de clase de Bárbaro, Guerrero y Monje. Son pocas. */
   aptitudes(clase: string): Observable<ClassFeature[]> {
     return this.http.get<ClassFeature[]>('/api/habilidades/aptitudes', { params: { clase } });
+  }
+
+  // --- Conjuros preparados ---
+  // La lista que el personaje se prepara antes de jugar. Todas devuelven la
+  // lista entera ya actualizada, para repintar de una.
+
+  conjuros(personajeId: string): Observable<PreparedList> {
+    return this.http.get<PreparedList>(`/api/personajes/${personajeId}/conjuros`);
+  }
+
+  /** Preparar un conjuro por su nombre del grimorio. Si ya estaba, suma. */
+  prepararConjuro(personajeId: string, name: string, prepared = 1): Observable<PreparedList> {
+    return this.http.post<PreparedList>(`/api/personajes/${personajeId}/conjuros`, { name, prepared });
+  }
+
+  /** Fijar cuántas veces se lleva preparado. 0 o menos lo quita. */
+  fijarConjuro(personajeId: string, prepId: string, prepared: number): Observable<PreparedList> {
+    return this.http.patch<PreparedList>(
+      `/api/personajes/${personajeId}/conjuros/${prepId}`, { prepared });
+  }
+
+  quitarConjuro(personajeId: string, prepId: string): Observable<PreparedList> {
+    return this.http.delete<PreparedList>(`/api/personajes/${personajeId}/conjuros/${prepId}`);
+  }
+
+  // --- Dominios divinos (clérigo) ---
+
+  /** La lista de dominios para elegir (código + nombre). */
+  dominios(): Observable<DomainSummary[]> {
+    return this.http.get<DomainSummary[]>('/api/dominios');
+  }
+
+  /** El detalle de un dominio: poder otorgado + sus 9 conjuros. */
+  dominio(code: string): Observable<DomainDetail> {
+    return this.http.get<DomainDetail>(`/api/dominios/${code}`);
   }
 
   // --- Editor de encargos del DM ---

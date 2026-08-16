@@ -41,6 +41,30 @@ import { FichaStore } from './ficha.store';
           <label>Jugador<input name="e_player" [(ngModel)]="e.player" /></label>
         </div>
 
+        @if (store.esClerigo()) {
+          <p class="rotulo separador">Dominios</p>
+          <p class="editor-nota">Un clérigo elige dos. Cada uno da su poder otorgado
+            y una lista de conjuros de dominio.</p>
+          <div class="campos">
+            <label>Dominio 1
+              <select name="e_dom1" [(ngModel)]="e.domain1">
+                <option value="">— ninguno —</option>
+                @for (d of store.dominios(); track d.code) {
+                  <option [value]="d.code">{{ d.nombre }}</option>
+                }
+              </select>
+            </label>
+            <label>Dominio 2
+              <select name="e_dom2" [(ngModel)]="e.domain2">
+                <option value="">— ninguno —</option>
+                @for (d of store.dominios(); track d.code) {
+                  <option [value]="d.code">{{ d.nombre }}</option>
+                }
+              </select>
+            </label>
+          </div>
+        }
+
         <p class="rotulo separador">Características</p>
         <div class="campos campos--num">
           <label>FUE<input name="e_str" type="number" [(ngModel)]="e.strScore" /></label>
@@ -115,6 +139,7 @@ import { FichaStore } from './ficha.store';
     .campos { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-bottom: 6px; }
     .campos--num { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
     .campos label { display: grid; gap: 4px; font-family: var(--dato); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--sepia); }
+    .campos select { font: inherit; font-size: 13px; padding: 10px 8px; border: 1px solid var(--linea-fuerte); border-radius: var(--radio); background: var(--pergamino-claro); color: var(--tinta); }
 
     .habs-edit { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; }
     .fila-hab { display: flex; gap: 6px; align-items: center; }

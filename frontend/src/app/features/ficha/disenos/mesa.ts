@@ -1,6 +1,7 @@
 import { Component, ElementRef, effect, inject, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { ConjurosPanel } from '../conjuros-panel';
 import { FichaEditor } from '../ficha-editor';
 import { FichaStore } from '../ficha.store';
 import { KgPipe } from '../../../shared/peso.pipe';
@@ -18,7 +19,7 @@ import { KgPipe } from '../../../shared/peso.pipe';
  */
 @Component({
   selector: 'arc-ficha-mesa',
-  imports: [FormsModule, FichaEditor, KgPipe],
+  imports: [FormsModule, FichaEditor, ConjurosPanel, KgPipe],
   template: `
     <div class="contenedor contenedor--mesa">
       @if (store.cargando()) {
@@ -163,6 +164,15 @@ import { KgPipe } from '../../../shared/peso.pipe';
                 </ul>
               }
             }
+          </section>
+
+          <!-- ============ CONJUROS PREPARADOS ============ -->
+          <section class="bloque">
+            <div class="alto">
+              <p class="rotulo">Conjuros preparados</p>
+              <span class="dato">{{ store.totalPreparados() }}</span>
+            </div>
+            <arc-conjuros-panel />
           </section>
 
           <!-- ============ QUIÉN ES Y QUÉ LLEVA ENCIMA ============ -->

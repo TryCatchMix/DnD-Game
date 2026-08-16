@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { JuegoService } from '../../core/juego.service';
@@ -17,8 +17,19 @@ import { Character } from '../../core/api.types';
   template: `
     <div class="contenedor">
       <header class="cabecera">
-        <p class="rotulo">Registro del clan</p>
-        <h1>¿Con quién bajas hoy?</h1>
+        <div>
+          <p class="rotulo">Registro del clan</p>
+          <h1>¿Con quién bajas hoy?</h1>
+        </div>
+
+        <!-- Cerrar sesión vive aquí arriba, no al final de la lista: es lo que
+             se busca al terminar, y con muchos personajes quedaba fuera de
+             pantalla. Al lado va de quién es la sesión, para no cerrar la de
+             otro sin darse cuenta en un ordenador compartido. -->
+        <div class="sesion">
+          @if (quien(); as q) { <p class="dato quien">{{ q }}</p> }
+          <button class="boton salir" (click)="salir()">Cerrar sesión</button>
+        </div>
       </header>
 
       @if (cargando()) {
@@ -58,14 +69,22 @@ import { Character } from '../../core/api.types';
 
       <div class="acciones">
         <button class="boton boton--lacre" (click)="crear()">+ Crear personaje</button>
-        <button class="boton salir" (click)="salir()">Salir del registro</button>
       </div>
     </div>
   `,
   styles: `
-    .cabecera { margin-bottom: 22px; }
+    .cabecera {
+      margin-bottom: 22px;
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 14px; flex-wrap: wrap;
+    }
     .cabecera h1 { font-size: 28px; color: var(--pergamino); margin-top: 4px; }
     .cabecera .rotulo { color: var(--sepia-claro); }
+
+    .sesion { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .quien { color: var(--sepia); text-transform: uppercase; margin: 0; }
+    .salir { color: var(--sepia-claro); border-color: var(--linea-noche); }
+    .salir:hover:not(:disabled) { color: var(--pergamino); background: rgba(239,228,205,.07); }
 
     .lista { list-style: none; margin: 0 0 24px; padding: 0; display: grid; gap: 14px; }
 
@@ -107,7 +126,6 @@ import { Character } from '../../core/api.types';
     .verficha:hover { background: rgba(143,46,34,.08); }
 
     .acciones { display: flex; gap: 12px; flex-wrap: wrap; }
-    .salir { display: block; }
 
     .estado { font-style: italic; color: var(--sepia-claro); padding: 28px 0; }
     .estado--mal { color: #d98a7c; font-style: normal; }
@@ -118,6 +136,13 @@ export class CharactersPage implements OnInit {
   private readonly juego = inject(JuegoService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+
+  /** «Mix · DM», o solo el nombre si el rol no dice nada interesante. */
+  readonly quien = computed(() => {
+    const nombre = this.auth.nombre();
+    if (!nombre) return null;
+    return this.auth.rol() === 'DM' ? nombre + ' · DM' : nombre;
+  });
 
   readonly personajes = signal<Character[]>([]);
   readonly cargando = signal(true);
