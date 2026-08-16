@@ -176,6 +176,9 @@ export interface InventoryItem {
 export interface Shop {
   purseCp: number;
   purse: string;        // ya formateado
+  /** La ciudad del personaje. Es la que decide qué mostrador se ve: las ofertas
+   *  van por ciudad y el nombre tiene que coincidir exactamente. */
+  location: string;
   offers: ShopOffer[];
   inventory: InventoryItem[];
 }

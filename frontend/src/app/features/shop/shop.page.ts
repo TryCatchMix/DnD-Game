@@ -331,6 +331,9 @@ const FRASES_TENDERO = [
         <div class="cab-alto">
           <div>
             <p class="bazar-nombre">El Bazar de Retán</p>
+            <!-- La ciudad manda: el mostrador que ves es el de donde está tu
+                 personaje, y sin decirlo una tienda vacía parece una avería. -->
+            @if (tienda(); as t) { <p class="bazar-ciudad">{{ t.location }}</p> }
           </div>
           @if (tienda(); as t) {
             <div class="monedero" title="Tu monedero">
@@ -367,7 +370,20 @@ const FRASES_TENDERO = [
                     (click)="soloAsequible.set(!soloAsequible())">Lo que puedo pagar</button>
           </div>
 
-          @if (ofertas().length === 0) {
+          @if (t.offers.length === 0) {
+            <!-- No hay NADA a la venta en esta ciudad: no es un filtro, es que
+                 aquí no hay mercado. Decirlo con el nombre delante ahorra media
+                 hora de «la tienda no me funciona». -->
+            <p class="estado">
+              En «{{ t.location }}» no hay mostrador: nadie vende nada aquí.
+              @if (esDM()) {
+                Ponle algo a la venta desde el panel de abajo, o cambia la ubicación
+                del personaje en su ficha a una ciudad con mercado.
+              } @else {
+                Cuando tu personaje llegue a una ciudad con mercado, aparecerá aquí.
+              }
+            </p>
+          } @else if (ofertas().length === 0) {
             <p class="estado">El mostrador no tiene nada que case con esa búsqueda.</p>
           } @else {
             <ul class="vitrina">
@@ -658,6 +674,15 @@ const FRASES_TENDERO = [
       color: var(--oro);
       -webkit-text-stroke: .55px currentColor;
       text-shadow: 0 1px 0 rgba(0,0,0,.6), 0 0 20px rgba(157,122,47,.28);
+    }
+
+    /* Debajo del letrero, la ciudad: pequeña, en versalita, como la placa de
+       la calle. Es el dato que explica por qué el mostrador tiene lo que tiene. */
+    .bazar-ciudad {
+      font-family: var(--dato);
+      font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--sepia-claro);
+      margin: 6px 0 0;
     }
 
     /* El monedero manda en esta pantalla: se lee como una pieza acuñada. */

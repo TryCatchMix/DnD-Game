@@ -165,7 +165,8 @@ public class ShopService {
             });
         }
 
-        return new ShopView(c.getPurseCp(), Money.format(c.getPurseCp()), offerViews, invViews);
+        return new ShopView(c.getPurseCp(), Money.format(c.getPurseCp()),
+                c.getCity(), offerViews, invViews);
     }
 
     /** Solo por id (sin comprobar dueño): las rutas que lo usan son del DM. */

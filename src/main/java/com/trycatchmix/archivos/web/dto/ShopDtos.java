@@ -10,6 +10,10 @@ public final class ShopDtos {
     public record ShopView(
             long purseCp,
             String purse,
+            /** La ciudad del personaje: es lo que decide QUÉ mostrador ves.
+             *  Viaja al frontend para poder decir «en X no hay mostrador» en vez
+             *  de enseñar una tienda vacía sin explicación. */
+            String location,
             List<ShopOfferView> offers,
             List<InventoryItemView> inventory) {}
 
