@@ -59,7 +59,9 @@ import { Character } from '../../core/api.types';
                   <span class="sep">·</span>
                   <span class="dato">{{ p.location }}</span>
                 }
-                <button class="verficha" (click)="verFicha(p, $event)">Ver ficha</button>
+                <!-- La tarjeta entera lleva a la ficha, así que aquí ofrecemos
+                     el otro destino en vez de repetir el mismo. -->
+                <button class="verficha" (click)="verTablon(p, $event)">Tablón</button>
                 <button class="verficha" (click)="verTienda(p, $event)">Tienda</button>
                 <button class="verficha verficha--borrar" (click)="pedirBorrado(p, $event)"
                         [attr.aria-label]="'Borrar a ' + p.name">Borrar</button>
@@ -217,13 +219,15 @@ export class CharactersPage implements OnInit {
     void this.router.navigate(['/personajes', 'nuevo']);
   }
 
+  /** Elegir personaje entra en SU FICHA: al sentarte a jugar lo primero que
+   *  miras es quién eres, no qué encargos hay. El tablón queda a un botón. */
   elegir(p: Character): void {
-    void this.router.navigate(['/personajes', p.id, 'tablon']);
+    void this.router.navigate(['/personajes', p.id, 'ficha']);
   }
 
-  verFicha(p: Character, ev: Event): void {
-    ev.stopPropagation();   // no queremos que además navegue al tablón
-    void this.router.navigate(['/personajes', p.id, 'ficha']);
+  verTablon(p: Character, ev: Event): void {
+    ev.stopPropagation();   // no queremos que además navegue a la ficha
+    void this.router.navigate(['/personajes', p.id, 'tablon']);
   }
 
   verTienda(p: Character, ev: Event): void {
