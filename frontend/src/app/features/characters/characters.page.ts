@@ -61,6 +61,8 @@ import { Character } from '../../core/api.types';
                 }
                 <button class="verficha" (click)="verFicha(p, $event)">Ver ficha</button>
                 <button class="verficha" (click)="verTienda(p, $event)">Tienda</button>
+                <button class="verficha verficha--borrar" (click)="pedirBorrado(p, $event)"
+                        [attr.aria-label]="'Borrar a ' + p.name">Borrar</button>
               </div>
             </li>
           }
@@ -70,8 +72,35 @@ import { Character } from '../../core/api.types';
       <div class="acciones">
         <button class="boton boton--lacre" (click)="crear()">+ Crear personaje</button>
       </div>
+
+      <!-- Borrar un personaje no se deshace, así que va con parada obligatoria:
+           un diálogo que dice a quién y qué se lleva por delante. -->
+      @if (borrando(); as p) {
+        <div class="velo" (click)="cancelarBorrado()">
+          <div class="hoja dialogo" role="alertdialog" aria-modal="true"
+               [attr.aria-label]="'Borrar a ' + p.name" (click)="$event.stopPropagation()">
+            <p class="rotulo">Borrar del registro</p>
+            <h2>¿Seguro que quieres borrar a {{ p.name }}?</h2>
+            <p class="letra-pequena">
+              Se va con él su ficha, su bolsa, sus propiedades y los encargos que tuviera
+              a medias. <strong>Esto no se puede deshacer.</strong>
+            </p>
+
+            @if (errorBorrado(); as e) { <p class="estado estado--mal" role="alert">{{ e }}</p> }
+
+            <div class="acciones dialogo-acc">
+              <button class="boton boton--lacre" [disabled]="borrandoYa()" (click)="confirmarBorrado(p)">
+                {{ borrandoYa() ? 'Borrando…' : 'Sí, borrar' }}
+              </button>
+              <button class="boton" [disabled]="borrandoYa()" (click)="cancelarBorrado()">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   `,
+  // Escape cierra el diálogo, como cualquier ventana modal.
+  host: { '(document:keydown.escape)': 'cancelarBorrado()' },
   styles: `
     .cabecera {
       margin-bottom: 22px;
@@ -125,6 +154,27 @@ import { Character } from '../../core/api.types';
     }
     .verficha:hover { background: rgba(143,46,34,.08); }
 
+    /* Borrar no es una acción más: se queda en sepia, apagada, y solo se
+       enciende en rojo cuando vas a por ella. */
+    .verficha--borrar { margin-left: 0; color: var(--sepia); border-color: var(--linea); }
+    .verficha--borrar:hover { color: var(--vino); border-color: rgba(143,46,34,.45); }
+
+    /* ---------------------------------------------------------- diálogo --- */
+    .velo {
+      position: fixed; inset: 0; z-index: 60;
+      background: rgba(15, 11, 5, .82);
+      backdrop-filter: blur(3px);
+      display: grid; place-items: center;
+      padding: 18px;
+    }
+    .dialogo { width: min(460px, 100%); padding: 22px 24px 20px; }
+    .dialogo .rotulo { color: var(--sepia); margin: 0; }
+    .dialogo h2 { font-size: 23px; color: var(--tinta); margin: 6px 0 0; }
+    .letra-pequena { color: var(--sepia-hondo); font-size: 15px; margin: 10px 0 0; }
+    .letra-pequena strong { color: var(--vino); font-weight: 400; }
+    .dialogo-acc { margin-top: 18px; }
+    .dialogo .estado { padding: 10px 0 0; }
+
     .acciones { display: flex; gap: 12px; flex-wrap: wrap; }
 
     .estado { font-style: italic; color: var(--sepia-claro); padding: 28px 0; }
@@ -147,6 +197,11 @@ export class CharactersPage implements OnInit {
   readonly personajes = signal<Character[]>([]);
   readonly cargando = signal(true);
   readonly error = signal<string | null>(null);
+
+  /** El personaje que está en el diálogo de borrado, o null si no hay diálogo. */
+  readonly borrando = signal<Character | null>(null);
+  readonly borrandoYa = signal(false);
+  readonly errorBorrado = signal<string | null>(null);
 
   ngOnInit(): void {
     this.juego.personajes().subscribe({
@@ -174,6 +229,33 @@ export class CharactersPage implements OnInit {
   verTienda(p: Character, ev: Event): void {
     ev.stopPropagation();
     void this.router.navigate(['/personajes', p.id, 'tienda']);
+  }
+
+  pedirBorrado(p: Character, ev: Event): void {
+    ev.stopPropagation();   // el clic en la tarjeta navega al tablón; este no
+    this.errorBorrado.set(null);
+    this.borrando.set(p);
+  }
+
+  /** No se cierra a medio borrar: sería mentirle al jugador sobre qué pasó. */
+  cancelarBorrado(): void {
+    if (!this.borrandoYa()) this.borrando.set(null);
+  }
+
+  confirmarBorrado(p: Character): void {
+    this.borrandoYa.set(true);
+    this.errorBorrado.set(null);
+    this.juego.borrarPersonaje(p.id).subscribe({
+      next: ps => {
+        this.personajes.set(ps);
+        this.borrandoYa.set(false);
+        this.borrando.set(null);
+      },
+      error: err => {
+        this.borrandoYa.set(false);
+        this.errorBorrado.set(err?.error?.message ?? 'No se ha podido borrar el personaje.');
+      },
+    });
   }
 
   salir(): void {

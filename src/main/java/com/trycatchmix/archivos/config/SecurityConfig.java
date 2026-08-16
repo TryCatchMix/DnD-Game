@@ -17,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import jakarta.servlet.DispatcherType;
+
 import java.util.Map;
 
 @Configuration
@@ -47,6 +49,12 @@ public class SecurityConfig {
             .cors(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(reg -> {
+                // El reenvío interno a /error va SIN el token: JwtAuthFilter es un
+                // OncePerRequestFilter y, por defecto, no corre en el dispatch de
+                // error. Sin esta línea, cualquier 500 o 404 llegaba al navegador
+                // disfrazado de 401 «Necesitas iniciar sesión», que manda a buscar
+                // el fallo justo donde no está.
+                reg.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll();
                 reg.requestMatchers("/api/auth/register", "/api/auth/login",
                         "/api/auth/refresh", "/api/auth/logout").permitAll();
                 // Los endpoints de desarrollo solo existen y se abren en dev.

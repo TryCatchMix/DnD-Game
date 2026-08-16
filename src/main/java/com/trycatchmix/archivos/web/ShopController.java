@@ -23,19 +23,19 @@ public class ShopController {
 
     @GetMapping
     public ShopView tienda(@AuthenticationPrincipal AuthPrincipal p, @PathVariable UUID charId) {
-        return shop.tienda(user(p), charId);
+        return shop.tienda(user(p), charId, isAdmin(p));
     }
 
     @PostMapping("/comprar/{itemCode}")
     public ShopView comprar(@AuthenticationPrincipal AuthPrincipal p,
                             @PathVariable UUID charId, @PathVariable String itemCode) {
-        return shop.comprar(user(p), charId, itemCode);
+        return shop.comprar(user(p), charId, isAdmin(p), itemCode);
     }
 
     @PostMapping("/vender/{itemCode}")
     public ShopView vender(@AuthenticationPrincipal AuthPrincipal p,
                            @PathVariable UUID charId, @PathVariable String itemCode) {
-        return shop.vender(user(p), charId, itemCode);
+        return shop.vender(user(p), charId, isAdmin(p), itemCode);
     }
 
     /** El DM pone algo a la venta en la ciudad de este personaje. */
@@ -60,5 +60,11 @@ public class ShopController {
     private UUID user(AuthPrincipal p) {
         if (p == null) throw ApiException.sessionExpired();
         return p.userId();
+    }
+
+    /** El máster entra en la tienda de cualquier personaje, igual que en su
+     *  ficha. Sin esto, al DM le saltaba un 403 en los de sus jugadores. */
+    private boolean isAdmin(AuthPrincipal p) {
+        return p != null && "DM".equals(p.role());
     }
 }

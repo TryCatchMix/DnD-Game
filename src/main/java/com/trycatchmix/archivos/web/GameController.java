@@ -51,6 +51,13 @@ public class GameController {
         return game.editarFicha(user(p), charId, isAdmin(p), req);
     }
 
+    /** Borrar el personaje con todo lo suyo. Devuelve la lista ya sin él. */
+    @DeleteMapping("/{charId}")
+    public List<CharacterView> borrar(@AuthenticationPrincipal AuthPrincipal p,
+                                      @PathVariable UUID charId) {
+        return game.borrarPersonaje(user(p), charId, isAdmin(p));
+    }
+
     @GetMapping("/{charId}/tablon")
     public List<QuestCardView> tablon(@AuthenticationPrincipal AuthPrincipal p,
                                       @PathVariable UUID charId) {

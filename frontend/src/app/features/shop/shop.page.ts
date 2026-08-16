@@ -331,9 +331,9 @@ const FRASES_TENDERO = [
         <div class="cab-alto">
           <div>
             <p class="bazar-nombre">El Bazar de Retán</p>
-            <!-- La ciudad manda: el mostrador que ves es el de donde está tu
-                 personaje, y sin decirlo una tienda vacía parece una avería. -->
-            @if (tienda(); as t) { <p class="bazar-ciudad">{{ t.location }}</p> }
+            <!-- El mostrador es el mismo se esté donde se esté: no ponemos la
+                 ciudad del personaje para no dar a entender que cambia con ella. -->
+            <p class="bazar-ciudad">Mercado del clan</p>
           </div>
           @if (tienda(); as t) {
             <div class="monedero" title="Tu monedero">
@@ -371,17 +371,11 @@ const FRASES_TENDERO = [
           </div>
 
           @if (t.offers.length === 0) {
-            <!-- No hay NADA a la venta en esta ciudad: no es un filtro, es que
-                 aquí no hay mercado. Decirlo con el nombre delante ahorra media
-                 hora de «la tienda no me funciona». -->
+            <!-- Vacío de verdad (no es el filtro): decirlo aparte evita el
+                 clásico «la tienda no me funciona». -->
             <p class="estado">
-              En «{{ t.location }}» no hay mostrador: nadie vende nada aquí.
-              @if (esDM()) {
-                Ponle algo a la venta desde el panel de abajo, o cambia la ubicación
-                del personaje en su ficha a una ciudad con mercado.
-              } @else {
-                Cuando tu personaje llegue a una ciudad con mercado, aparecerá aquí.
-              }
+              El mostrador está vacío: no hay nada a la venta.
+              @if (esDM()) { Ponle género desde el panel del máster, aquí abajo. }
             </p>
           } @else if (ofertas().length === 0) {
             <p class="estado">El mostrador no tiene nada que case con esa búsqueda.</p>

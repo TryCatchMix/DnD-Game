@@ -31,6 +31,11 @@ export class JuegoService {
     return this.http.post<Ficha>('/api/personajes', datos);
   }
 
+  /** Borrar un personaje con todo lo suyo. Devuelve la lista ya sin él. */
+  borrarPersonaje(personajeId: string): Observable<Character[]> {
+    return this.http.delete<Character[]>(`/api/personajes/${personajeId}`);
+  }
+
   /** La hoja de personaje D&D 3.5 completa. */
   ficha(personajeId: string): Observable<Ficha> {
     return this.http.get<Ficha>(`/api/personajes/${personajeId}`);

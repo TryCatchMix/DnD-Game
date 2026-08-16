@@ -26,6 +26,7 @@ public class GameService {
     private final OutcomeRepository outcomes;
     private final WorldFlagRepository worldFlags;
     private final QuestRunRepository runs;
+    private final InventoryRepository inventory;
     private final DiceService dice;
 
     // ---------------------------------------------------------- personajes ---
@@ -40,6 +41,32 @@ public class GameService {
                 .map(c -> new CharacterView(c.getId().toString(), c.getName(), null,
                         c.getClazz(), c.getLevel(), c.getVigor(), c.getMaxVigor(), c.getCity()))
                 .toList();
+    }
+
+    /**
+     * Borrar un personaje, con todo lo suyo. No hay papelera: lo que se borra
+     * aquí no vuelve, por eso el frontend pregunta antes.
+     *
+     * Las propiedades y los conjuros preparados se van solos (ON DELETE CASCADE
+     * en la BD); la bolsa, las habilidades y los encargos en curso NO tienen
+     * cascada, así que hay que quitarlos a mano y hacer flush ANTES de borrar el
+     * personaje, o el DELETE del padre saldría primero y la BD lo rechazaría.
+     *
+     * Devuelve la lista ya sin él, para que la pantalla solo repinte.
+     */
+    @Transactional
+    public List<CharacterView> borrarPersonaje(UUID userId, UUID charId, boolean admin) {
+        GameCharacter c = accessibleCharacter(userId, charId, admin);
+
+        runs.deleteAll(runs.findByCharacterId(charId));
+        inventory.deleteAll(inventory.findByCharacterIdOrderByNameAsc(charId));
+        characterSkills.deleteAll(c.getSkills());
+        characterSkills.flush();
+
+        characters.delete(c);
+        characters.flush();
+
+        return listCharacters(userId, admin);
     }
 
     @Transactional(readOnly = true)
