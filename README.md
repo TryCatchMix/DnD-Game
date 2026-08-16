@@ -159,9 +159,10 @@ de leer nada —vino para desastre, oro para éxito con coste, musgo para éxito
 ### Diseños intercambiables
 
 Una pantalla puede tener varias caras, y el jugador elige la suya en
-**Ajustes → Diseño** (`/personajes/:id/ajustes`). Hoy la ficha viene con dos:
-*Pergamino* (la hoja impresa de siempre, la de fábrica) y *Mesa de noche* (una
-sola columna sobre fondo oscuro, sin pestañas, pensada para el móvil en partida).
+**Ajustes → Diseño** (`/personajes/:id/ajustes`). Hoy la ficha viene con tres:
+*Pergamino* (la hoja impresa de siempre, la de fábrica), *Mesa de noche* (una
+sola columna sobre fondo oscuro, sin pestañas, pensada para el móvil en partida)
+y *Celeste* (carta astral: cielo estrellado y paneles de cristal violeta).
 
 El truco es que un diseño solo tiene plantilla y estilos: el estado y las cuentas
 viven en un store aparte (`features/ficha/ficha.store.ts`), así que añadir una

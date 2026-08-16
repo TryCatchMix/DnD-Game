@@ -39,6 +39,13 @@ export const CATALOGO_POR_DEFECTO: CatalogoDisenos = [
         cargar: () => import('../../features/ficha/disenos/mesa')
           .then(m => m.FichaMesa),
       },
+      {
+        id: 'celeste',
+        nombre: 'Celeste',
+        resumen: 'Carta astral: cielo con estrellas que derivan, paneles de cristal violeta y acentos de cian y oro.',
+        cargar: () => import('../../features/ficha/disenos/celeste')
+          .then(m => m.FichaCeleste),
+      },
     ],
   },
 ];
