@@ -22,6 +22,8 @@ public final class FichaDtos {
             String name, String player, String clazz, int level, String race,
             String alignment, String deity, String size, String age, String sex,
             String height, String weight, String campaign, String location,
+            // dominios del clérigo (códigos; ver DomainCatalog). Vacío si no aplica.
+            String domain1, String domain2,
             // características (con modificadores ya calculados)
             List<AbilityView> abilities,
             // combate
@@ -45,6 +47,7 @@ public final class FichaDtos {
             String name, String player, String clazz, Integer level, String race,
             String alignment, String deity, String size, String age, String sex,
             String height, String weight, String campaign, String location,
+            String domain1, String domain2,
             Integer strScore, Integer dexScore, Integer conScore,
             Integer intScore, Integer wisScore, Integer chaScore,
             Integer hpCurrent, Integer hpMax,

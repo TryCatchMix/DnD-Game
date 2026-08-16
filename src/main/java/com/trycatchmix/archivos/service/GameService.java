@@ -78,6 +78,8 @@ public class GameService {
         if (r.weight() != null) c.setWeight(r.weight());
         if (r.campaign() != null) c.setCampaign(r.campaign());
         if (r.location() != null && !r.location().isBlank()) c.setCity(r.location());
+        if (r.domain1() != null) c.setDomain1(r.domain1().trim());
+        if (r.domain2() != null) c.setDomain2(r.domain2().trim());
 
         // características
         if (r.strScore() != null) c.setStrScore(r.strScore());
@@ -209,6 +211,7 @@ public class GameService {
                 c.getName(), c.getPlayer(), c.getClazz(), c.getLevel(), c.getRace(),
                 c.getAlignment(), c.getDeity(), c.getSize(), c.getAge(), c.getSex(),
                 c.getHeight(), c.getWeight(), c.getCampaign(), c.getCity(),
+                c.getDomain1(), c.getDomain2(),
                 abilities,
                 c.getHpCurrent(), c.getPg(),
                 c.getCa(), c.getAcTouch(), c.getAcFlatFooted(),
@@ -405,6 +408,12 @@ public class GameService {
         if (!c.getUserId().equals(userId))
             throw ApiException.forbidden("Ese personaje no es tuyo.");
         return c;
+    }
+
+    /** Igual que {@link #accessibleCharacter}, expuesto para que otros servicios
+     *  (conjuros preparados) reusen el MISMO control de propiedad: dueño o DM. */
+    public GameCharacter accesible(UUID userId, UUID charId, boolean admin) {
+        return accessibleCharacter(userId, charId, admin);
     }
 
     /** Como {@link #ownedCharacter} pero el admin (máster) pasa el filtro para

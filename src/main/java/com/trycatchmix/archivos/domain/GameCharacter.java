@@ -28,6 +28,15 @@ public class GameCharacter {
     @Column(name = "clazz", nullable = false)
     private String clazz;
 
+    /** Los dos dominios del clérigo, por su código (ver DomainCatalog). Vacío
+     *  si no aplica. Solo el clérigo elige dominios, pero las columnas son
+     *  inofensivas para el resto. */
+    @Column(nullable = false)
+    private String domain1 = "";
+
+    @Column(nullable = false)
+    private String domain2 = "";
+
     @Column(nullable = false)
     private String city;
 

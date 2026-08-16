@@ -84,6 +84,12 @@ public class SpellService {
                 .mapToInt(SpellClass::getLevel).min().orElse(99);
     }
 
+    /** Construye la vista completa de un conjuro. Público para reutilizarlo al
+     *  montar la lista de conjuros preparados de un personaje. */
+    public SpellView vista(Spell s) {
+        return toView(s);
+    }
+
     private SpellView toView(Spell s) {
         List<SpellClassView> clases = s.getClasses().stream()
                 .sorted(Comparator.comparingInt(SpellClass::getLevel)
