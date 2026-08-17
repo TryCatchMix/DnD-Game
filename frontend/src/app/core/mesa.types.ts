@@ -22,6 +22,18 @@ export interface Archivo {
   createdAt: string;
 }
 
+/** Un PDF donde aparece lo que se ha buscado por contenido. */
+export interface Coincidencia {
+  id: string;
+  misionId: string | null;
+  title: string;
+  filename: string;
+  /** Cuántas veces sale la frase en el documento. */
+  matchCount: number;
+  /** Un trozo del texto con la frase, para enseñar dónde. */
+  snippet: string;
+}
+
 export interface NotaMesa {
   id: string;
   kind: TipoNota;

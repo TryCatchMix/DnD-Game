@@ -65,4 +65,16 @@ public final class MesaDtos {
 
     /** Renombrar un archivo o moverlo de misión. */
     public record AssetRequest(String title, String misionId) {}
+
+    /**
+     * Un PDF donde aparece lo buscado: la ficha del archivo + cuántas veces sale
+     * y un fragmento con contexto para enseñar dónde.
+     */
+    public record AssetHit(
+            String id,
+            String misionId,
+            String title,
+            String filename,
+            int matchCount,
+            String snippet) {}
 }

@@ -13,4 +13,6 @@ public interface MesaAssetRepository extends JpaRepository<MesaAsset, UUID> {
     List<MesaAsset> findByMissionIdOrderByCreatedAtAsc(UUID missionId);
 
     long countByMissionIdAndKind(UUID missionId, String kind);
+
+    List<MesaAsset> findByUserIdAndKindOrderByCreatedAtDesc(UUID userId, String kind);
 }

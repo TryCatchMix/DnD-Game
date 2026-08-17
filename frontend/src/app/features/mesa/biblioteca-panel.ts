@@ -1,8 +1,8 @@
-import { Component, computed, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { MesaService } from '../../core/mesa.service';
-import { Archivo, TarjetaMision } from '../../core/mesa.types';
+import { Archivo, Coincidencia, TarjetaMision } from '../../core/mesa.types';
 import { Lamina } from './lamina';
 import { Visor } from './visor';
 import { ZonaSubida } from './zona-subida';
@@ -26,9 +26,47 @@ type Filtro = 'todo' | 'imagen' | 'pdf' | 'sueltos';
     <arc-zona-subida titulo="Suelta aquí lo que quieras guardar" (subido)="cargar()" />
 
     <div class="mando">
-      <input class="buscar" type="search" placeholder="Buscar por nombre…"
+      <input class="buscar" type="search" placeholder="Buscar por nombre o por lo que dice dentro…"
              [(ngModel)]="busqueda" aria-label="Buscar archivo" />
     </div>
+
+    <!-- Lo que se ha encontrado DENTRO de los PDF, no solo en el título -->
+    @if (busqueda().trim().length >= 2) {
+      <section class="dentro">
+        <p class="rotulo-dentro">Dentro de los documentos
+          @if (buscandoTexto()) { · buscando… }
+          @else { · {{ coincidencias().length }} {{ coincidencias().length === 1 ? 'documento' : 'documentos' }} }
+        </p>
+
+        @if (coincidencias().length) {
+          <ul class="hallazgos">
+            @for (c of coincidencias(); track c.id) {
+              <li class="hallazgo hoja">
+                <button class="abrir-doc" (click)="abrirCoincidencia(c)"
+                        [attr.aria-label]="'Abrir ' + c.title">
+                  <span class="marca">PDF</span>
+                  <span class="hallazgo-cuerpo">
+                    <span class="hallazgo-nombre">{{ c.title }}</span>
+                    <span class="fragmento">@for (s of segmentos(c.snippet); track $index) {
+                      @if (s.hit) { <mark>{{ s.t }}</mark> } @else { {{ s.t }} }
+                    }</span>
+                  </span>
+                  <span class="veces">{{ c.matchCount }}×</span>
+                </button>
+              </li>
+            }
+          </ul>
+        } @else if (!buscandoTexto()) {
+          <p class="nada-dentro">
+            No sale en el texto de ningún PDF.
+            <button class="enlace" [disabled]="reindexando()" (click)="reindexar()">
+              {{ reindexando() ? 'Indexando…' : 'Indexar PDF antiguos' }}
+            </button>
+            @if (avisoIndex(); as a) { <span class="aviso-index">{{ a }}</span> }
+          </p>
+        }
+      </section>
+    }
 
     <div class="filtros" role="group" aria-label="Filtrar material">
       <button class="chip" [class.activo]="filtro() === 'todo'" (click)="filtro.set('todo')">
@@ -115,6 +153,44 @@ type Filtro = 'todo' | 'imagen' | 'pdf' | 'sueltos';
     .mando { display: flex; gap: 10px; margin-bottom: 12px; }
     .buscar { flex: 1; }
 
+    /* ------------------------------------------------ dentro de los PDF ---- */
+    .dentro { margin: 0 0 18px; }
+    .rotulo-dentro {
+      font-family: var(--dato); font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--sepia-claro); margin: 0 0 8px;
+    }
+    .hallazgos { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .hallazgo { overflow: hidden; }
+    .abrir-doc {
+      width: 100%; display: flex; align-items: center; gap: 12px;
+      background: none; border: 0; text-align: left; padding: 10px 12px; color: var(--tinta);
+    }
+    .abrir-doc:hover { background: rgba(43,33,23,.05); }
+    .abrir-doc:hover .hallazgo-nombre { color: var(--vino); }
+    .abrir-doc .marca {
+      flex: none;
+      font-family: var(--dato); font-size: 9px; letter-spacing: .1em;
+      color: var(--pergamino); background: var(--sepia-hondo);
+      padding: 4px 6px; border-radius: var(--radio);
+    }
+    .hallazgo-cuerpo { flex: 1; min-width: 0; display: grid; gap: 3px; }
+    .hallazgo-nombre { font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .fragmento {
+      font-size: 13px; color: var(--sepia-hondo); font-style: italic;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .fragmento mark { background: rgba(191,155,74,.35); color: var(--tinta); font-style: normal; border-radius: 2px; }
+    .veces { flex: none; font-family: var(--dato); font-size: 11px; color: var(--sepia); }
+
+    .nada-dentro { color: var(--sepia-claro); font-style: italic; font-size: 14px; margin: 0; }
+    .nada-dentro .enlace {
+      font-family: var(--dato); font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+      font-style: normal; color: var(--vino); background: none; border: 0; padding: 2px 4px; margin-left: 4px;
+    }
+    .nada-dentro .enlace:hover:not(:disabled) { text-decoration: underline; }
+    .nada-dentro .enlace:disabled { opacity: .5; }
+    .aviso-index { font-style: normal; color: var(--musgo); margin-left: 6px; font-size: 13px; }
+
     .filtros { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
     .chip {
       font-family: var(--dato); font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
@@ -173,6 +249,29 @@ export class BibliotecaPanel implements OnInit {
   readonly cargando = signal(true);
   readonly error = signal<string | null>(null);
 
+  /** Lo encontrado dentro del texto de los PDF (aparte del filtro por nombre). */
+  readonly coincidencias = signal<Coincidencia[]>([]);
+  readonly buscandoTexto = signal(false);
+  readonly reindexando = signal(false);
+  readonly avisoIndex = signal<string | null>(null);
+
+  constructor() {
+    // Buscar dentro de los PDF con un respiro (debounce): cada tecla reinicia
+    // la cuenta y solo se pregunta al backend cuando el DM deja de escribir.
+    effect(onCleanup => {
+      const q = this.busqueda().trim();
+      if (q.length < 2) { this.coincidencias.set([]); this.buscandoTexto.set(false); return; }
+      this.buscandoTexto.set(true);
+      const t = setTimeout(() => {
+        this.mesa.buscarEnPdf(q).subscribe({
+          next: cs => { this.coincidencias.set(cs); this.buscandoTexto.set(false); },
+          error: () => { this.coincidencias.set([]); this.buscandoTexto.set(false); },
+        });
+      }, 300);
+      onCleanup(() => clearTimeout(t));
+    });
+  }
+
   readonly visibles = computed(() => {
     const q = norm(this.busqueda().trim());
     const f = this.filtro();
@@ -213,6 +312,62 @@ export class BibliotecaPanel implements OnInit {
   ver(a: Archivo): void {
     const lista = this.visibles();
     this.viendo.set({ lista, i: Math.max(lista.findIndex(x => x.id === a.id), 0) });
+  }
+
+  /** Abrir a pantalla completa el PDF donde se ha encontrado la frase. */
+  abrirCoincidencia(c: Coincidencia): void {
+    const a = this.archivos().find(x => x.id === c.id);
+    if (a) this.viendo.set({ lista: [a], i: 0 });
+  }
+
+  /**
+   * Parte el fragmento en trozos para poder resaltar la frase buscada sin usar
+   * innerHTML. Compara sin tildes ni mayúsculas, igual que la búsqueda, mapeando
+   * las posiciones del texto normalizado de vuelta al original.
+   */
+  segmentos(snippet: string): { t: string; hit: boolean }[] {
+    const q = norm(this.busqueda().trim());
+    if (!q) return [{ t: snippet, hit: false }];
+
+    let plano = '';
+    const mapa: number[] = [];
+    for (let i = 0; i < snippet.length; i++) {
+      const limpio = norm(snippet[i]);
+      for (const ch of limpio) { mapa.push(i); plano += ch; }
+    }
+    mapa.push(snippet.length);
+
+    const partes: { t: string; hit: boolean }[] = [];
+    let ultimo = 0, desde = 0, p: number;
+    while ((p = plano.indexOf(q, desde)) >= 0) {
+      const ini = mapa[p], fin = mapa[p + q.length];
+      if (ini > ultimo) partes.push({ t: snippet.slice(ultimo, ini), hit: false });
+      partes.push({ t: snippet.slice(ini, fin), hit: true });
+      ultimo = fin; desde = p + q.length;
+    }
+    if (ultimo < snippet.length) partes.push({ t: snippet.slice(ultimo), hit: false });
+    return partes;
+  }
+
+  /** Indexar los PDF viejos y repetir la búsqueda con lo recién indexado. */
+  reindexar(): void {
+    this.reindexando.set(true);
+    this.avisoIndex.set(null);
+    this.mesa.reindexar().subscribe({
+      next: n => {
+        this.reindexando.set(false);
+        this.avisoIndex.set(n > 0 ? `Indexados ${n}. Vuelve a buscar.` : 'No había ninguno pendiente.');
+        if (n > 0) {
+          const q = this.busqueda().trim();
+          this.buscandoTexto.set(true);
+          this.mesa.buscarEnPdf(q).subscribe({
+            next: cs => { this.coincidencias.set(cs); this.buscandoTexto.set(false); },
+            error: () => this.buscandoTexto.set(false),
+          });
+        }
+      },
+      error: err => { this.reindexando.set(false); this.fallo(err); },
+    });
   }
 
   renombrar(a: Archivo): void {

@@ -1,4 +1,6 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import {
+  Component, ElementRef, computed, inject, input, output, signal, viewChild,
+} from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { MesaService } from '../../core/mesa.service';
@@ -18,7 +20,7 @@ import { Archivo } from '../../core/mesa.types';
     <div class="fondo" role="dialog" aria-modal="true" [attr.aria-label]="actual().title"
          tabindex="-1" (click)="cerrar.emit()">
 
-      <div class="marco" (click)="$event.stopPropagation()">
+      <div class="marco" #marco (click)="$event.stopPropagation()">
         <header class="barra">
           <div class="quien">
             <p class="rotulo">{{ actual().kind === 'pdf' ? 'Documento' : 'Lámina' }}
@@ -27,6 +29,10 @@ import { Archivo } from '../../core/mesa.types';
             <h2>{{ actual().title }}</h2>
           </div>
           <div class="acc">
+            <button class="boton" (click)="alternarCompleta()"
+                    [attr.aria-label]="completa() ? 'Salir de pantalla completa' : 'Pantalla completa'">
+              {{ completa() ? '⤢ Salir de pantalla completa' : '⛶ Pantalla completa' }}
+            </button>
             @if (url(); as u) {
               <a class="boton" [href]="u" [download]="actual().filename">Descargar</a>
             }
@@ -54,7 +60,10 @@ import { Archivo } from '../../core/mesa.types';
     </div>
   `,
   // Esc y flechas funcionan sin tener que pinchar antes dentro del visor.
-  host: { '(document:keydown)': 'tecla($event)' },
+  host: {
+    '(document:keydown)': 'tecla($event)',
+    '(document:fullscreenchange)': 'sincronizar()',
+  },
   styles: `
     .fondo {
       position: fixed; inset: 0; z-index: 50;
@@ -66,6 +75,11 @@ import { Archivo } from '../../core/mesa.types';
     .marco {
       width: min(1200px, 100%); height: min(92vh, 100%);
       display: flex; flex-direction: column; gap: 10px;
+    }
+    /* En pantalla completa el marco ocupa toda la pantalla, sin bandas negras. */
+    .marco:fullscreen {
+      width: 100%; height: 100%; max-width: none; padding: 14px;
+      background: var(--noche-honda, rgba(15,11,5,.98));
     }
 
     .barra { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
@@ -110,6 +124,11 @@ export class Visor {
   private readonly mesa = inject(MesaService);
   private readonly sanitizer = inject(DomSanitizer);
 
+  /** El marco, sobre el que se pide la pantalla completa del navegador. */
+  private readonly marco = viewChild.required<ElementRef<HTMLElement>>('marco');
+  /** Si estamos en pantalla completa de verdad (la del navegador, no el modal). */
+  readonly completa = signal(false);
+
   /** El índice vivo: arranca en el que se pidió y se mueve con las flechas. */
   private readonly saltos = signal(0);
   readonly i = computed(() => {
@@ -130,8 +149,24 @@ export class Visor {
     this.saltos.update(s => s + paso);
   }
 
+  /** Entrar o salir de la pantalla completa del navegador. */
+  alternarCompleta(): void {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen();
+    } else {
+      void this.marco().nativeElement.requestFullscreen?.().catch(() => {});
+    }
+  }
+
+  /** El navegador puede salir de pantalla completa por su cuenta (Esc, F11…). */
+  sincronizar(): void {
+    this.completa.set(!!document.fullscreenElement);
+  }
+
   tecla(e: KeyboardEvent): void {
-    if (e.key === 'Escape') this.cerrar.emit();
+    // En pantalla completa, Esc lo gestiona el navegador (sale de ella); no
+    // cerramos también el visor, o se iría todo de golpe.
+    if (e.key === 'Escape') { if (!this.completa()) this.cerrar.emit(); }
     else if (e.key === 'ArrowLeft') this.mover(-1);
     else if (e.key === 'ArrowRight') this.mover(1);
   }

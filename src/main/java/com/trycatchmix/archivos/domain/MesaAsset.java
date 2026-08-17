@@ -50,6 +50,13 @@ public class MesaAsset {
     @Column(name = "storage_name", nullable = false)
     private String storageName;
 
+    /**
+     * El texto extraído del PDF al subirlo, para buscar por contenido. Vacío en
+     * imágenes y en PDF sin capa de texto (escaneados). Se rellena con PDFBox.
+     */
+    @Column(name = "text_content", nullable = false, columnDefinition = "text")
+    private String textContent = "";
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 }

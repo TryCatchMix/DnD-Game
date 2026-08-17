@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import {
-  Archivo, DetalleMision, MisionRequest, NotaRequest, VistaMesa,
+  Archivo, Coincidencia, DetalleMision, MisionRequest, NotaRequest, VistaMesa,
 } from './mesa.types';
 
 /**
@@ -68,6 +68,16 @@ export class MesaService {
 
   biblioteca(): Observable<Archivo[]> {
     return this.http.get<Archivo[]>('/api/mesa/archivos');
+  }
+
+  /** Busca la frase DENTRO del texto de los PDF, no solo en los títulos. */
+  buscarEnPdf(q: string): Observable<Coincidencia[]> {
+    return this.http.get<Coincidencia[]>('/api/mesa/buscar', { params: { q } });
+  }
+
+  /** Indexa los PDF viejos (subidos antes de la búsqueda). Devuelve cuántos. */
+  reindexar(): Observable<number> {
+    return this.http.post<number>('/api/mesa/archivos/reindexar', {});
   }
 
   /** Sube un fichero. Sin misión, se queda en la biblioteca general. */

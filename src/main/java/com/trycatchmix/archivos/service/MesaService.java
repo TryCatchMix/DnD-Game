@@ -43,6 +43,7 @@ public class MesaService {
     private final MesaNoteRepository notas;
     private final MesaAssetRepository archivos;
     private final MesaStorage armario;
+    private final PdfTexto pdfTexto;
 
     // ---------------------------------------------------------------- misiones
 
@@ -199,6 +200,8 @@ public class MesaService {
         a.setMime(file.getContentType());
         a.setSizeBytes(file.getSize());
         a.setStorageName(storageName);
+        // Un PDF se indexa al subirlo para poder buscar dentro de él después.
+        if ("pdf".equals(kind)) a.setTextContent(pdfTexto.extraer(armario.leer(storageName)));
         archivos.save(a);
         return vista(a);
     }
@@ -239,6 +242,50 @@ public class MesaService {
     }
 
     public record Descarga(byte[] bytes, String mime, String filename) {}
+
+    // ------------------------------------------------------------ buscar dentro
+
+    /**
+     * Busca la frase dentro del texto de todos los PDF del DM. Devuelve solo los
+     * que la contienen, el que más veces la nombra primero, con un fragmento
+     * para enseñar dónde. Vacío si la consulta es muy corta o no aparece.
+     */
+    @Transactional(readOnly = true)
+    public List<AssetHit> buscar(UUID userId, String q) {
+        String aguja = PdfTexto.normalizar(q == null ? "" : q.trim());
+        if (aguja.length() < 2) return List.of();
+        return archivos.findByUserIdAndKindOrderByCreatedAtDesc(userId, "pdf").stream()
+                .map(a -> {
+                    var c = PdfTexto.buscar(a.getTextContent(), aguja);
+                    if (c == null) return null;
+                    return new AssetHit(
+                            a.getId().toString(),
+                            a.getMissionId() == null ? null : a.getMissionId().toString(),
+                            a.getTitle(), a.getFilename(), c.veces(), c.fragmento());
+                })
+                .filter(java.util.Objects::nonNull)
+                .sorted(Comparator.comparingInt(AssetHit::matchCount).reversed())
+                .toList();
+    }
+
+    /**
+     * Vuelve a sacar el texto de los PDF que aún no lo tengan (los subidos antes
+     * de que existiera la búsqueda por contenido). Devuelve cuántos se indexaron.
+     */
+    @Transactional
+    public int reindexar(UUID userId) {
+        int hechos = 0;
+        for (MesaAsset a : archivos.findByUserIdAndKindOrderByCreatedAtDesc(userId, "pdf")) {
+            if (!a.getTextContent().isBlank()) continue;
+            try {
+                String texto = pdfTexto.extraer(armario.leer(a.getStorageName()));
+                if (!texto.isBlank()) { a.setTextContent(texto); hechos++; }
+            } catch (RuntimeException e) {
+                // Fichero huérfano o ilegible: se salta, no corta el reindexado.
+            }
+        }
+        return hechos;
+    }
 
     // ------------------------------------------------------------------ dentro
 

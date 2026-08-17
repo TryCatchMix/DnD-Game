@@ -118,6 +118,19 @@ public class MesaController {
         return mesa.biblioteca(user(p));
     }
 
+    /** Buscar dentro del texto de los PDF, no solo por el título. */
+    @GetMapping("/buscar")
+    public List<AssetHit> buscar(@AuthenticationPrincipal AuthPrincipal p,
+                                 @RequestParam(defaultValue = "") String q) {
+        return mesa.buscar(user(p), q);
+    }
+
+    /** Indexar los PDF viejos que se subieron antes de la búsqueda por contenido. */
+    @PostMapping("/archivos/reindexar")
+    public int reindexar(@AuthenticationPrincipal AuthPrincipal p) {
+        return mesa.reindexar(user(p));
+    }
+
     @PostMapping(value = "/archivos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public AssetView subir(@AuthenticationPrincipal AuthPrincipal p,
                            @RequestPart("archivo") MultipartFile archivo,

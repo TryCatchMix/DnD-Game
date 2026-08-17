@@ -29,6 +29,63 @@ public class GameService {
     private final InventoryRepository inventory;
     private final DiceService dice;
 
+    /** Una habilidad del catálogo base (nombre + característica clave). */
+    private record SkillDef(String name, String keyAbility) {}
+
+    /**
+     * Las habilidades estándar de D&D 3.5. Toda ficha las muestra de base, con
+     * su característica clave puesta (así el total sale solo: mod. + rangos +
+     * varios). Si el personaje tiene rangos/varios guardados para una de ellas,
+     * esos valores mandan; las que el personaje no tenga aparecen a 0.
+     */
+    private static final List<SkillDef> SKILLS_35 = List.of(
+            new SkillDef("Abrir cerraduras", "DES"),
+            new SkillDef("Artesanía", "INT"),
+            new SkillDef("Atletismo", "FUE"),
+            new SkillDef("Averiguar intenciones", "SAB"),
+            new SkillDef("Buscar", "INT"),
+            new SkillDef("Concentración", "CON"),
+            new SkillDef("Conocimiento de conjuros", "INT"),
+            new SkillDef("Descifrar escritura", "INT"),
+            new SkillDef("Diplomacia", "CAR"),
+            new SkillDef("Disfrazarse", "CAR"),
+            new SkillDef("Engañar", "CAR"),
+            new SkillDef("Equilibrio", "DES"),
+            new SkillDef("Escapismo", "DES"),
+            new SkillDef("Falsificación", "INT"),
+            new SkillDef("Interpretar", "CAR"),
+            new SkillDef("Intimidar", "CAR"),
+            new SkillDef("Inutilizar mecanismo", "INT"),
+            new SkillDef("Juego de manos", "DES"),
+            new SkillDef("Montar", "DES"),
+            new SkillDef("Percepción", "SAB"),
+            new SkillDef("Piruetas", "DES"),
+            new SkillDef("Profesión", "SAB"),
+            new SkillDef("Reunir información", "CAR"),
+            new SkillDef("Saber", "INT"),
+            new SkillDef("Sanar", "SAB"),
+            new SkillDef("Sigilo", "DES"),
+            new SkillDef("Supervivencia", "SAB"),
+            new SkillDef("Tasar", "INT"),
+            new SkillDef("Trato con animales", "CAR"),
+            new SkillDef("Usar cuerda", "DES"),
+            new SkillDef("Usar objeto mágico", "CAR"));
+
+    /**
+     * Habilidades antiguas de las fichas que se pliegan en las consolidadas: así
+     * "Avistar"/"Escuchar" cuentan como Percepción, "Esconderse"/"Moverse
+     * sigilosamente" como Sigilo y "Trepar"/"Salto"/"Nadar" como Atletismo, sin
+     * aparecer duplicadas. La clave es el código; el valor, el código destino.
+     */
+    private static final Map<String, String> CODIGOS_LEGADO = Map.of(
+            "avistar", "percepcion",
+            "escuchar", "percepcion",
+            "esconderse", "sigilo",
+            "moverse_sigilosamente", "sigilo",
+            "trepar", "atletismo",
+            "salto", "atletismo",
+            "nadar", "atletismo");
+
     // ---------------------------------------------------------- personajes ---
 
     @Transactional(readOnly = true)
@@ -224,10 +281,36 @@ public class GameService {
                 new AbilityView("SAB", "Sabiduría",     c.getWisScore(), c.abilityMod("SAB")),
                 new AbilityView("CAR", "Carisma",       c.getChaScore(), c.abilityMod("CAR")));
 
-        List<SkillDetailView> skills = skillList.stream()
-                .sorted(Comparator.comparing(CharacterSkill::getName))
-                .map(s -> new SkillDetailView(s.getName(), s.getCode(), s.getKeyAbility(),
-                        s.getRanks(), s.getMiscMod(), c.skillTotal(s)))
+        // El catálogo consolidado como base; lo guardado por el personaje manda.
+        Map<String, SkillDetailView> porCodigo = new LinkedHashMap<>();
+        Map<String, String> claveDe = new HashMap<>();
+        for (SkillDef def : SKILLS_35) {
+            String code = codeDe(def.name());
+            int total = def.keyAbility().isBlank() ? 0 : c.abilityMod(def.keyAbility());
+            porCodigo.put(code, new SkillDetailView(def.name(), code, def.keyAbility(), 0, 0, total));
+            claveDe.put(code, def.keyAbility());
+        }
+        for (CharacterSkill s : skillList) {
+            // Las habilidades antiguas se pliegan en su consolidada (Avistar → Percepción…).
+            String code = CODIGOS_LEGADO.getOrDefault(s.getCode(), s.getCode());
+            SkillDetailView catalogo = porCodigo.get(code);
+            if (catalogo != null) {
+                // Está en el catálogo: conserva su nombre/característica; usa los rangos guardados.
+                String key = claveDe.get(code);
+                int total = (key == null || key.isBlank() ? 0 : c.abilityMod(key)) + s.getRanks() + s.getMiscMod();
+                int previo = catalogo.ranks() + catalogo.miscMod();
+                if (s.getRanks() + s.getMiscMod() >= previo) {   // si dos antiguas caen aquí, gana la mejor
+                    porCodigo.put(code, new SkillDetailView(catalogo.name(), code, key,
+                            s.getRanks(), s.getMiscMod(), total));
+                }
+            } else {
+                // Habilidad propia sin equivalente en el catálogo (p. ej. "Saber (Religión)").
+                porCodigo.put(s.getCode(), new SkillDetailView(s.getName(), s.getCode(), s.getKeyAbility(),
+                        s.getRanks(), s.getMiscMod(), c.skillTotal(s)));
+            }
+        }
+        List<SkillDetailView> skills = porCodigo.values().stream()
+                .sorted(Comparator.comparing(SkillDetailView::name))
                 .toList();
 
         int initiative = c.abilityMod("DES") + c.getInitiativeMisc();
