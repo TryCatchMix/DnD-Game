@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { JuegoService } from '../../core/juego.service';
+import { JuegoService } from '../../core/game.service';
 import { CharacterCreate } from '../../core/api.types';
 
 interface Modelo {

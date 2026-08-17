@@ -1,8 +1,8 @@
 import { Component, Type, computed, effect, inject, input, signal } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
 
-import { DisenoService } from './diseno.service';
-import { PaginaId } from './diseno.types';
+import { DisenoService } from './design.service';
+import { PaginaId } from './design.types';
 
 /**
  * El hueco donde se pinta el diseño elegido de una pantalla:

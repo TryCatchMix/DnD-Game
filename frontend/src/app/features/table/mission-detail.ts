@@ -2,16 +2,16 @@ import { Component, computed, effect, inject, input, output, signal } from '@ang
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 
-import { MesaService } from '../../core/mesa.service';
+import { MesaService } from '../../core/table.service';
 import {
   Archivo, DetalleMision, ESTADOS, EstadoMision, NotaMesa, TIPOS_NOTA, TipoNota,
-} from '../../core/mesa.types';
-import { Lamina } from './lamina';
-import { ModoMesa } from './modo-mesa';
-import { Visor } from './visor';
-import { ZonaSubida } from './zona-subida';
-import { EditorRico } from '../../shared/editor-rico';
-import { HtmlCrudo, textoPlano } from '../../shared/html-crudo';
+} from '../../core/table.types';
+import { Lamina } from './plate';
+import { ModoMesa } from './table-mode';
+import { Visor } from './viewer';
+import { ZonaSubida } from './upload-zone';
+import { EditorRico } from '../../shared/rich-editor';
+import { HtmlCrudo, textoPlano } from '../../shared/raw-html';
 
 /** Lo que se está escribiendo en un paso del guion. */
 interface EdicionNota { id: string | null; kind: TipoNota; title: string; body: string; }

@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { JuegoService } from '../../core/juego.service';
+import { JuegoService } from '../../core/game.service';
 import { ResolutionView, SceneOption, SceneView } from '../../core/api.types';
 import { NavBar } from '../../shared/nav';
 

@@ -9,8 +9,8 @@ Cada pantalla se parte en dos:
 
 | Pieza | Qué tiene | Ejemplo |
 |---|---|---|
-| **Contenedor** | El estado, las cuentas y las llamadas al backend | `features/ficha/ficha.store.ts` |
-| **Diseño** | SOLO plantilla y estilos | `features/ficha/disenos/pergamino.ts` |
+| **Contenedor** | El estado, las cuentas y las llamadas al backend | `features/sheet/sheet.store.ts` |
+| **Diseño** | SOLO plantilla y estilos | `features/sheet/designs/parchment.ts` |
 
 El contenedor lo provee la página (`providers: [FichaStore]`), y el diseño lo
 inyecta (`inject(FichaStore)`). Como el diseño se crea dentro del árbol de la
@@ -25,11 +25,11 @@ FichaPage  (provee FichaStore)
 
 ## Añadir un diseño nuevo (3 pasos)
 
-1. **Crea el componente** en `features/<pantalla>/disenos/<nombre>.ts`.
+1. **Crea el componente** en `features/<pantalla>/designs/<nombre>.ts`.
    Copia otro diseño como punto de partida: es plantilla + estilos, y todos los
    datos salen de `store`. No añadas ahí lógica de negocio; si te falta algo,
    va al store y lo aprovechan todos los diseños.
-2. **Regístralo** en `core/diseno/diseno.catalogo.ts`, dentro de las `opciones`
+2. **Regístralo** en `core/design/design.catalog.ts`, dentro de las `opciones`
    de su pantalla, con un `id` estable (se guarda en las preferencias) y un
    `import()` dinámico.
 3. Ya está. Aparece solo en Ajustes → Diseño. El `import()` dinámico hace que
@@ -38,10 +38,10 @@ FichaPage  (provee FichaStore)
 ## Añadir una pantalla nueva (tienda, notas, crónica…)
 
 1. Saca la lógica de la página a un `<pantalla>.store.ts` (`@Injectable()`, sin
-   `providedIn: 'root'`), como en `ficha.store.ts`.
+   `providedIn: 'root'`), como en `sheet.store.ts`.
 2. Deja la página con `providers: [<Pantalla>Store]`, la barra de navegación y
    `<arc-diseno pagina="<pantalla>" />`.
-3. Mueve la plantilla y los estilos actuales a `disenos/<actual>.ts`: ese es el
+3. Mueve la plantilla y los estilos actuales a `designs/<actual>.ts`: ese es el
    diseño de fábrica.
 4. Registra la pantalla en el catálogo. `PaginaId` ya tiene declaradas las
    pantallas candidatas (`tienda`, `notas`, `cronica`, `propiedades`,
@@ -55,7 +55,7 @@ FichaPage  (provee FichaStore)
   vuelve al de fábrica en vez de quedarse con la pantalla en blanco.
 - **La preferencia se restaura antes de la primera pintada**
   (`provideAppInitializer` en `app.config.ts`), así no parpadea.
-- **El formulario de edición de la ficha** (`ficha-editor.ts`) es común a los dos
+- **El formulario de edición de la ficha** (`sheet-editor.ts`) es común a los dos
   diseños a propósito: son 150 líneas de campos que no aportan nada duplicadas.
   Un diseño que quiera el suyo, simplemente no lo importa y escribe otro.
 - **Cosas del DOM** (poner el foco, medir, hacer scroll) son del diseño, no del

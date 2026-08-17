@@ -1,7 +1,7 @@
 import { Component, ElementRef, computed, inject, input, signal, viewChild, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { JuegoService } from '../../core/juego.service';
+import { JuegoService } from '../../core/game.service';
 import { Note } from '../../core/api.types';
 import { NavBar } from '../../shared/nav';
 

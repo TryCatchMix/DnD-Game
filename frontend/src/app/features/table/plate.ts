@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 
-import { MesaService } from '../../core/mesa.service';
+import { MesaService } from '../../core/table.service';
 
 /**
  * Una lámina: la miniatura de un archivo de La Mesa.

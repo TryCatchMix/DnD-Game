@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { JuegoService } from '../../core/juego.service';
+import { JuegoService } from '../../core/game.service';
 import { QuestSummary, ValidationReport } from '../../core/api.types';
 
 const PLANTILLA = `{

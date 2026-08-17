@@ -2,10 +2,10 @@ import {
   Component, computed, inject, input, signal, viewChild, OnInit, OnDestroy,
 } from '@angular/core';
 
-import { JuegoService } from '../../core/juego.service';
+import { JuegoService } from '../../core/game.service';
 import { NavBar } from '../../shared/nav';
-import { EditorRico } from '../../shared/editor-rico';
-import { textoPlano } from '../../shared/html-crudo';
+import { EditorRico } from '../../shared/rich-editor';
+import { textoPlano } from '../../shared/raw-html';
 
 /**
  * El Trasfondo: la historia del personaje escrita como un documento con

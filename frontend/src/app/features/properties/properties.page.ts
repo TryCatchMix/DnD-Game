@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { JuegoService } from '../../core/juego.service';
+import { JuegoService } from '../../core/game.service';
 import { Holdings, Property, PropertyCatalogItem } from '../../core/api.types';
 import { NavBar } from '../../shared/nav';
 

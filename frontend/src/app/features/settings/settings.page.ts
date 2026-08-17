@@ -1,8 +1,8 @@
 import { Component, inject, input } from '@angular/core';
 
-import { DisenoService } from '../../core/diseno/diseno.service';
+import { DisenoService } from '../../core/design/design.service';
 import { NavBar } from '../../shared/nav';
-import { SelectorDiseno } from '../../core/diseno/selector-diseno';
+import { SelectorDiseno } from '../../core/design/design-selector';
 
 /**
  * Ajustes · Diseño.

@@ -3,8 +3,8 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '../../core/auth.service';
 import { NavBar } from '../../shared/nav';
-import { EncargosPanel } from './encargos-panel';
-import { CronicaPanel } from './cronica-panel';
+import { EncargosPanel } from './quests-panel';
+import { CronicaPanel } from './chronicle-panel';
 
 type Pestana = 'encargos' | 'cronica';
 

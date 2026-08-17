@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import {
   Archivo, Coincidencia, DetalleMision, MisionRequest, NotaRequest, VistaMesa,
-} from './mesa.types';
+} from './table.types';
 
 /**
  * Todo lo que La Mesa le pide al backend. Rutas /api/mesa/**, solo DM.

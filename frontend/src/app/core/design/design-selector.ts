@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 
-import { DisenoService } from './diseno.service';
-import { PaginaId } from './diseno.types';
+import { DisenoService } from './design.service';
+import { PaginaId } from './design.types';
 
 /**
  * Los diseños de UNA pantalla, en tarjetas para elegir.

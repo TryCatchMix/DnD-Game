@@ -3,8 +3,8 @@ import {
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { MesaService } from '../../core/mesa.service';
-import { Archivo } from '../../core/mesa.types';
+import { MesaService } from '../../core/table.service';
+import { Archivo } from '../../core/table.types';
 
 /**
  * El visor a pantalla completa: una imagen grande o un PDF, con las flechas

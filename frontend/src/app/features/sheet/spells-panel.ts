@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { FichaStore } from './ficha.store';
+import { FichaStore } from './sheet.store';
 
 /**
  * La lista de conjuros preparados y, si el personaje es clérigo, sus dominios.

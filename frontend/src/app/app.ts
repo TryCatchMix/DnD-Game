@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
-import { ActualizarBanner } from './shared/actualizar-banner';
+import { ActualizarBanner } from './shared/update-banner';
 
 @Component({
   selector: 'arc-root',

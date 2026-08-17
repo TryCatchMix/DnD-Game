@@ -1,10 +1,10 @@
 import { Component, ElementRef, effect, inject, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { ConjurosPanel } from '../conjuros-panel';
-import { FichaEditor } from '../ficha-editor';
-import { FichaStore } from '../ficha.store';
-import { KgPipe } from '../../../shared/peso.pipe';
+import { ConjurosPanel } from '../spells-panel';
+import { FichaEditor } from '../sheet-editor';
+import { FichaStore } from '../sheet.store';
+import { KgPipe } from '../../../shared/weight.pipe';
 
 /**
  * DISEÑO «MESA DE NOCHE» — alternativa al pergamino.

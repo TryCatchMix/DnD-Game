@@ -2,7 +2,7 @@ import {
   Component, ElementRef, booleanAttribute, effect, input, output, signal, viewChild,
 } from '@angular/core';
 
-import { aHtmlSeguro } from './html-crudo';
+import { aHtmlSeguro } from './raw-html';
 
 /**
  * Un editor de texto rico reutilizable, al estilo de un procesador de textos:

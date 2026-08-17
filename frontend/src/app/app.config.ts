@@ -8,7 +8,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/auth.interceptor';
 import { AuthService } from './core/auth.service';
-import { DisenoService } from './core/diseno/diseno.service';
+import { DisenoService } from './core/design/design.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [

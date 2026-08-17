@@ -3,7 +3,7 @@ import { InventoryItem, Shop, ShopOffer } from '../../core/api.types';
 
 import { AuthService } from '../../core/auth.service';
 import { FormsModule } from '@angular/forms';
-import { JuegoService } from '../../core/juego.service';
+import { JuegoService } from '../../core/game.service';
 import { NavBar } from '../../shared/nav';
 import { Router } from '@angular/router';
 

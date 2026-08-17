@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, input } from '@angular/core';
 
-import { DisenoHost } from '../../core/diseno/diseno-host';
-import { FichaStore } from './ficha.store';
+import { DisenoHost } from '../../core/design/design-host';
+import { FichaStore } from './sheet.store';
 import { NavBar } from '../../shared/nav';
 
 /**

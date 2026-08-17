@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import {
   DomainDetail, DomainSummary, Ficha, Inventory, InventoryLine, PreparedSpell, SkillDetail, Spell,
 } from '../../core/api.types';
-import { JuegoService } from '../../core/juego.service';
+import { JuegoService } from '../../core/game.service';
 
 export interface EditRow { name: string; keyAbility: string; ranks: number; miscMod: number; }
 

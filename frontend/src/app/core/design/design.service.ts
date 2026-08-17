@@ -1,8 +1,8 @@
 import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 
-import { CATALOGO_DISENOS } from './diseno.catalogo';
-import { OpcionDiseno, PaginaDiseno, PaginaId } from './diseno.types';
+import { CATALOGO_DISENOS } from './design.catalog';
+import { OpcionDiseno, PaginaDiseno, PaginaId } from './design.types';
 
 const CLAVE = 'archivos.disenos';
 

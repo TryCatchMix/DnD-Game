@@ -3,7 +3,7 @@ import { Component, OnInit, computed, inject, input, signal } from '@angular/cor
 import { AuthService } from '../../core/auth.service';
 import { ChronicleEntry } from '../../core/api.types';
 import { FormsModule } from '@angular/forms';
-import { JuegoService } from '../../core/juego.service';
+import { JuegoService } from '../../core/game.service';
 import { NavBar } from '../../shared/nav';
 
 const CATEGORIAS = ['MUNDO', 'CATACLISMO', 'VERDAD', 'CLAN', 'RUMOR'];

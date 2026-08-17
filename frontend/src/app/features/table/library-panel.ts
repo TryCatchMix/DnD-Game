@@ -1,11 +1,11 @@
 import { Component, computed, effect, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { MesaService } from '../../core/mesa.service';
-import { Archivo, Coincidencia, TarjetaMision } from '../../core/mesa.types';
-import { Lamina } from './lamina';
-import { Visor } from './visor';
-import { ZonaSubida } from './zona-subida';
+import { MesaService } from '../../core/table.service';
+import { Archivo, Coincidencia, TarjetaMision } from '../../core/table.types';
+import { Lamina } from './plate';
+import { Visor } from './viewer';
+import { ZonaSubida } from './upload-zone';
 
 const norm = (s: string) =>
   s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');

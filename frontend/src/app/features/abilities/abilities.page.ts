@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { JuegoService } from '../../core/juego.service';
+import { JuegoService } from '../../core/game.service';
 import { ClassFeature, Invocation, Spell, SpellCreate, SpellPage } from '../../core/api.types';
 import { NavBar } from '../../shared/nav';
 

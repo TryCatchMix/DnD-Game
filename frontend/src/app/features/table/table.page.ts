@@ -3,9 +3,9 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '../../core/auth.service';
 import { NavBar } from '../../shared/nav';
-import { BibliotecaPanel } from './biblioteca-panel';
-import { MisionDetalle } from './mision-detalle';
-import { MisionesPanel } from './misiones-panel';
+import { BibliotecaPanel } from './library-panel';
+import { MisionDetalle } from './mission-detail';
+import { MisionesPanel } from './missions-panel';
 
 type Pestana = 'misiones' | 'biblioteca';
 

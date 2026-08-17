@@ -1,8 +1,8 @@
 import { Component, computed, input, output, signal } from '@angular/core';
 
-import { Archivo, DetalleMision, NotaMesa, TIPOS_NOTA, TipoNota } from '../../core/mesa.types';
-import { Lamina } from './lamina';
-import { HtmlCrudo } from '../../shared/html-crudo';
+import { Archivo, DetalleMision, NotaMesa, TIPOS_NOTA, TipoNota } from '../../core/table.types';
+import { Lamina } from './plate';
+import { HtmlCrudo } from '../../shared/raw-html';
 
 /**
  * Modo mesa: lo que el DM tiene delante MIENTRAS juega, no mientras prepara.

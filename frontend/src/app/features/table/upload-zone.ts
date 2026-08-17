@@ -1,7 +1,7 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 
-import { MesaService } from '../../core/mesa.service';
-import { Archivo } from '../../core/mesa.types';
+import { MesaService } from '../../core/table.service';
+import { Archivo } from '../../core/table.types';
 
 /** Lo que acepta el backend (MesaStorage.ADMITIDOS). */
 const ACEPTA = 'image/jpeg,image/png,image/webp,image/gif,application/pdf';

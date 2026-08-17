@@ -22,7 +22,7 @@ export const routes: Routes = [
   {
     path: 'registro',
     loadComponent: () =>
-      import('./features/registro/registro.page').then(m => m.RegistroPage),
+      import('./features/register/register.page').then(m => m.RegistroPage),
   },
   {
     path: 'personajes',
@@ -32,12 +32,12 @@ export const routes: Routes = [
   {
     path: 'personajes/nuevo',
     loadComponent: () =>
-      import('./features/creador/creador.page').then(m => m.CreadorPage),
+      import('./features/creator/creator.page').then(m => m.CreadorPage),
   },
   {
     path: 'personajes/:personajeId/ficha',
     loadComponent: () =>
-      import('./features/ficha/ficha.page').then(m => m.FichaPage),
+      import('./features/sheet/sheet.page').then(m => m.FichaPage),
   },
   {
     path: 'personajes/:personajeId/tienda',
@@ -52,37 +52,37 @@ export const routes: Routes = [
   {
     path: 'personajes/:personajeId/mesa',
     loadComponent: () =>
-      import('./features/mesa/mesa.page').then(m => m.MesaPage),
+      import('./features/table/table.page').then(m => m.MesaPage),
   },
   {
     path: 'personajes/:personajeId/habilidades',
     loadComponent: () =>
-      import('./features/habilidades/habilidades.page').then(m => m.HabilidadesPage),
+      import('./features/abilities/abilities.page').then(m => m.HabilidadesPage),
   },
   {
     path: 'personajes/:personajeId/notas',
     loadComponent: () =>
-      import('./features/notas/notas.page').then(m => m.NotasPage),
+      import('./features/notes/notes.page').then(m => m.NotasPage),
   },
   {
     path: 'personajes/:personajeId/trasfondo',
     loadComponent: () =>
-      import('./features/trasfondo/trasfondo.page').then(m => m.TrasfondoPage),
+      import('./features/backstory/backstory.page').then(m => m.TrasfondoPage),
   },
   {
     path: 'personajes/:personajeId/propiedades',
     loadComponent: () =>
-      import('./features/propiedades/propiedades.page').then(m => m.PropiedadesPage),
+      import('./features/properties/properties.page').then(m => m.PropiedadesPage),
   },
   {
     path: 'personajes/:personajeId/cronica',
     loadComponent: () =>
-      import('./features/cronica/cronica.page').then(m => m.CronicaPage),
+      import('./features/chronicle/chronicle.page').then(m => m.CronicaPage),
   },
   {
     path: 'personajes/:personajeId/ajustes',
     loadComponent: () =>
-      import('./features/ajustes/ajustes.page').then(m => m.AjustesPage),
+      import('./features/settings/settings.page').then(m => m.AjustesPage),
   },
   {
     path: 'personajes/:personajeId/tablon',

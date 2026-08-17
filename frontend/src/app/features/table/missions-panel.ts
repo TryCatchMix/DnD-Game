@@ -1,9 +1,9 @@
 import { Component, computed, inject, output, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { MesaService } from '../../core/mesa.service';
-import { ESTADOS, EstadoMision, TarjetaMision } from '../../core/mesa.types';
-import { Lamina } from './lamina';
+import { MesaService } from '../../core/table.service';
+import { ESTADOS, EstadoMision, TarjetaMision } from '../../core/table.types';
+import { Lamina } from './plate';
 
 const norm = (s: string) =>
   s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');

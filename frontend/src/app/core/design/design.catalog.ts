@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
 
-import { CatalogoDisenos } from './diseno.types';
+import { CatalogoDisenos } from './design.types';
 
 /**
  * El catálogo: el único sitio donde se declara qué diseños existen.
@@ -29,21 +29,21 @@ export const CATALOGO_POR_DEFECTO: CatalogoDisenos = [
         id: 'pergamino',
         nombre: 'Pergamino',
         resumen: 'La hoja impresa de siempre: dos columnas, pestañas y casillas sobre papel.',
-        cargar: () => import('../../features/ficha/disenos/pergamino')
+        cargar: () => import('../../features/sheet/designs/parchment')
           .then(m => m.FichaPergamino),
       },
       {
         id: 'mesa',
         nombre: 'Mesa de noche',
         resumen: 'Una sola columna sobre fondo oscuro, cifras grandes y todo a la vista sin pestañas.',
-        cargar: () => import('../../features/ficha/disenos/mesa')
+        cargar: () => import('../../features/sheet/designs/table')
           .then(m => m.FichaMesa),
       },
       {
         id: 'celeste',
         nombre: 'Celeste',
         resumen: 'Carta astral: cielo con estrellas que derivan, paneles de cristal violeta y acentos de cian y oro.',
-        cargar: () => import('../../features/ficha/disenos/celeste')
+        cargar: () => import('../../features/sheet/designs/celeste')
           .then(m => m.FichaCeleste),
       },
     ],
