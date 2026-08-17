@@ -247,6 +247,7 @@ export interface SpellClassLevel {
 }
 
 export interface Spell {
+  id: string;
   name: string;
   nameEn: string;
   school: string;
@@ -270,7 +271,39 @@ export interface Spell {
   /** "1d6 por nivel de lanzador (máx. 10d6)". */
   damageSummary: string;
   source: string;
+  /** true = "de la casa" (lo añadió la mesa; se puede borrar). */
+  custom: boolean;
   classes: SpellClassLevel[];
+}
+
+/** Una clase a la que se asigna un conjuro nuevo. El atributo de lanzamiento lo
+ *  deduce el servidor de la clase, así que aquí solo van clase y nivel. */
+export interface SpellClassInput {
+  clazz: string;
+  level: number;
+}
+
+/** Lo que se manda para crear un conjuro "de la casa". Solo el nombre y al menos
+ *  una clase son obligatorios; el resto es opcional. */
+export interface SpellCreate {
+  name: string;
+  nameEn: string;
+  school: string;
+  subschool: string;
+  descriptors: string;
+  description: string;
+  components: string;
+  castingTime: string;
+  range: string;
+  target: string;
+  targetKind: string;
+  duration: string;
+  savingThrow: string;
+  spellResistance: string;
+  dice: string;
+  scaling: string;
+  cap: string;
+  classes: SpellClassInput[];
 }
 
 /** Una página de conjuros: los que caben en el límite + cuántos hay en total. */
@@ -348,25 +381,6 @@ export interface Invocation {
   saveDcFormula: string;
   atWill: boolean;
   source: string;
-}
-
-/** Una habilidad personalizada "de la casa": la añade cualquier jugador desde
- *  la pestaña Habilidades. Ligera a propósito: nombre, tipo libre y descripción.
- *  `mine` marca las que ha creado quien mira. */
-export interface CustomAbility {
-  id: string;
-  name: string;
-  kind: string;
-  description: string;
-  author: string;
-  mine: boolean;
-}
-
-/** Lo que se manda para crear una personalizada (solo el nombre es obligatorio). */
-export interface CustomAbilityCreate {
-  name: string;
-  kind: string;
-  description: string;
 }
 
 // --- Editor de encargos del DM ---

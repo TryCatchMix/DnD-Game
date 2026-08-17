@@ -2,7 +2,7 @@ import { Component, computed, inject, input, signal, OnInit } from '@angular/cor
 import { FormsModule } from '@angular/forms';
 
 import { JuegoService } from '../../core/juego.service';
-import { ClassFeature, CustomAbility, Invocation, Spell, SpellPage } from '../../core/api.types';
+import { ClassFeature, Invocation, Spell, SpellCreate, SpellPage } from '../../core/api.types';
 import { NavBar } from '../../shared/nav';
 
 const norm = (s: string) =>
@@ -13,15 +13,20 @@ const CLASES_CONJURO = ['Mago', 'Hechicero', 'Clérigo', 'Bardo', 'Druida', 'Pal
 /** Clases marciales con aptitudes (no lanzan conjuros). */
 const CLASES_APTITUD = ['Bárbaro', 'Guerrero', 'Monje'];
 
+/** Estado de una clase en el formulario de alta: si está marcada y a qué nivel. */
+interface ClaseForm { sel: boolean; level: number; }
+
 /**
- * Habilidades: reúne en una sola pantalla las tres formas de "cosas que un
+ * Habilidades: reúne en una sola pantalla las formas de "cosas que un
  * personaje puede hacer":
  *   · Conjuros (las 7 clases lanzadoras) — paginados en el servidor.
  *   · Invocaciones de warlock — a voluntad, por grado.
  *   · Aptitudes de clase (Bárbaro, Guerrero, Monje) — que no lanzan conjuros.
  *
- * Al entrar muestra 25; con "Mostrar" se sube a 100 o a todas. Los conjuros no
- * se traen enteros (son ~500): el servidor filtra y pagina.
+ * En la vista de conjuros, cualquier jugador (sea máster o no) puede AÑADIR un
+ * conjuro "de la casa": se guarda como uno más en el grimorio y aparece en la
+ * categoría de las clases que elija. Los de la casa se pueden borrar; los del
+ * SRD, no.
  */
 @Component({
   selector: 'arc-habilidades',
@@ -53,9 +58,6 @@ const CLASES_APTITUD = ['Bárbaro', 'Guerrero', 'Monje'];
               @for (c of clasesAptitud; track c) {
                 <option [value]="'aptitud:' + c">{{ c }}</option>
               }
-            </optgroup>
-            <optgroup label="De la casa">
-              <option value="personalizada:">Personalizadas</option>
             </optgroup>
           </select>
         </label>
@@ -140,65 +142,123 @@ const CLASES_APTITUD = ['Bárbaro', 'Guerrero', 'Monje'];
         </ul>
       }
 
-      <!-- ==================== PERSONALIZADAS (de la casa) ==================== -->
-      @else if (kind() === 'personalizada') {
-        <p class="aviso aviso--casa">
-          Habilidades <strong>de la casa</strong>: las añade cualquiera (seas máster
-          o no) para tener a mano cosas como «Crear agua» o «Descarga sobrenatural».
-          Son una lista compartida de la mesa.
-        </p>
-
-        <form class="formu hoja" (ngSubmit)="crear()">
-          <div class="formu-fila">
-            <label class="campo campo--nom">
-              <span class="rotulo">Nombre</span>
-              <input [(ngModel)]="nuevoNombre" name="nombre"
-                     placeholder="Crear agua" autocomplete="off" maxlength="120" />
-            </label>
-            <label class="campo campo--tipo">
-              <span class="rotulo">Tipo (opcional)</span>
-              <input [(ngModel)]="nuevoTipo" name="tipo"
-                     placeholder="Conjuro, Sobrenatural…" autocomplete="off" maxlength="60" />
-            </label>
-          </div>
-          <label class="campo">
-            <span class="rotulo">Descripción (opcional)</span>
-            <textarea [(ngModel)]="nuevaDesc" name="desc" rows="3"
-                      placeholder="Qué hace, cómo se usa…"></textarea>
-          </label>
-          @if (errorForm(); as e) { <p class="estado estado--mal">{{ e }}</p> }
-          <button class="boton boton--lacre" type="submit"
-                  [disabled]="guardando() || !nuevoNombre().trim()">
-            {{ guardando() ? 'Guardando…' : 'Añadir habilidad' }}
-          </button>
-        </form>
-
-        <p class="recuento">{{ personalizadasMostradas().length }} de {{ personalizadasFiltradas().length }} habilidad(es) de la casa</p>
-        @if (personalizadasFiltradas().length === 0) {
-          <p class="estado">Aún no hay ninguna. Añade la primera arriba.</p>
-        } @else {
-          <ul class="lista">
-            @for (a of personalizadasMostradas(); track a.id) {
-              <li class="hoja hechizo hechizo--casa">
-                <div class="fila">
-                  <h2>{{ a.name }}</h2>
-                  @if (a.kind) { <span class="nivel">{{ a.kind }}</span> }
-                </div>
-                @if (a.description) { <p class="desc">{{ a.description }}</p> }
-                <div class="pie-casa">
-                  <span class="fuente">
-                    Añadida por {{ a.author || 'alguien' }}@if (a.mine) { <span class="tuyo"> · tú</span> }
-                  </span>
-                  <button class="mini-borrar" type="button" (click)="borrar(a)">Borrar</button>
-                </div>
-              </li>
-            }
-          </ul>
-        }
-      }
-
       <!-- ======================= CONJUROS ======================= -->
       @else {
+        <!-- Alta de conjuro "de la casa": abrir/cerrar. Lo puede usar cualquiera. -->
+        <div class="anadir">
+          <button class="boton boton--fantasma" type="button" (click)="alternarForm()">
+            {{ mostrarForm() ? '× Cerrar' : '＋ Añadir habilidad' }}
+          </button>
+          <span class="anadir-nota">
+            Se guarda como un conjuro más y aparece en la categoría de las clases que elijas.
+          </span>
+        </div>
+
+        @if (mostrarForm()) {
+          <form class="formu hoja" (ngSubmit)="crear()">
+            <div class="rejilla">
+              <label class="campo campo--ancho">
+                <span class="rotulo">Nombre *</span>
+                <input [(ngModel)]="fName" name="name" maxlength="120"
+                       placeholder="Crear agua" autocomplete="off" />
+              </label>
+              <label class="campo">
+                <span class="rotulo">Escuela</span>
+                <input [(ngModel)]="fSchool" name="school" list="escuelas"
+                       placeholder="Conjuración" autocomplete="off" />
+                <datalist id="escuelas">
+                  @for (e of escuelas; track e) { <option [value]="e"></option> }
+                </datalist>
+              </label>
+              <label class="campo">
+                <span class="rotulo">Nombre en inglés</span>
+                <input [(ngModel)]="fNameEn" name="nameEn" placeholder="Create Water" autocomplete="off" />
+              </label>
+              <label class="campo">
+                <span class="rotulo">Descriptores</span>
+                <input [(ngModel)]="fDescriptors" name="descriptors" placeholder="Fuego, Miedo…" autocomplete="off" />
+              </label>
+              <label class="campo">
+                <span class="rotulo">Componentes</span>
+                <input [(ngModel)]="fComponents" name="components" placeholder="V, G" autocomplete="off" />
+              </label>
+              <label class="campo">
+                <span class="rotulo">Lanzamiento</span>
+                <input [(ngModel)]="fCasting" name="casting" placeholder="1 acción estándar" autocomplete="off" />
+              </label>
+              <label class="campo">
+                <span class="rotulo">Alcance</span>
+                <input [(ngModel)]="fRange" name="range" placeholder="Toque, Corto…" autocomplete="off" />
+              </label>
+              <label class="campo">
+                <span class="rotulo">Duración</span>
+                <input [(ngModel)]="fDuration" name="duration" placeholder="Instantáneo, 1 min/nivel…" autocomplete="off" />
+              </label>
+              <label class="campo">
+                <span class="rotulo">Objetivo / Área</span>
+                <input [(ngModel)]="fTarget" name="target" placeholder="1 criatura, 6 m de radio…" autocomplete="off" />
+              </label>
+              <label class="campo">
+                <span class="rotulo">Salvación</span>
+                <input [(ngModel)]="fSaving" name="saving" placeholder="Reflejos parcial, Ninguna…" autocomplete="off" />
+              </label>
+              <label class="campo">
+                <span class="rotulo">Resist. a conjuros</span>
+                <input [(ngModel)]="fSR" name="sr" placeholder="Sí, No" autocomplete="off" />
+              </label>
+              <label class="campo">
+                <span class="rotulo">Daño (dados)</span>
+                <input [(ngModel)]="fDice" name="dice" placeholder="1d6" autocomplete="off" />
+              </label>
+              <label class="campo">
+                <span class="rotulo">Escalado</span>
+                <input [(ngModel)]="fScaling" name="scaling" placeholder="por nivel de lanzador" autocomplete="off" />
+              </label>
+              <label class="campo">
+                <span class="rotulo">Tope</span>
+                <input [(ngModel)]="fCap" name="cap" placeholder="10d6" autocomplete="off" />
+              </label>
+            </div>
+
+            <label class="campo">
+              <span class="rotulo">Descripción</span>
+              <textarea [(ngModel)]="fDesc" name="desc" rows="4"
+                        placeholder="Qué hace, cómo se usa…"></textarea>
+            </label>
+
+            <fieldset class="clases-sel">
+              <legend class="rotulo">¿Qué clases pueden usarla? * · con su nivel de conjuro</legend>
+              <div class="clases-grid">
+                @for (c of clasesConjuro; track c) {
+                  <div class="clase-op" [class.clase-op--on]="claseSel(c)">
+                    <label class="clase-check">
+                      <input type="checkbox" [ngModel]="claseSel(c)" [name]="'cls-' + c"
+                             (ngModelChange)="toggleClase(c, $event)" />
+                      <span>{{ c }}</span>
+                    </label>
+                    @if (claseSel(c)) {
+                      <label class="clase-nivel">
+                        <span>Nivel</span>
+                        <input type="number" min="0" max="9" [ngModel]="claseNivel(c)"
+                               [name]="'lvl-' + c" (ngModelChange)="setNivel(c, $event)" />
+                      </label>
+                    }
+                  </div>
+                }
+              </div>
+            </fieldset>
+
+            @if (errorForm(); as e) { <p class="estado estado--mal">{{ e }}</p> }
+            <div class="formu-acciones">
+              <button class="boton boton--lacre" type="submit"
+                      [disabled]="guardando() || !fName().trim() || !hayClase()">
+                {{ guardando() ? 'Guardando…' : 'Guardar habilidad' }}
+              </button>
+              <button class="boton boton--fantasma" type="button" (click)="alternarForm()">Cancelar</button>
+            </div>
+          </form>
+        }
+
         <p class="recuento">
           {{ pagina().items.length }} de {{ pagina().total }} hechizo(s)
           @if (limite() > 0 && pagina().total > pagina().items.length) {
@@ -209,8 +269,8 @@ const CLASES_APTITUD = ['Bárbaro', 'Guerrero', 'Monje'];
           <p class="estado">Ningún hechizo cuadra con la búsqueda.</p>
         } @else {
           <ul class="lista">
-            @for (h of pagina().items; track h.name) {
-              <li class="hoja hechizo">
+            @for (h of pagina().items; track h.id) {
+              <li class="hoja hechizo" [class.hechizo--casa]="h.custom">
                 <div class="fila">
                   <h2>{{ h.name }}</h2>
                   <span class="nivel">{{ nivel(h) }}</span>
@@ -220,6 +280,7 @@ const CLASES_APTITUD = ['Bárbaro', 'Guerrero', 'Monje'];
                   @if (h.subschool) { ({{ h.subschool }}) }
                   @if (h.descriptors) { <span class="sep">·</span> {{ h.descriptors }} }
                   @if (h.nameEn) { <span class="sep">·</span> <span class="en">{{ h.nameEn }}</span> }
+                  @if (h.custom) { <span class="sep">·</span> <span class="marca-casa">De la casa</span> }
                 </p>
 
                 @if (h.damageSummary) {
@@ -239,12 +300,17 @@ const CLASES_APTITUD = ['Bárbaro', 'Guerrero', 'Monje'];
 
                 <p class="desc">{{ h.description }}</p>
 
-                <p class="clases">
-                  @for (c of h.classes; track c.clazz) {
-                    <span class="chip" [class.chip--sel]="c.clazz === clase()"
-                          [title]="c.saveDcFormula">{{ c.clazz }} {{ c.level }}</span>
+                <div class="pie-hechizo">
+                  <p class="clases">
+                    @for (c of h.classes; track c.clazz) {
+                      <span class="chip" [class.chip--sel]="c.clazz === clase()"
+                            [title]="c.saveDcFormula">{{ c.clazz }} {{ c.level }}</span>
+                    }
+                  </p>
+                  @if (h.custom) {
+                    <button class="mini-borrar" type="button" (click)="borrar(h)">Borrar</button>
                   }
-                </p>
+                </div>
               </li>
             }
           </ul>
@@ -274,31 +340,42 @@ const CLASES_APTITUD = ['Bárbaro', 'Guerrero', 'Monje'];
     }
     .aviso strong { color: var(--tinta); }
     .aviso--apt { border-left-color: var(--musgo); background: rgba(76,106,55,.08); }
-    .aviso--casa { border-left-color: var(--oro); background: rgba(157,122,47,.08); }
 
-    .formu { padding: 16px 18px; display: grid; gap: 12px; margin: 12px 0 4px; }
-    .formu-fila { display: flex; gap: 12px; flex-wrap: wrap; }
+    /* --- Alta de habilidad de la casa --- */
+    .anadir { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 14px 0 4px; }
+    .anadir-nota { font-size: 13px; color: var(--sepia); }
+    .boton--fantasma {
+      background: transparent; border: 1px solid var(--linea-fuerte); color: var(--sepia-hondo);
+    }
+    .boton--fantasma:hover { color: var(--tinta); border-color: var(--oro); }
+
+    .formu { padding: 18px; display: grid; gap: 14px; margin: 6px 0 10px; }
+    .rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
     .campo { display: grid; gap: 4px; }
     .campo .rotulo { color: var(--sepia-claro); }
-    .campo--nom { flex: 1 1 220px; }
-    .campo--tipo { flex: 1 1 160px; }
+    .campo--ancho { grid-column: 1 / -1; }
     .formu input, .formu textarea {
-      font: inherit; padding: 10px 12px; border: 1px solid var(--linea-fuerte);
+      font: inherit; padding: 9px 11px; border: 1px solid var(--linea-fuerte);
       border-radius: var(--radio); background: var(--pergamino-claro); color: var(--tinta);
       width: 100%; box-sizing: border-box;
     }
     .formu textarea { resize: vertical; line-height: 1.5; }
-    .formu .boton { justify-self: start; }
 
-    .hechizo--casa { border-left: 2px solid rgba(157,122,47,.5); }
-    .pie-casa { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .tuyo { color: var(--oro); }
-    .mini-borrar {
-      font-family: var(--dato); font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
-      color: var(--sepia); background: transparent; border: 1px solid var(--linea);
-      border-radius: var(--radio); padding: 3px 8px; cursor: pointer;
+    .clases-sel { border: 1px solid var(--linea); border-radius: var(--radio); padding: 12px; margin: 0; }
+    .clases-sel legend { padding: 0 6px; color: var(--sepia-claro); }
+    .clases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+    .clase-op {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      border: 1px solid var(--linea); border-radius: var(--radio); padding: 6px 10px;
     }
-    .mini-borrar:hover { color: #d98a7c; border-color: rgba(143,46,34,.5); }
+    .clase-op--on { border-color: rgba(157,122,47,.5); background: rgba(157,122,47,.06); }
+    .clase-check { display: flex; align-items: center; gap: 7px; cursor: pointer; }
+    .clase-check span { color: var(--tinta); }
+    .clase-nivel { display: flex; align-items: center; gap: 6px; }
+    .clase-nivel span { font-family: var(--dato); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--sepia); }
+    .clase-nivel input { width: 56px; }
+
+    .formu-acciones { display: flex; gap: 10px; align-items: center; }
 
     .recuento { font-family: var(--dato); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--sepia); margin: 10px 0; }
     .recuento .sep { color: var(--linea-fuerte); margin: 0 6px; }
@@ -307,12 +384,14 @@ const CLASES_APTITUD = ['Bárbaro', 'Guerrero', 'Monje'];
     .hechizo { padding: 16px 18px; }
     .hechizo--inv { border-left: 2px solid rgba(138,123,176,.45); }
     .hechizo--apt { border-left: 2px solid rgba(76,106,55,.5); }
+    .hechizo--casa { border-left: 2px solid rgba(157,122,47,.5); }
     .fila { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
     h2 { font-size: 20px; color: var(--tinta); }
     .nivel { font-family: var(--dato); font-size: 11px; letter-spacing: .06em; color: var(--oro); white-space: nowrap; }
     .escuela { font-family: var(--dato); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--sepia); margin: 4px 0 8px; }
     .escuela .sep { color: var(--linea-fuerte); margin: 0 4px; }
     .escuela .en { color: var(--sepia-claro); text-transform: none; letter-spacing: 0; font-style: italic; }
+    .marca-casa { color: var(--oro); }
     .avol { color: var(--musgo); }
 
     .dano-destacado {
@@ -338,12 +417,19 @@ const CLASES_APTITUD = ['Bárbaro', 'Guerrero', 'Monje'];
     .desc { color: var(--sepia-hondo); font-size: 15px; line-height: 1.55; margin: 0 0 10px; white-space: pre-line; }
     .fuente { font-family: var(--dato); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--sepia-claro); margin: 0; }
 
+    .pie-hechizo { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .clases { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
     .chip { font-family: var(--dato); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--sepia); border: 1px solid var(--linea); border-radius: var(--radio); padding: 2px 6px; }
     .chip--sel { color: #a294c9; border-color: rgba(138, 123, 176, .5); }
+    .mini-borrar {
+      font-family: var(--dato); font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--sepia); background: transparent; border: 1px solid var(--linea);
+      border-radius: var(--radio); padding: 3px 8px; cursor: pointer; flex: 0 0 auto;
+    }
+    .mini-borrar:hover { color: #d98a7c; border-color: rgba(143,46,34,.5); }
 
     .estado { font-style: italic; color: var(--sepia-claro); padding: 20px 0; }
-    .estado--mal { color: #d98a7c; font-style: normal; }
+    .estado--mal { color: #d98a7c; font-style: normal; padding: 0; }
   `,
 })
 export class HabilidadesPage implements OnInit {
@@ -354,6 +440,8 @@ export class HabilidadesPage implements OnInit {
 
   readonly clasesConjuro = CLASES_CONJURO;
   readonly clasesAptitud = CLASES_APTITUD;
+  readonly escuelas = ['Abjuración', 'Adivinación', 'Conjuración', 'Encantamiento',
+                       'Evocación', 'Ilusión', 'Nigromancia', 'Transmutación', 'Universal'];
 
   /** "kind:clase" — p. ej. "hechizo:Mago", "invocacion:Warlock", "aptitud:Monje". */
   readonly vista = signal('hechizo:Todas');
@@ -366,14 +454,31 @@ export class HabilidadesPage implements OnInit {
   readonly pagina = signal<SpellPage>({ total: 0, items: [] });
   readonly invocaciones = signal<Invocation[]>([]);
   readonly aptitudes = signal<ClassFeature[]>([]);
-  readonly personalizadas = signal<CustomAbility[]>([]);
 
-  // Formulario de "añadir habilidad de la casa".
-  readonly nuevoNombre = signal('');
-  readonly nuevoTipo = signal('');
-  readonly nuevaDesc = signal('');
+  // --- Formulario de "añadir habilidad de la casa" ---
+  readonly mostrarForm = signal(false);
   readonly guardando = signal(false);
   readonly errorForm = signal<string | null>(null);
+
+  readonly fName = signal('');
+  readonly fSchool = signal('');
+  readonly fNameEn = signal('');
+  readonly fDescriptors = signal('');
+  readonly fComponents = signal('');
+  readonly fCasting = signal('');
+  readonly fRange = signal('');
+  readonly fTarget = signal('');
+  readonly fDuration = signal('');
+  readonly fSaving = signal('');
+  readonly fSR = signal('');
+  readonly fDice = signal('');
+  readonly fScaling = signal('');
+  readonly fCap = signal('');
+  readonly fDesc = signal('');
+
+  /** Estado de las clases marcables en el formulario. */
+  readonly formClases = signal<Record<string, ClaseForm>>(
+    Object.fromEntries(CLASES_CONJURO.map(c => [c, { sel: false, level: 1 }])));
 
   readonly kind = computed(() => this.vista().split(':')[0]);
   readonly clase = computed(() => this.vista().split(':')[1] ?? '');
@@ -397,14 +502,6 @@ export class HabilidadesPage implements OnInit {
       .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
   });
   readonly aptitudesMostradas = computed(() => this.aptitudesFiltradas().slice(0, this.tope()));
-
-  // Las personalizadas son pocas: se filtran y recortan en el cliente.
-  readonly personalizadasFiltradas = computed(() => {
-    const q = norm(this.busqueda().trim());
-    return this.personalizadas()
-      .filter(a => q === '' || norm(a.name).includes(q) || norm(a.kind).includes(q));
-  });
-  readonly personalizadasMostradas = computed(() => this.personalizadasFiltradas().slice(0, this.tope()));
 
   private debounce: ReturnType<typeof setTimeout> | null = null;
 
@@ -442,7 +539,6 @@ export class HabilidadesPage implements OnInit {
     const k = this.kind();
     if (k === 'invocacion') this.cargarInvocaciones();
     else if (k === 'aptitud') this.cargarAptitudes();
-    else if (k === 'personalizada') this.cargarPersonalizadas();
     else this.recargarHechizos();
   }
 
@@ -470,28 +566,70 @@ export class HabilidadesPage implements OnInit {
     });
   }
 
-  private cargarPersonalizadas(): void {
-    this.cargando.set(true);
-    this.juego.habilidadesPersonalizadas().subscribe({
-      next: as => { this.personalizadas.set(as); this.cargando.set(false); this.error.set(null); },
-      error: () => { this.cargando.set(false); this.error.set('No se han podido cargar las habilidades de la casa.'); },
-    });
+  // --- Alta de conjuro de la casa ---
+
+  alternarForm(): void {
+    this.mostrarForm.update(v => !v);
+    if (!this.mostrarForm()) this.errorForm.set(null);
+  }
+
+  claseSel(c: string): boolean { return this.formClases()[c]?.sel ?? false; }
+  claseNivel(c: string): number { return this.formClases()[c]?.level ?? 1; }
+  hayClase(): boolean { return CLASES_CONJURO.some(c => this.formClases()[c].sel); }
+
+  toggleClase(c: string, v: boolean): void {
+    this.formClases.update(m => ({ ...m, [c]: { ...m[c], sel: v } }));
+  }
+
+  setNivel(c: string, v: unknown): void {
+    const n = Math.max(0, Math.min(9, Math.trunc(Number(v)) || 0));
+    this.formClases.update(m => ({ ...m, [c]: { ...m[c], level: n } }));
   }
 
   crear(): void {
     if (this.guardando()) return;
-    const name = this.nuevoNombre().trim();
+    const name = this.fName().trim();
     if (!name) { this.errorForm.set('Ponle un nombre a la habilidad.'); return; }
+
+    const classes = CLASES_CONJURO
+      .filter(c => this.formClases()[c].sel)
+      .map(c => ({ clazz: c, level: this.formClases()[c].level }));
+    if (classes.length === 0) {
+      this.errorForm.set('Elige al menos una clase que pueda usarla.');
+      return;
+    }
+
+    const datos: SpellCreate = {
+      name,
+      nameEn: this.fNameEn().trim(),
+      school: this.fSchool().trim(),
+      subschool: '',
+      descriptors: this.fDescriptors().trim(),
+      description: this.fDesc().trim(),
+      components: this.fComponents().trim(),
+      castingTime: this.fCasting().trim(),
+      range: this.fRange().trim(),
+      target: this.fTarget().trim(),
+      targetKind: '',
+      duration: this.fDuration().trim(),
+      savingThrow: this.fSaving().trim(),
+      spellResistance: this.fSR().trim(),
+      dice: this.fDice().trim(),
+      scaling: this.fScaling().trim(),
+      cap: this.fCap().trim(),
+      classes,
+    };
 
     this.guardando.set(true);
     this.errorForm.set(null);
-    this.juego.crearHabilidad({
-      name, kind: this.nuevoTipo().trim(), description: this.nuevaDesc().trim(),
-    }).subscribe({
-      next: a => {
-        this.personalizadas.update(list => [a, ...list]);
-        this.nuevoNombre.set(''); this.nuevoTipo.set(''); this.nuevaDesc.set('');
+    this.juego.crearHechizo(datos).subscribe({
+      next: () => {
         this.guardando.set(false);
+        this.resetForm();
+        this.mostrarForm.set(false);
+        // La nueva habilidad ya está en el grimorio: recargamos para que salga
+        // en la categoría actual (si encaja) con los demás.
+        this.recargarHechizos();
       },
       error: err => {
         this.guardando.set(false);
@@ -500,10 +638,19 @@ export class HabilidadesPage implements OnInit {
     });
   }
 
-  borrar(a: CustomAbility): void {
-    if (!confirm(`¿Borrar «${a.name}»? Desaparece para todos.`)) return;
-    this.juego.borrarHabilidad(a.id).subscribe({
-      next: () => this.personalizadas.update(list => list.filter(x => x.id !== a.id)),
+  private resetForm(): void {
+    for (const s of [this.fName, this.fSchool, this.fNameEn, this.fDescriptors, this.fComponents,
+                     this.fCasting, this.fRange, this.fTarget, this.fDuration, this.fSaving,
+                     this.fSR, this.fDice, this.fScaling, this.fCap, this.fDesc]) {
+      s.set('');
+    }
+    this.formClases.set(Object.fromEntries(CLASES_CONJURO.map(c => [c, { sel: false, level: 1 }])));
+  }
+
+  borrar(h: Spell): void {
+    if (!confirm(`¿Borrar «${h.name}»? Desaparece del grimorio para todos.`)) return;
+    this.juego.borrarHechizo(h.id).subscribe({
+      next: () => this.recargarHechizos(),
       error: () => this.error.set('No se ha podido borrar la habilidad.'),
     });
   }

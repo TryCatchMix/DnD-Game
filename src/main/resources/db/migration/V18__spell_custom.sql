@@ -1,0 +1,11 @@
+-- =====================================================================
+-- Conjuros "de la casa": habilidades que la mesa añade sobre la marcha
+-- (cosas que no están en el SRD y salen jugando).
+--
+-- No hace falta una tabla aparte: se guardan como un conjuro más en `spells`,
+-- así aparecen en su categoría (Mago, Clérigo…) junto a los demás. Solo se
+-- marca con `custom = true` para dos cosas:
+--   · distinguirlos visualmente ("De la casa"),
+--   · permitir borrarlos (los del SRD no se tocan).
+-- =====================================================================
+alter table spells add column custom boolean not null default false;

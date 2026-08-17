@@ -3,11 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import {
-  Character, CharacterCreate, ChronicleCreate, ChronicleEntry, ClassFeature, CustomAbility,
-  CustomAbilityCreate, DomainDetail,
+  Character, CharacterCreate, ChronicleCreate, ChronicleEntry, ClassFeature, DomainDetail,
   DomainSummary, Ficha, FichaEdit, Holdings, ImportResult, Inventory, Invocation, Note,
   NoteRequest, Notes, PreparedList, PropertyBuyRequest, QuestCard, QuestSummary,
-  ResolutionView, SceneView, Shop, ShopOfferCreate, SpellPage, ValidationReport,
+  ResolutionView, SceneView, Shop, ShopOfferCreate, Spell, SpellCreate, SpellPage, ValidationReport,
 } from './api.types';
 
 /**
@@ -221,17 +220,15 @@ export class JuegoService {
     return this.http.get<ClassFeature[]>('/api/habilidades/aptitudes', { params: { clase } });
   }
 
-  /** Habilidades personalizadas "de la casa": las añade cualquier jugador. */
-  habilidadesPersonalizadas(): Observable<CustomAbility[]> {
-    return this.http.get<CustomAbility[]>('/api/habilidades/personalizadas');
+  /** Crea un conjuro "de la casa": queda como uno más y sale en su categoría.
+   *  Lo puede hacer cualquier jugador (DM o no). */
+  crearHechizo(datos: SpellCreate): Observable<Spell> {
+    return this.http.post<Spell>('/api/habilidades/hechizos', datos);
   }
 
-  crearHabilidad(datos: CustomAbilityCreate): Observable<CustomAbility> {
-    return this.http.post<CustomAbility>('/api/habilidades/personalizadas', datos);
-  }
-
-  borrarHabilidad(id: string): Observable<void> {
-    return this.http.delete<void>(`/api/habilidades/personalizadas/${id}`);
+  /** Borra un conjuro de la casa (los del SRD no se pueden borrar). */
+  borrarHechizo(id: string): Observable<void> {
+    return this.http.delete<void>(`/api/habilidades/hechizos/${id}`);
   }
 
   // --- Conjuros preparados ---

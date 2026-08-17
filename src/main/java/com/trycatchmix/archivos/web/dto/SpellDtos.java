@@ -12,6 +12,7 @@ public final class SpellDtos {
     public record SpellClassView(String clazz, int level, String keyAbility, String saveDcFormula) {}
 
     public record SpellView(
+            String id,
             String name,
             String nameEn,
             String school,
@@ -36,6 +37,8 @@ public final class SpellDtos {
             /** "1d6 por nivel de lanzador (máx. 10d6)", ya montado para leer. */
             String damageSummary,
             String source,
+            /** true = "de la casa" (lo añadió la mesa; se puede borrar). */
+            boolean custom,
             List<SpellClassView> classes) {}
 
     /** Una página de conjuros: los que caben en el límite pedido más el total
@@ -71,20 +74,31 @@ public final class SpellDtos {
             boolean atWill,
             String source) {}
 
-    /** Una habilidad personalizada, tal y como la ve la lista de Habilidades.
-     *  `mine` marca las que ha creado quien mira (para ofrecer borrarlas). */
-    public record CustomAbilityView(
-            String id,
-            String name,
-            String kind,
-            String description,
-            String author,
-            boolean mine) {}
+    /** Una clase que aprende un conjuro nuevo, tal como llega del formulario.
+     *  El atributo de lanzamiento (keyAbility) lo deduce el servidor de la clase,
+     *  para no pedírselo al usuario. */
+    public record SpellClassInput(String clazz, int level) {}
 
-    /** Lo que manda el frontend para crear una habilidad personalizada. Solo el
-     *  nombre es obligatorio; tipo y descripción son opcionales. */
-    public record CustomAbilityCreate(
+    /** Un conjuro "de la casa" recién creado desde la pestaña Habilidades. Solo
+     *  el nombre y al menos una clase son obligatorios; el resto del bloque de
+     *  estadísticas es opcional y se rellena si se sabe. */
+    public record SpellCreate(
             String name,
-            String kind,
-            String description) {}
+            String nameEn,
+            String school,
+            String subschool,
+            String descriptors,
+            String description,
+            String components,
+            String castingTime,
+            String range,
+            String target,
+            String targetKind,
+            String duration,
+            String savingThrow,
+            String spellResistance,
+            String dice,
+            String scaling,
+            String cap,
+            List<SpellClassInput> classes) {}
 }

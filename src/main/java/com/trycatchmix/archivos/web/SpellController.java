@@ -3,11 +3,11 @@ package com.trycatchmix.archivos.web;
 import com.trycatchmix.archivos.error.ApiException;
 import com.trycatchmix.archivos.security.AuthPrincipal;
 import com.trycatchmix.archivos.service.SpellService;
-import com.trycatchmix.archivos.web.dto.SpellDtos.CustomAbilityCreate;
-import com.trycatchmix.archivos.web.dto.SpellDtos.CustomAbilityView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.FeatureView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.InvocationView;
+import com.trycatchmix.archivos.web.dto.SpellDtos.SpellCreate;
 import com.trycatchmix.archivos.web.dto.SpellDtos.SpellPage;
+import com.trycatchmix.archivos.web.dto.SpellDtos.SpellView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -50,29 +50,25 @@ public class SpellController {
         return spells.aptitudes(clase);
     }
 
-    // ---- Habilidades personalizadas: cualquier jugador (DM o no) las gestiona ----
+    // ---- Conjuros "de la casa": cualquier jugador (DM o no) los añade/borra ----
 
-    @GetMapping("/personalizadas")
-    public List<CustomAbilityView> personalizadas(@AuthenticationPrincipal AuthPrincipal p) {
-        return spells.personalizadas(user(p).userId());
+    /** Crea un conjuro nuevo. Queda guardado como uno más y aparece en su clase. */
+    @PostMapping("/hechizos")
+    public SpellView crearHechizo(@AuthenticationPrincipal AuthPrincipal p,
+                                  @RequestBody SpellCreate req) {
+        exigeSesion(p);
+        return spells.crearHechizo(req);
     }
 
-    @PostMapping("/personalizadas")
-    public CustomAbilityView crearPersonalizada(@AuthenticationPrincipal AuthPrincipal p,
-                                                @RequestBody CustomAbilityCreate req) {
-        AuthPrincipal u = user(p);
-        return spells.crearPersonalizada(u.userId(), u.displayName(), req);
+    /** Borra un conjuro de la casa (los del SRD no se pueden borrar). */
+    @DeleteMapping("/hechizos/{id}")
+    public void borrarHechizo(@AuthenticationPrincipal AuthPrincipal p,
+                              @PathVariable UUID id) {
+        exigeSesion(p);
+        spells.borrarHechizo(id);
     }
 
-    @DeleteMapping("/personalizadas/{id}")
-    public void borrarPersonalizada(@AuthenticationPrincipal AuthPrincipal p,
-                                    @PathVariable UUID id) {
-        user(p);   // exige sesión
-        spells.borrarPersonalizada(id);
-    }
-
-    private AuthPrincipal user(AuthPrincipal p) {
+    private void exigeSesion(AuthPrincipal p) {
         if (p == null) throw ApiException.sessionExpired();
-        return p;
     }
 }

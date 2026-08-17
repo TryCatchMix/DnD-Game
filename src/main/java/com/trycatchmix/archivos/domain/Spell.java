@@ -89,7 +89,13 @@ public class Spell {
     @Column(nullable = false)
     private String source = "";
 
-    @OneToMany(mappedBy = "spell", fetch = FetchType.EAGER)
+    /** true = "de la casa": lo añadió la mesa jugando, no viene del SRD. Solo
+     *  estos se pueden borrar; los del manual son intocables. */
+    @Column(nullable = false)
+    private boolean custom = false;
+
+    @OneToMany(mappedBy = "spell", fetch = FetchType.EAGER,
+               cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("level ASC")
     private List<SpellClass> classes = new ArrayList<>();
 }
