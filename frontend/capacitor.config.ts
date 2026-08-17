@@ -21,7 +21,7 @@ const config: CapacitorConfig = {
   appName: 'Los Archivos',
   webDir: 'dist/archivos-frontend/browser',
   server: {
-    url: 'https://archivos.trycatchmix.com',
+    url: 'https://dnd.trycatchmix.com',
     cleartext: false,
   },
 };

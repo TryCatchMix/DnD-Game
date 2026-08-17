@@ -5,6 +5,10 @@ target/
 *.war
 !/.mvn/wrapper/maven-wrapper.jar
 
+# APK/AAB generados (el instalable se genera, no se versiona).
+*.apk
+*.aab
+
 # === Frontend (Angular / Node) ===
 frontend/node_modules/
 frontend/dist/
@@ -20,6 +24,9 @@ frontend/android/.gradle/
 frontend/android/local.properties
 frontend/android/app/src/main/assets/public/
 frontend/android/capacitor-cordova-android-plugins/
+# El wrapper de Gradle SÍ debe subirse (la regla *.jar de arriba lo excluiría):
+# sin él, un clone no puede compilar el proyecto nativo.
+!frontend/android/gradle/wrapper/gradle-wrapper.jar
 
 # === Material subido por el DM en La Mesa (mapas, PDF) ===
 data/

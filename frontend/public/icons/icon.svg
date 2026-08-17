@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Los Archivos — icono de la app.
+       Sello de lacre (vino) sobre la mesa de noche, con la inicial en oro.
+       Diseño a sangre y centrado para que valga como icono "maskable". -->
+  <defs>
+    <radialGradient id="cera" cx="42%" cy="38%" r="70%">
+      <stop offset="0%"  stop-color="#a83a2c"/>
+      <stop offset="55%" stop-color="#8f2e22"/>
+      <stop offset="100%" stop-color="#6d2019"/>
+    </radialGradient>
+    <radialGradient id="brillo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="82%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#3a0f0a" stop-opacity=".55"/>
+    </radialGradient>
+  </defs>
+
+  <!-- fondo: el fondo de la mesa, color noche -->
+  <rect width="512" height="512" fill="#1e1810"/>
+
+  <!-- aro dorado decorativo, dentro de la zona segura -->
+  <circle cx="256" cy="256" r="196" fill="none" stroke="#9d7a2f" stroke-opacity=".38" stroke-width="3"/>
+  <circle cx="256" cy="256" r="188" fill="none" stroke="#9d7a2f" stroke-opacity=".18" stroke-width="1.5"/>
+
+  <!-- sello de lacre: círculo con borde ligeramente irregular -->
+  <path fill="url(#cera)" stroke="#5a1912" stroke-width="4" d="
+    M256 118
+    c 26 0 30 -14 52 -6 c 22 8 16 26 34 40 c 18 14 34 8 42 30
+    c 8 22 -8 30 -6 54 c 2 24 16 26 6 50 c -10 24 -28 16 -42 34
+    c -14 18 -8 34 -32 40 c -24 6 -30 -10 -54 -10 c -24 0 -30 16 -54 10
+    c -24 -6 -18 -22 -32 -40 c -14 -18 -32 -10 -42 -34 c -10 -24 4 -26 6 -50
+    c 2 -24 -14 -32 -6 -54 c 8 -22 24 -16 42 -30 c 18 -14 12 -32 34 -40
+    c 22 -8 26 6 52 6 Z"/>
+  <!-- sombra/vignette del lacre para volumen -->
+  <circle cx="256" cy="256" r="140" fill="url(#brillo)"/>
+  <!-- surco interior grabado -->
+  <circle cx="256" cy="256" r="120" fill="none" stroke="#5a1912" stroke-opacity=".55" stroke-width="3"/>
+
+  <!-- la inicial, grabada en oro -->
+  <text x="256" y="258" text-anchor="middle" dominant-baseline="central"
+        font-family="Liberation Serif, DejaVu Serif, Georgia, serif"
+        font-weight="700" font-size="188"
+        fill="#c79a3a" stroke="#7a5c22" stroke-width="1.5">A</text>
+</svg>
