@@ -353,88 +353,12 @@ const FRASES_TENDERO = [
         <p class="estado estado--mal" role="alert">{{ e }}</p>
       } @else if (tienda(); as t) {
 
-        <!-- ============ MOSTRADOR ============ -->
-        <section class="seccion">
-          <div class="franja">
-            <p class="rotulo separador">A la venta · {{ t.offers.length }} artículos</p>
-            <input class="buscador" placeholder="Buscar en el mostrador…" [(ngModel)]="busca" />
-          </div>
-
-          <!-- Los gremios de mercancía: filtro de un toque, no un desplegable -->
-          <div class="filtros">
-            @for (c of categorias(); track c) {
-              <button type="button" class="filtro" [class.activo]="categoria() === c"
-                      (click)="categoria.set(c)">{{ c === '' ? 'Todo' : c }}</button>
-            }
-            <button type="button" class="filtro filtro--bolsa" [class.activo]="soloAsequible()"
-                    (click)="soloAsequible.set(!soloAsequible())">Lo que puedo pagar</button>
-          </div>
-
-          @if (t.offers.length === 0) {
-            <!-- Vacío de verdad (no es el filtro): decirlo aparte evita el
-                 clásico «la tienda no me funciona». -->
-            <p class="estado">
-              El mostrador está vacío: no hay nada a la venta.
-              @if (esDM()) { Ponle género desde el panel del máster, aquí abajo. }
-            </p>
-          } @else if (ofertas().length === 0) {
-            <p class="estado">El mostrador no tiene nada que case con esa búsqueda.</p>
-          } @else {
-            <ul class="vitrina">
-              @for (o of ofertas(); track o.itemCode) {
-                <li class="hoja art" [class.art--agotado]="o.stock === 0" [class.art--caro]="!o.affordable">
-                  <div class="medalla" [class.medalla--caro]="!o.affordable">
-                    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
-                      @for (d of icono(o.name, o.category); track $index) { <path [attr.d]="d" /> }
-                    </svg>
-                  </div>
-
-                  <div class="art-texto">
-                    <h2>{{ o.name }}</h2>
-                    <p class="precio" [class.precio--caro]="!o.affordable">{{ o.price }}</p>
-                    @if (o.description) { <p class="desc">{{ o.description }}</p> }
-                  </div>
-
-                  <p class="meta">
-                    @if (o.category) { <span class="etq">{{ o.category }}</span> }
-                    @if (o.stock >= 0) {
-                      <span class="existencias" [class.agotado]="o.stock === 0">
-                        {{ o.stock === 0 ? 'agotado' : 'quedan ' + o.stock }}
-                      </span>
-                    } @else {
-                      <span class="existencias">siempre en almacén</span>
-                    }
-                  </p>
-
-                  <div class="art-pie">
-                    <button class="boton boton--lacre"
-                            [disabled]="!o.affordable || o.stock === 0 || ocupado() === o.itemCode"
-                            (click)="comprar(o)">
-                      {{ ocupado() === o.itemCode ? 'Contando…' : 'Comprar' }}
-                    </button>
-                    @if (!o.affordable && o.stock !== 0) {
-                      <span class="falta">Te faltan {{ falta(o) }}</span>
-                    }
-                    @if (esDM()) {
-                      <button class="boton-quitar" title="Retirar del mostrador"
-                              [disabled]="ocupado() === o.itemCode"
-                              (click)="quitar(o)">✕</button>
-                    }
-                  </div>
-
-                  @if (o.stock === 0) { <span class="lacre-agotado">Agotado</span> }
-                </li>
-              }
-            </ul>
-          }
-        </section>
-
         <!-- ============ PANEL DEL DM ============ -->
         @if (esDM()) {
-          <section class="seccion">
+          <section class="seccion seccion--dm">
             <div class="franja">
               <p class="rotulo separador separador--dm">Trastienda · master</p>
-              <button class="enlace" (click)="abrirDm.set(!abrirDm())">
+              <button class="boton boton--dm" (click)="abrirDm.set(!abrirDm())">
                 {{ abrirDm() ? 'Cerrar' : 'Poner algo a la venta' }}
               </button>
             </div>
@@ -489,6 +413,82 @@ const FRASES_TENDERO = [
             }
           </section>
         }
+
+        <!-- ============ MOSTRADOR ============ -->
+        <section class="seccion">
+          <div class="franja">
+            <p class="rotulo separador">A la venta · {{ t.offers.length }} artículos</p>
+            <input class="buscador" placeholder="Buscar en el mostrador…" [(ngModel)]="busca" />
+          </div>
+
+          <!-- Los gremios de mercancía: filtro de un toque, no un desplegable -->
+          <div class="filtros">
+            @for (c of categorias(); track c) {
+              <button type="button" class="filtro" [class.activo]="categoria() === c"
+                      (click)="categoria.set(c)">{{ c === '' ? 'Todo' : c }}</button>
+            }
+            <button type="button" class="filtro filtro--bolsa" [class.activo]="soloAsequible()"
+                    (click)="soloAsequible.set(!soloAsequible())">Lo que puedo pagar</button>
+          </div>
+
+          @if (t.offers.length === 0) {
+            <!-- Vacío de verdad (no es el filtro): decirlo aparte evita el
+                 clásico «la tienda no me funciona». -->
+            <p class="estado">
+              El mostrador está vacío: no hay nada a la venta.
+              @if (esDM()) { Ponle género desde el panel del máster, aquí arriba. }
+            </p>
+          } @else if (ofertas().length === 0) {
+            <p class="estado">El mostrador no tiene nada que case con esa búsqueda.</p>
+          } @else {
+            <ul class="vitrina">
+              @for (o of ofertas(); track o.itemCode) {
+                <li class="hoja art" [class.art--agotado]="o.stock === 0" [class.art--caro]="!o.affordable">
+                  <div class="medalla" [class.medalla--caro]="!o.affordable">
+                    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+                      @for (d of icono(o.name, o.category); track $index) { <path [attr.d]="d" /> }
+                    </svg>
+                  </div>
+
+                  <div class="art-texto">
+                    <h2>{{ o.name }}</h2>
+                    <p class="precio" [class.precio--caro]="!o.affordable">{{ o.price }}</p>
+                    @if (o.description) { <p class="desc">{{ o.description }}</p> }
+                  </div>
+
+                  <p class="meta">
+                    @if (o.category) { <span class="etq">{{ o.category }}</span> }
+                    @if (o.stock >= 0) {
+                      <span class="existencias" [class.agotado]="o.stock === 0">
+                        {{ o.stock === 0 ? 'agotado' : 'quedan ' + o.stock }}
+                      </span>
+                    } @else {
+                      <span class="existencias">siempre en almacén</span>
+                    }
+                  </p>
+
+                  <div class="art-pie">
+                    <button class="boton boton--lacre"
+                            [disabled]="!o.affordable || o.stock === 0 || ocupado() === o.itemCode"
+                            (click)="comprar(o)">
+                      {{ ocupado() === o.itemCode ? 'Contando…' : 'Comprar' }}
+                    </button>
+                    @if (!o.affordable && o.stock !== 0) {
+                      <span class="falta">Te faltan {{ falta(o) }}</span>
+                    }
+                    @if (esDM()) {
+                      <button class="boton-quitar" title="Retirar del mostrador"
+                              [disabled]="ocupado() === o.itemCode"
+                              (click)="quitar(o)">✕</button>
+                    }
+                  </div>
+
+                  @if (o.stock === 0) { <span class="lacre-agotado">Agotado</span> }
+                </li>
+              }
+            </ul>
+          }
+        </section>
 
         <!-- ============ LO QUE LLEVAS ============ -->
         <section class="seccion">
@@ -781,6 +781,16 @@ const FRASES_TENDERO = [
     .fila-obj .boton { flex: 0 0 auto; }
 
     /* ---------------- trastienda ---------------- */
+    /* El disparador de la trastienda va sobre el fondo oscuro de la tienda, así
+       que no puede llevar la tinta del botón base: se viste con el verde de
+       máster para que se lea y se distinga del resto de acciones. */
+    .seccion--dm { margin-bottom: 26px; }
+    .boton--dm {
+      border-color: rgba(76,106,55,.55);
+      color: var(--musgo-claro, #8fb06a);
+      background: rgba(76,106,55,.08);
+    }
+    .boton--dm:hover:not(:disabled) { background: rgba(76,106,55,.18); color: var(--pergamino); }
     .panel-dm { padding: 16px; border-color: rgba(76,106,55,.4); }
     .dm-previo-ico { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px dashed var(--linea); }
     .dm-pista { margin: 0; font-size: 14px; line-height: 1.45; color: var(--sepia-hondo); }
