@@ -13,7 +13,7 @@ interface Modelo {
   hpMax: number; acTotal: number; maxVigor: number;
 }
 
-const CLASES = ['Bárbaro', 'Pícaro', 'Clérigo', 'Mago', 'Guerrero', 'Explorador', 'Bardo', 'Paladín', 'Druida', 'Hechicero', 'Monje', 'Aventurero'];
+const CLASES = ['Bárbaro', 'Pícaro', 'Clérigo', 'Mago', 'Guerrero', 'Explorador', 'Bardo', 'Paladín', 'Druida', 'Hechicero', 'Warlock', 'Monje', 'Aventurero'];
 
 /**
  * El creador de personaje. Recoge lo esencial (identidad, características y
