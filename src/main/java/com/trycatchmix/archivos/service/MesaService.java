@@ -115,7 +115,8 @@ public class MesaService {
         n.setMissionId(misionId);
         n.setKind(tipoNotaDe(r == null ? null : r.kind()));
         n.setTitle(r == null ? "" : texto(r.title()));
-        n.setBody(r == null ? "" : texto(r.body()));
+        // El body es HTML del editor rico: se limpia lo que ejecuta código.
+        n.setBody(r == null ? "" : HtmlSanitizer.limpiar(r.body()));
         n.setOrdinal((int) notas.countByMissionId(misionId));
         notas.save(n);
         m.setUpdatedAt(Instant.now());
@@ -130,7 +131,7 @@ public class MesaService {
         if (r != null) {
             if (r.kind() != null) n.setKind(tipoNotaDe(r.kind()));
             if (r.title() != null) n.setTitle(r.title().trim());
-            if (r.body() != null) n.setBody(r.body().trim());
+            if (r.body() != null) n.setBody(HtmlSanitizer.limpiar(r.body()));
             n.setUpdatedAt(Instant.now());
             m.setUpdatedAt(Instant.now());
         }

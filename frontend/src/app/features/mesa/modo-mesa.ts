@@ -2,6 +2,7 @@ import { Component, computed, input, output, signal } from '@angular/core';
 
 import { Archivo, DetalleMision, NotaMesa, TIPOS_NOTA, TipoNota } from '../../core/mesa.types';
 import { Lamina } from './lamina';
+import { HtmlCrudo } from '../../shared/html-crudo';
 
 /**
  * Modo mesa: lo que el DM tiene delante MIENTRAS juega, no mientras prepara.
@@ -12,7 +13,7 @@ import { Lamina } from './lamina';
  */
 @Component({
   selector: 'arc-modo-mesa',
-  imports: [Lamina],
+  imports: [Lamina, HtmlCrudo],
   template: `
     <div class="fondo" role="dialog" aria-modal="true" [attr.aria-label]="'Modo mesa: ' + mision().title">
       <header class="barra">
@@ -28,7 +29,7 @@ import { Lamina } from './lamina';
           <article class="paso" [class]="'paso paso--' + p.kind">
             <p class="tipo">{{ nombreTipo(p.kind) }}</p>
             @if (p.title) { <h3>{{ p.title }}</h3> }
-            <p class="cuerpo">{{ p.body }}</p>
+            <div class="cuerpo" [arcHtml]="p.body"></div>
           </article>
         } @else {
           <p class="vacio">Esta misión aún no tiene guion. Sal y escribe el primer paso.</p>
@@ -82,7 +83,15 @@ import { Lamina } from './lamina';
       color: var(--sepia); margin: 0 0 10px;
     }
     .paso h3 { font-size: clamp(22px, 3vw, 30px); margin-bottom: 12px; }
-    .cuerpo { font-size: clamp(18px, 2.2vw, 23px); line-height: 1.6; white-space: pre-wrap; margin: 0; }
+    .cuerpo { font-size: clamp(18px, 2.2vw, 23px); line-height: 1.6; margin: 0; }
+    .cuerpo :first-child { margin-top: 0; }
+    .cuerpo :last-child { margin-bottom: 0; }
+    .cuerpo p { margin: 0 0 14px; }
+    .cuerpo h1, .cuerpo h2, .cuerpo h3 { color: var(--tinta); line-height: 1.2; margin: 14px 0 10px; }
+    .cuerpo ul, .cuerpo ol { margin: 0 0 14px; padding-left: 30px; }
+    .cuerpo li { margin: 4px 0; }
+    .cuerpo blockquote { margin: 14px 0; padding: 6px 18px; border-left: 4px solid var(--oro); font-style: italic; }
+    .cuerpo a { color: var(--vino); }
 
     /* El texto para leer en voz alta va destacado, como el recuadro de un módulo. */
     .paso--lectura { border-left: 4px solid var(--oro); background: var(--pergamino-claro); }

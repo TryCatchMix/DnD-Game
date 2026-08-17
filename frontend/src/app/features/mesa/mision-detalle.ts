@@ -10,6 +10,8 @@ import { Lamina } from './lamina';
 import { ModoMesa } from './modo-mesa';
 import { Visor } from './visor';
 import { ZonaSubida } from './zona-subida';
+import { EditorRico } from '../../shared/editor-rico';
+import { HtmlCrudo, textoPlano } from '../../shared/html-crudo';
 
 /** Lo que se está escribiendo en un paso del guion. */
 interface EdicionNota { id: string | null; kind: TipoNota; title: string; body: string; }
@@ -26,7 +28,7 @@ const NOTA_EN_BLANCO: EdicionNota = { id: null, kind: 'nota', title: '', body: '
  */
 @Component({
   selector: 'arc-mision-detalle',
-  imports: [FormsModule, Lamina, ZonaSubida, Visor, ModoMesa],
+  imports: [FormsModule, Lamina, ZonaSubida, Visor, ModoMesa, EditorRico, HtmlCrudo],
   template: `
     @if (mision(); as m) {
       <button class="volver" (click)="volver.emit()">‹ Todas las misiones</button>
@@ -106,9 +108,9 @@ const NOTA_EN_BLANCO: EdicionNota = { id: null, kind: 'nota', title: '', body: '
                       <input [ngModel]="nota()!.title" (ngModelChange)="cambiarNota('title', $event)"
                              placeholder="Título del paso" aria-label="Título del paso" />
                     </div>
-                    <textarea rows="5" [ngModel]="nota()!.body"
-                              (ngModelChange)="cambiarNota('body', $event)"
-                              placeholder="El texto" aria-label="Texto del paso"></textarea>
+                    <arc-editor-rico compacto [value]="nota()!.body"
+                                     placeholder="El texto del paso: lo que pasa, lo que dice, lo que hay"
+                                     (cambia)="cambiarNota('body', $event)" />
                     <div class="acciones">
                       <button class="boton boton--lacre" [disabled]="ocupado()" (click)="guardarNota()">Guardar</button>
                       <button class="boton" (click)="nota.set(null)">Cancelar</button>
@@ -134,7 +136,7 @@ const NOTA_EN_BLANCO: EdicionNota = { id: null, kind: 'nota', title: '', body: '
                     </p>
                   }
                   @if (n.title) { <h3>{{ n.title }}</h3> }
-                  @if (n.body) { <p class="cuerpo">{{ n.body }}</p> }
+                  @if (n.body) { <div class="cuerpo" [arcHtml]="n.body"></div> }
                 }
               </li>
             }
@@ -150,9 +152,9 @@ const NOTA_EN_BLANCO: EdicionNota = { id: null, kind: 'nota', title: '', body: '
                 <input [ngModel]="nota()!.title" (ngModelChange)="cambiarNota('title', $event)"
                        placeholder="Título del paso (opcional)" aria-label="Título del paso" />
               </div>
-              <textarea rows="4" [ngModel]="nota()!.body" (ngModelChange)="cambiarNota('body', $event)"
-                        placeholder="Lo que pasa, lo que dice, lo que hay"
-                        aria-label="Texto del paso"></textarea>
+              <arc-editor-rico compacto [value]="nota()!.body"
+                               placeholder="Lo que pasa, lo que dice, lo que hay"
+                               (cambia)="cambiarNota('body', $event)" />
               <div class="acciones">
                 <button class="boton boton--lacre" [disabled]="ocupado()" (click)="guardarNota()">Añadir paso</button>
                 <button class="boton" (click)="nota.set(null)">Cancelar</button>
@@ -316,7 +318,16 @@ const NOTA_EN_BLANCO: EdicionNota = { id: null, kind: 'nota', title: '', body: '
       color: var(--sepia); margin: 0;
     }
     .paso h3 { font-size: 19px; color: var(--tinta); margin: 6px 0 0; }
-    .cuerpo { color: var(--sepia-hondo); margin: 6px 0 0; white-space: pre-wrap; }
+    .cuerpo { color: var(--sepia-hondo); margin: 6px 0 0; }
+    .cuerpo :first-child { margin-top: 0; }
+    .cuerpo :last-child { margin-bottom: 0; }
+    .cuerpo h1, .cuerpo h2, .cuerpo h3 { color: var(--tinta); margin: 10px 0 6px; line-height: 1.25; }
+    .cuerpo h1 { font-size: 22px; } .cuerpo h2 { font-size: 19px; } .cuerpo h3 { font-size: 17px; }
+    .cuerpo p { margin: 0 0 8px; }
+    .cuerpo ul, .cuerpo ol { margin: 0 0 8px; padding-left: 22px; }
+    .cuerpo blockquote { margin: 8px 0; padding: 4px 12px; border-left: 3px solid var(--oro); font-style: italic; color: var(--sepia-hondo); }
+    .cuerpo a { color: var(--vino); text-decoration: underline; }
+    .cuerpo pre { background: rgba(43,33,23,.08); border: 1px solid var(--linea); border-radius: var(--radio); padding: 8px 10px; overflow-x: auto; white-space: pre-wrap; font-family: var(--dato); font-size: 13px; }
     .paso--lectura .cuerpo { font-style: italic; color: var(--tinta); }
 
     .paso-acc { display: flex; gap: 2px; }
@@ -492,11 +503,14 @@ export class MisionDetalle {
   guardarNota(): void {
     const n = this.nota();
     if (!n) return;
-    if (!n.title.trim() && !n.body.trim()) {
+    // El body es HTML: para saber si está "vacío" hay que mirar el texto, no las
+    // etiquetas (un editor recién abierto puede dejar un <br> o un <p></p>).
+    const cuerpoVacio = textoPlano(n.body) === '';
+    if (!n.title.trim() && cuerpoVacio) {
       this.error.set('Un paso vacío no sirve de nada: ponle título o texto.');
       return;
     }
-    const req = { kind: n.kind, title: n.title.trim(), body: n.body.trim() };
+    const req = { kind: n.kind, title: n.title.trim(), body: cuerpoVacio ? '' : n.body };
     const peticion = n.id
       ? this.mesa.editarNota(n.id, req)
       : this.mesa.anadirNota(this.misionId(), req);

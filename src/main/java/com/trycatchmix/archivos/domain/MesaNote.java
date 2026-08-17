@@ -30,7 +30,9 @@ public class MesaNote {
     @Column(nullable = false)
     private String title = "";
 
-    @Column(nullable = false, length = 8000)
+    // HTML del editor rico (columna `text`): el guion admite formato, así que
+    // sin tope de longitud fijo (el de 8000 se quedaba corto con marcado).
+    @Column(nullable = false, columnDefinition = "text")
     private String body = "";
 
     @Column(nullable = false)
