@@ -1,11 +1,16 @@
 package com.trycatchmix.archivos.service;
 
+import com.trycatchmix.archivos.domain.CustomAbility;
 import com.trycatchmix.archivos.domain.Invocation;
 import com.trycatchmix.archivos.domain.Spell;
 import com.trycatchmix.archivos.domain.SpellClass;
+import com.trycatchmix.archivos.error.ApiException;
 import com.trycatchmix.archivos.repo.ClassFeatureRepository;
+import com.trycatchmix.archivos.repo.CustomAbilityRepository;
 import com.trycatchmix.archivos.repo.InvocationRepository;
 import com.trycatchmix.archivos.repo.SpellRepository;
+import com.trycatchmix.archivos.web.dto.SpellDtos.CustomAbilityCreate;
+import com.trycatchmix.archivos.web.dto.SpellDtos.CustomAbilityView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.FeatureView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.InvocationView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.SpellClassView;
@@ -18,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 /** El grimorio: todos los conjuros con las clases que los aprenden, y las
  *  invocaciones de warlock. El filtro por clase y la búsqueda por nombre los
@@ -29,6 +35,7 @@ public class SpellService {
     private final SpellRepository spells;
     private final InvocationRepository invocations;
     private final ClassFeatureRepository classFeatures;
+    private final CustomAbilityRepository customAbilities;
 
     /**
      * Conjuros filtrados y paginados EN EL SERVIDOR, para no mandar los ~500 de
@@ -128,6 +135,54 @@ public class SpellService {
                         i.getKeyAbility(), dcFormula(i.getSpellLevel(), i.getKeyAbility()),
                         i.isAtWill(), i.getSource()))
                 .toList();
+    }
+
+    // ------------------------------------------------------------------------
+    // Habilidades personalizadas ("de la casa"): las añade cualquier jugador.
+    // ------------------------------------------------------------------------
+
+    /** Todas las personalizadas, las más nuevas arriba. `viewer` sirve para
+     *  marcar cuáles son de quien mira (y puede así borrarlas cómodamente). */
+    @Transactional(readOnly = true)
+    public List<CustomAbilityView> personalizadas(UUID viewer) {
+        return customAbilities.findAllByOrderByCreatedAtDesc().stream()
+                .map(a -> toCustomView(a, viewer))
+                .toList();
+    }
+
+    /** Crea una habilidad personalizada. Solo el nombre es obligatorio. */
+    @Transactional
+    public CustomAbilityView crearPersonalizada(UUID userId, String userName, CustomAbilityCreate req) {
+        String nombre = req == null || req.name() == null ? "" : req.name().trim();
+        if (nombre.isBlank())
+            throw ApiException.badRequest("La habilidad necesita un nombre.");
+        if (nombre.length() > 120)
+            throw ApiException.badRequest("Ese nombre es demasiado largo.");
+
+        CustomAbility a = new CustomAbility();
+        a.setName(nombre);
+        a.setKind(req.kind() == null ? "" : req.kind().trim());
+        a.setDescription(req.description() == null ? "" : req.description().trim());
+        a.setCreatedBy(userId);
+        a.setCreatedByName(userName == null ? "" : userName);
+        customAbilities.save(a);
+
+        return toCustomView(a, userId);
+    }
+
+    /** Borra una personalizada. Cualquier jugador puede hacerlo: es una lista
+     *  compartida de la mesa y lo importante es que sea fácil de mantener. */
+    @Transactional
+    public void borrarPersonalizada(UUID id) {
+        if (!customAbilities.existsById(id))
+            throw ApiException.notFound("Esa habilidad ya no está.");
+        customAbilities.deleteById(id);
+    }
+
+    private CustomAbilityView toCustomView(CustomAbility a, UUID viewer) {
+        return new CustomAbilityView(
+                a.getId().toString(), a.getName(), a.getKind(), a.getDescription(),
+                a.getCreatedByName(), a.getCreatedBy().equals(viewer));
     }
 
     /** "CD 13 + mod. de Sabiduría" — la fórmula ya resuelta salvo el modificador,

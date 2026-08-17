@@ -3,7 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import {
-  Character, CharacterCreate, ChronicleCreate, ChronicleEntry, ClassFeature, DomainDetail,
+  Character, CharacterCreate, ChronicleCreate, ChronicleEntry, ClassFeature, CustomAbility,
+  CustomAbilityCreate, DomainDetail,
   DomainSummary, Ficha, FichaEdit, Holdings, ImportResult, Inventory, Invocation, Note,
   NoteRequest, Notes, PreparedList, PropertyBuyRequest, QuestCard, QuestSummary,
   ResolutionView, SceneView, Shop, ShopOfferCreate, SpellPage, ValidationReport,
@@ -218,6 +219,19 @@ export class JuegoService {
   /** Aptitudes de clase de Bárbaro, Guerrero y Monje. Son pocas. */
   aptitudes(clase: string): Observable<ClassFeature[]> {
     return this.http.get<ClassFeature[]>('/api/habilidades/aptitudes', { params: { clase } });
+  }
+
+  /** Habilidades personalizadas "de la casa": las añade cualquier jugador. */
+  habilidadesPersonalizadas(): Observable<CustomAbility[]> {
+    return this.http.get<CustomAbility[]>('/api/habilidades/personalizadas');
+  }
+
+  crearHabilidad(datos: CustomAbilityCreate): Observable<CustomAbility> {
+    return this.http.post<CustomAbility>('/api/habilidades/personalizadas', datos);
+  }
+
+  borrarHabilidad(id: string): Observable<void> {
+    return this.http.delete<void>(`/api/habilidades/personalizadas/${id}`);
   }
 
   // --- Conjuros preparados ---

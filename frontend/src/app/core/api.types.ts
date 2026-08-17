@@ -350,6 +350,25 @@ export interface Invocation {
   source: string;
 }
 
+/** Una habilidad personalizada "de la casa": la añade cualquier jugador desde
+ *  la pestaña Habilidades. Ligera a propósito: nombre, tipo libre y descripción.
+ *  `mine` marca las que ha creado quien mira. */
+export interface CustomAbility {
+  id: string;
+  name: string;
+  kind: string;
+  description: string;
+  author: string;
+  mine: boolean;
+}
+
+/** Lo que se manda para crear una personalizada (solo el nombre es obligatorio). */
+export interface CustomAbilityCreate {
+  name: string;
+  kind: string;
+  description: string;
+}
+
 // --- Editor de encargos del DM ---
 
 export interface QuestSummary {

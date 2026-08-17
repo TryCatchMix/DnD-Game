@@ -2,7 +2,7 @@ import { Component, computed, inject, input, signal, OnInit } from '@angular/cor
 import { FormsModule } from '@angular/forms';
 
 import { JuegoService } from '../../core/juego.service';
-import { ClassFeature, Invocation, Spell, SpellPage } from '../../core/api.types';
+import { ClassFeature, CustomAbility, Invocation, Spell, SpellPage } from '../../core/api.types';
 import { NavBar } from '../../shared/nav';
 
 const norm = (s: string) =>
@@ -53,6 +53,9 @@ const CLASES_APTITUD = ['Bárbaro', 'Guerrero', 'Monje'];
               @for (c of clasesAptitud; track c) {
                 <option [value]="'aptitud:' + c">{{ c }}</option>
               }
+            </optgroup>
+            <optgroup label="De la casa">
+              <option value="personalizada:">Personalizadas</option>
             </optgroup>
           </select>
         </label>
@@ -137,6 +140,63 @@ const CLASES_APTITUD = ['Bárbaro', 'Guerrero', 'Monje'];
         </ul>
       }
 
+      <!-- ==================== PERSONALIZADAS (de la casa) ==================== -->
+      @else if (kind() === 'personalizada') {
+        <p class="aviso aviso--casa">
+          Habilidades <strong>de la casa</strong>: las añade cualquiera (seas máster
+          o no) para tener a mano cosas como «Crear agua» o «Descarga sobrenatural».
+          Son una lista compartida de la mesa.
+        </p>
+
+        <form class="formu hoja" (ngSubmit)="crear()">
+          <div class="formu-fila">
+            <label class="campo campo--nom">
+              <span class="rotulo">Nombre</span>
+              <input [(ngModel)]="nuevoNombre" name="nombre"
+                     placeholder="Crear agua" autocomplete="off" maxlength="120" />
+            </label>
+            <label class="campo campo--tipo">
+              <span class="rotulo">Tipo (opcional)</span>
+              <input [(ngModel)]="nuevoTipo" name="tipo"
+                     placeholder="Conjuro, Sobrenatural…" autocomplete="off" maxlength="60" />
+            </label>
+          </div>
+          <label class="campo">
+            <span class="rotulo">Descripción (opcional)</span>
+            <textarea [(ngModel)]="nuevaDesc" name="desc" rows="3"
+                      placeholder="Qué hace, cómo se usa…"></textarea>
+          </label>
+          @if (errorForm(); as e) { <p class="estado estado--mal">{{ e }}</p> }
+          <button class="boton boton--lacre" type="submit"
+                  [disabled]="guardando() || !nuevoNombre().trim()">
+            {{ guardando() ? 'Guardando…' : 'Añadir habilidad' }}
+          </button>
+        </form>
+
+        <p class="recuento">{{ personalizadasMostradas().length }} de {{ personalizadasFiltradas().length }} habilidad(es) de la casa</p>
+        @if (personalizadasFiltradas().length === 0) {
+          <p class="estado">Aún no hay ninguna. Añade la primera arriba.</p>
+        } @else {
+          <ul class="lista">
+            @for (a of personalizadasMostradas(); track a.id) {
+              <li class="hoja hechizo hechizo--casa">
+                <div class="fila">
+                  <h2>{{ a.name }}</h2>
+                  @if (a.kind) { <span class="nivel">{{ a.kind }}</span> }
+                </div>
+                @if (a.description) { <p class="desc">{{ a.description }}</p> }
+                <div class="pie-casa">
+                  <span class="fuente">
+                    Añadida por {{ a.author || 'alguien' }}@if (a.mine) { <span class="tuyo"> · tú</span> }
+                  </span>
+                  <button class="mini-borrar" type="button" (click)="borrar(a)">Borrar</button>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      }
+
       <!-- ======================= CONJUROS ======================= -->
       @else {
         <p class="recuento">
@@ -214,6 +274,31 @@ const CLASES_APTITUD = ['Bárbaro', 'Guerrero', 'Monje'];
     }
     .aviso strong { color: var(--tinta); }
     .aviso--apt { border-left-color: var(--musgo); background: rgba(76,106,55,.08); }
+    .aviso--casa { border-left-color: var(--oro); background: rgba(157,122,47,.08); }
+
+    .formu { padding: 16px 18px; display: grid; gap: 12px; margin: 12px 0 4px; }
+    .formu-fila { display: flex; gap: 12px; flex-wrap: wrap; }
+    .campo { display: grid; gap: 4px; }
+    .campo .rotulo { color: var(--sepia-claro); }
+    .campo--nom { flex: 1 1 220px; }
+    .campo--tipo { flex: 1 1 160px; }
+    .formu input, .formu textarea {
+      font: inherit; padding: 10px 12px; border: 1px solid var(--linea-fuerte);
+      border-radius: var(--radio); background: var(--pergamino-claro); color: var(--tinta);
+      width: 100%; box-sizing: border-box;
+    }
+    .formu textarea { resize: vertical; line-height: 1.5; }
+    .formu .boton { justify-self: start; }
+
+    .hechizo--casa { border-left: 2px solid rgba(157,122,47,.5); }
+    .pie-casa { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .tuyo { color: var(--oro); }
+    .mini-borrar {
+      font-family: var(--dato); font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--sepia); background: transparent; border: 1px solid var(--linea);
+      border-radius: var(--radio); padding: 3px 8px; cursor: pointer;
+    }
+    .mini-borrar:hover { color: #d98a7c; border-color: rgba(143,46,34,.5); }
 
     .recuento { font-family: var(--dato); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--sepia); margin: 10px 0; }
     .recuento .sep { color: var(--linea-fuerte); margin: 0 6px; }
@@ -281,6 +366,14 @@ export class HabilidadesPage implements OnInit {
   readonly pagina = signal<SpellPage>({ total: 0, items: [] });
   readonly invocaciones = signal<Invocation[]>([]);
   readonly aptitudes = signal<ClassFeature[]>([]);
+  readonly personalizadas = signal<CustomAbility[]>([]);
+
+  // Formulario de "añadir habilidad de la casa".
+  readonly nuevoNombre = signal('');
+  readonly nuevoTipo = signal('');
+  readonly nuevaDesc = signal('');
+  readonly guardando = signal(false);
+  readonly errorForm = signal<string | null>(null);
 
   readonly kind = computed(() => this.vista().split(':')[0]);
   readonly clase = computed(() => this.vista().split(':')[1] ?? '');
@@ -304,6 +397,14 @@ export class HabilidadesPage implements OnInit {
       .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
   });
   readonly aptitudesMostradas = computed(() => this.aptitudesFiltradas().slice(0, this.tope()));
+
+  // Las personalizadas son pocas: se filtran y recortan en el cliente.
+  readonly personalizadasFiltradas = computed(() => {
+    const q = norm(this.busqueda().trim());
+    return this.personalizadas()
+      .filter(a => q === '' || norm(a.name).includes(q) || norm(a.kind).includes(q));
+  });
+  readonly personalizadasMostradas = computed(() => this.personalizadasFiltradas().slice(0, this.tope()));
 
   private debounce: ReturnType<typeof setTimeout> | null = null;
 
@@ -341,6 +442,7 @@ export class HabilidadesPage implements OnInit {
     const k = this.kind();
     if (k === 'invocacion') this.cargarInvocaciones();
     else if (k === 'aptitud') this.cargarAptitudes();
+    else if (k === 'personalizada') this.cargarPersonalizadas();
     else this.recargarHechizos();
   }
 
@@ -365,6 +467,44 @@ export class HabilidadesPage implements OnInit {
     this.juego.aptitudes(this.clase()).subscribe({
       next: as => { this.aptitudes.set(as); this.cargando.set(false); this.error.set(null); },
       error: () => { this.cargando.set(false); this.error.set('No se han podido cargar las aptitudes.'); },
+    });
+  }
+
+  private cargarPersonalizadas(): void {
+    this.cargando.set(true);
+    this.juego.habilidadesPersonalizadas().subscribe({
+      next: as => { this.personalizadas.set(as); this.cargando.set(false); this.error.set(null); },
+      error: () => { this.cargando.set(false); this.error.set('No se han podido cargar las habilidades de la casa.'); },
+    });
+  }
+
+  crear(): void {
+    if (this.guardando()) return;
+    const name = this.nuevoNombre().trim();
+    if (!name) { this.errorForm.set('Ponle un nombre a la habilidad.'); return; }
+
+    this.guardando.set(true);
+    this.errorForm.set(null);
+    this.juego.crearHabilidad({
+      name, kind: this.nuevoTipo().trim(), description: this.nuevaDesc().trim(),
+    }).subscribe({
+      next: a => {
+        this.personalizadas.update(list => [a, ...list]);
+        this.nuevoNombre.set(''); this.nuevoTipo.set(''); this.nuevaDesc.set('');
+        this.guardando.set(false);
+      },
+      error: err => {
+        this.guardando.set(false);
+        this.errorForm.set(err?.error?.message ?? 'No se ha podido guardar.');
+      },
+    });
+  }
+
+  borrar(a: CustomAbility): void {
+    if (!confirm(`¿Borrar «${a.name}»? Desaparece para todos.`)) return;
+    this.juego.borrarHabilidad(a.id).subscribe({
+      next: () => this.personalizadas.update(list => list.filter(x => x.id !== a.id)),
+      error: () => this.error.set('No se ha podido borrar la habilidad.'),
     });
   }
 

@@ -1,5 +1,6 @@
 package com.trycatchmix.archivos.web.dto;
 
+import java.time.Instant;
 import java.util.List;
 
 /** DTOs del grimorio (conjuros e invocaciones). */
@@ -69,4 +70,21 @@ public final class SpellDtos {
             String saveDcFormula,
             boolean atWill,
             String source) {}
+
+    /** Una habilidad personalizada, tal y como la ve la lista de Habilidades.
+     *  `mine` marca las que ha creado quien mira (para ofrecer borrarlas). */
+    public record CustomAbilityView(
+            String id,
+            String name,
+            String kind,
+            String description,
+            String author,
+            boolean mine) {}
+
+    /** Lo que manda el frontend para crear una habilidad personalizada. Solo el
+     *  nombre es obligatorio; tipo y descripción son opcionales. */
+    public record CustomAbilityCreate(
+            String name,
+            String kind,
+            String description) {}
 }
