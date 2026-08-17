@@ -235,6 +235,15 @@ export interface NoteRequest {
   pinned?: boolean;
 }
 
+// --- Trasfondo (la historia del personaje, como documento con formato) ---
+
+export interface Backstory {
+  /** El documento en HTML (negritas, colores, listas…). */
+  html: string;
+  /** ISO-8601, o "" si nunca se ha guardado. El frontend la formatea. */
+  updatedAt: string;
+}
+
 // --- Hechizos (grimorio) ---
 
 export interface SpellClassLevel {

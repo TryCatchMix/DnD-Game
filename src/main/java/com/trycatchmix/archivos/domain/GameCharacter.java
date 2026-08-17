@@ -106,6 +106,13 @@ public class GameCharacter {
     @Column(name = "save_will", nullable = false)    private int saveWill = 0;
     @Column(name = "damage_reduction", nullable = false) private String damageReduction = "";
 
+    // --- Trasfondo --- la historia del personaje, como HTML con formato.
+    //  Es un documento largo (columna `text`): se edita en su propia pantalla,
+    //  no en la ficha. Sin @Lob a propósito: sobre Postgres @Lob mapearía a un
+    //  large-object (oid) y chocaría con la columna `text` al leerla.
+    @Column(nullable = false, columnDefinition = "text") private String backstory = "";
+    @Column(name = "backstory_updated_at") private java.time.Instant backstoryUpdatedAt;
+
     @OneToMany(mappedBy = "character", fetch = FetchType.EAGER)
     @OrderBy("name ASC")
     private List<CharacterSkill> skills = new ArrayList<>();

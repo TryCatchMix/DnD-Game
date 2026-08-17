@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import {
-  Character, CharacterCreate, ChronicleCreate, ChronicleEntry, ClassFeature, DomainDetail,
+  Backstory, Character, CharacterCreate, ChronicleCreate, ChronicleEntry, ClassFeature, DomainDetail,
   DomainSummary, Ficha, FichaEdit, Holdings, ImportResult, Inventory, Invocation, Note,
   NoteRequest, Notes, PreparedList, PropertyBuyRequest, QuestCard, QuestSummary,
   ResolutionView, SceneView, Shop, ShopOfferCreate, Spell, SpellCreate, SpellPage, ValidationReport,
@@ -174,6 +174,17 @@ export class JuegoService {
 
   eliminarNota(noteId: string): Observable<Notes> {
     return this.http.delete<Notes>(`/api/notas/${noteId}`);
+  }
+
+  // --- Trasfondo (la historia del personaje) ---
+  // Es de un personaje concreto. Ambas devuelven la vista entera (HTML + fecha).
+
+  trasfondo(personajeId: string): Observable<Backstory> {
+    return this.http.get<Backstory>(`/api/personajes/${personajeId}/trasfondo`);
+  }
+
+  guardarTrasfondo(personajeId: string, html: string): Observable<Backstory> {
+    return this.http.put<Backstory>(`/api/personajes/${personajeId}/trasfondo`, { html });
   }
 
   // --- Propiedades (comprar y mejorar negocios) ---

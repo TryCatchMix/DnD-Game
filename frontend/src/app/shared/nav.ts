@@ -26,6 +26,8 @@ import { AuthService } from '../core/auth.service';
            routerLinkActive="activa">Habilidades</a>
         <a class="tab tab--nota" [routerLink]="['/personajes', personajeId(), 'notas']"
            routerLinkActive="activa">Notas</a>
+        <a class="tab tab--trasfondo" [routerLink]="['/personajes', personajeId(), 'trasfondo']"
+           routerLinkActive="activa">Trasfondo</a>
         <a class="tab tab--casa" [routerLink]="['/personajes', personajeId(), 'propiedades']"
            routerLinkActive="activa">Propiedades</a>
         @if (esDM()) {
@@ -85,6 +87,8 @@ import { AuthService } from '../core/auth.service';
     .tab--arcano.activa { color: #a294c9; border-color: rgba(138, 123, 176, .5); }
     .tab--nota { color: var(--oro); }
     .tab--nota.activa { color: #c69a3d; border-color: rgba(157, 122, 47, .5); }
+    .tab--trasfondo { color: #b0846a; }
+    .tab--trasfondo.activa { color: #c99a7f; border-color: rgba(176, 132, 106, .5); }
     .tab--casa { color: var(--musgo); }
     .tab--casa.activa { color: #6a8a4f; border-color: rgba(76, 106, 55, .5); }
     .tab--ajuste { color: var(--sepia); }

@@ -65,6 +65,11 @@ export const routes: Routes = [
       import('./features/notas/notas.page').then(m => m.NotasPage),
   },
   {
+    path: 'personajes/:personajeId/trasfondo',
+    loadComponent: () =>
+      import('./features/trasfondo/trasfondo.page').then(m => m.TrasfondoPage),
+  },
+  {
     path: 'personajes/:personajeId/propiedades',
     loadComponent: () =>
       import('./features/propiedades/propiedades.page').then(m => m.PropiedadesPage),
