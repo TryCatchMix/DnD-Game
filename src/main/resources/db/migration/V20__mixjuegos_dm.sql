@@ -1,0 +1,13 @@
+-- =====================================================================
+-- Ascenso a máster de la cuenta 'mixjuegos13@gmail.com' (Alisander).
+--
+-- El registro público (/api/auth/register) SIEMPRE crea jugadores (PLAYER),
+-- así que una cuenta ya registrada solo llega a DM por aquí. A diferencia de
+-- V10 y V17, que SIEMBRAN másters nuevos, esta cuenta ya existía como jugador:
+-- se le cambia el rol y conserva su contraseña, sus personajes y su historia.
+--
+-- Idempotente: si la cuenta no existe (base de datos recién creada donde nadie
+-- se ha registrado todavía) el update no toca ninguna fila y la migración pasa
+-- igual; volverá a aplicarse sola el día que se restaure ese usuario.
+-- =====================================================================
+update users set role = 'DM' where email = 'mixjuegos13@gmail.com';
