@@ -3,7 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import {
-  Archivo, Coincidencia, DetalleMision, MisionRequest, NotaRequest, VistaMesa,
+  Archivo, Coincidencia, Combate, Combatiente, DetalleMision, Enemigo, EnemigoRequest,
+  MisionRequest, NotaRequest, ResumenCombate, VistaMesa,
 } from './table.types';
 
 /**
@@ -125,4 +126,87 @@ export class MesaService {
     if (url) URL.revokeObjectURL(url);
     this.cache.delete(assetId);
   }
+  // ------------------------------------------------------- enemigos y combate
+
+  enemigos(): Observable<Enemigo[]> {
+    return this.http.get<Enemigo[]>('/api/mesa/enemigos');
+  }
+
+  /** Copiar una criatura del bestiario a la lista del máster. Es una copia:
+   *  el bestiario no se toca. */
+  copiarDelBestiario(monsterId: string, name?: string, misionId?: string): Observable<Enemigo> {
+    return this.http.post<Enemigo>('/api/mesa/enemigos/del-bestiario',
+      { monsterId, name, misionId });
+  }
+
+  crearEnemigo(req: EnemigoRequest): Observable<Enemigo> {
+    return this.http.post<Enemigo>('/api/mesa/enemigos', req);
+  }
+
+  editarEnemigo(id: string, req: EnemigoRequest): Observable<Enemigo> {
+    return this.http.put<Enemigo>(`/api/mesa/enemigos/${id}`, req);
+  }
+
+  borrarEnemigo(id: string): Observable<void> {
+    return this.http.delete<void>(`/api/mesa/enemigos/${id}`);
+  }
+
+  combates(): Observable<ResumenCombate[]> {
+    return this.http.get<ResumenCombate[]>('/api/mesa/combates');
+  }
+
+  abrirCombate(title: string, misionId?: string): Observable<Combate> {
+    return this.http.post<Combate>('/api/mesa/combates', { title, misionId });
+  }
+
+  combate(id: string): Observable<Combate> {
+    return this.http.get<Combate>(`/api/mesa/combates/${id}`);
+  }
+
+  cerrarCombate(id: string): Observable<void> {
+    return this.http.delete<void>(`/api/mesa/combates/${id}`);
+  }
+
+  meterEnemigos(combateId: string, enemigoId: string, count: number): Observable<Combate> {
+    return this.http.post<Combate>(`/api/mesa/combates/${combateId}/enemigos`,
+      { enemigoId, count });
+  }
+
+  meterPersonaje(combateId: string, characterId: string): Observable<Combate> {
+    return this.http.post<Combate>(`/api/mesa/combates/${combateId}/personajes`,
+      { characterId });
+  }
+
+  meterSuelto(combateId: string, name: string, hpMax: number, ac: number): Observable<Combate> {
+    return this.http.post<Combate>(`/api/mesa/combates/${combateId}/sueltos`,
+      { name, hpMax, ac });
+  }
+
+  /** Tira 1d20 + modificador por quien no tenga iniciativa puesta. */
+  tirarIniciativa(combateId: string, personajes: boolean): Observable<Combate> {
+    return this.http.post<Combate>(`/api/mesa/combates/${combateId}/iniciativa`, null,
+      { params: { personajes: String(personajes) } });
+  }
+
+  siguienteTurno(combateId: string): Observable<Combate> {
+    return this.http.post<Combate>(`/api/mesa/combates/${combateId}/siguiente`, null);
+  }
+
+  /** Daño (negativo) o curación (positivo). */
+  cambiarPg(combateId: string, combatantId: string, delta: number): Observable<Combate> {
+    return this.http.post<Combate>(
+      `/api/mesa/combates/${combateId}/combatientes/${combatantId}/pg`, { delta });
+  }
+
+  editarCombatiente(combateId: string, combatantId: string,
+                    cambios: Partial<Combatiente>): Observable<Combate> {
+    return this.http.put<Combate>(
+      `/api/mesa/combates/${combateId}/combatientes/${combatantId}`, cambios);
+  }
+
+  quitarCombatiente(combateId: string, combatantId: string): Observable<Combate> {
+    return this.http.delete<Combate>(
+      `/api/mesa/combates/${combateId}/combatientes/${combatantId}`);
+  }
+
 }

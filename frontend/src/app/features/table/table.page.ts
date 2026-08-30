@@ -4,10 +4,12 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { NavBar } from '../../shared/nav';
 import { BibliotecaPanel } from './library-panel';
+import { CombatePanel } from './combat-panel';
+import { EnemigosPanel } from './enemies-panel';
 import { MisionDetalle } from './mission-detail';
 import { MisionesPanel } from './missions-panel';
 
-type Pestana = 'misiones' | 'biblioteca';
+type Pestana = 'misiones' | 'biblioteca' | 'enemigos' | 'combate';
 
 /**
  * La Mesa: donde el DM prepara las partidas.
@@ -25,7 +27,7 @@ type Pestana = 'misiones' | 'biblioteca';
  */
 @Component({
   selector: 'arc-mesa',
-  imports: [NavBar, MisionesPanel, MisionDetalle, BibliotecaPanel],
+  imports: [NavBar, MisionesPanel, MisionDetalle, BibliotecaPanel, EnemigosPanel, CombatePanel],
   template: `
     <arc-nav [personajeId]="personajeId()" [ancho]="true" />
 
@@ -47,10 +49,20 @@ type Pestana = 'misiones' | 'biblioteca';
           <button class="pestana" [class.activa]="pestana() === 'biblioteca'"
                   role="tab" [attr.aria-selected]="pestana() === 'biblioteca'"
                   (click)="pestana.set('biblioteca')">Biblioteca</button>
+          <button class="pestana" [class.activa]="pestana() === 'enemigos'"
+                  role="tab" [attr.aria-selected]="pestana() === 'enemigos'"
+                  (click)="pestana.set('enemigos')">Enemigos</button>
+          <button class="pestana" [class.activa]="pestana() === 'combate'"
+                  role="tab" [attr.aria-selected]="pestana() === 'combate'"
+                  (click)="pestana.set('combate')">Combate</button>
         </div>
 
         @if (pestana() === 'misiones') {
           <arc-misiones-panel (abrir)="abrirMision($event)" />
+        } @else if (pestana() === 'enemigos') {
+          <arc-enemigos-panel />
+        } @else if (pestana() === 'combate') {
+          <arc-combate-panel />
         } @else {
           <arc-biblioteca-panel />
         }

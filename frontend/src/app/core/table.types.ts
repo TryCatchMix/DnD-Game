@@ -110,3 +110,78 @@ export const TIPOS_NOTA: Record<TipoNota, string> = {
   botin:   'Botín',
   nota:    'Nota',
 };
+
+// --- Enemigos del máster y combate ---
+
+/** Un enemigo de la lista del DM: copiado del bestiario o inventado. */
+export interface Enemigo {
+  id: string;
+  name: string;
+  sizeType: string;
+  cr: string;
+  hpMax: number;
+  ac: number;
+  acTouch: number;
+  acFlatFooted: number;
+  initMod: number;
+  speed: string;
+  saves: string;
+  abilities: string;
+  attack: string;
+  fullAttack: string;
+  specialAttacks: string;
+  specialQualities: string;
+  skills: string;
+  feats: string;
+  notes: string;
+  /** De qué criatura salió, si salió de alguna. */
+  monsterId: string | null;
+  monsterName: string | null;
+  misionId: string | null;
+}
+
+/** Lo que se manda al crear o editar un enemigo a mano. Todo opcional
+ *  salvo el nombre al crearlo. */
+export interface EnemigoRequest {
+  name?: string; sizeType?: string; cr?: string;
+  hpMax?: number; ac?: number; acTouch?: number; acFlatFooted?: number; initMod?: number;
+  speed?: string; saves?: string; abilities?: string;
+  attack?: string; fullAttack?: string; specialAttacks?: string; specialQualities?: string;
+  skills?: string; feats?: string; notes?: string; misionId?: string;
+}
+
+export interface Combatiente {
+  id: string;
+  /** enemigo | personaje | suelto. */
+  kind: string;
+  name: string;
+  initiative: number;
+  hpMax: number;
+  hpCurrent: number;
+  ac: number;
+  conditions: string;
+  notes: string;
+  defeated: boolean;
+  sortOrdinal: number;
+  /** true si le toca ahora mismo. */
+  active: boolean;
+  enemigoId: string | null;
+  characterId: string | null;
+}
+
+export interface Combate {
+  id: string;
+  title: string;
+  /** 0 = aún no ha empezado. */
+  round: number;
+  turnOrdinal: number;
+  misionId: string | null;
+  combatants: Combatiente[];
+}
+
+export interface ResumenCombate {
+  id: string;
+  title: string;
+  round: number;
+  combatants: number;
+}
