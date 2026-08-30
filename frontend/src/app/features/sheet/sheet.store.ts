@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
-import {
+import { Feat,
   DomainDetail, DomainSummary, Ficha, Inventory, InventoryLine, PreparedSpell, SkillDetail, Spell,
 } from '../../core/api.types';
 import { JuegoService } from '../../core/game.service';
@@ -60,6 +60,11 @@ export class FichaStore {
   /** Modelo del formulario (objeto plano; ngModel lo muta en sitio). */
   edit: EditModel | null = null;
   readonly editSkills = signal<EditRow[]>([]);
+  /** Las dotes que se están editando: nombre y con qué ("espada larga"). */
+  readonly editFeats = signal<{ name: string; detail: string }[]>([]);
+  /** El compendio, solo para sugerir nombres mientras se escribe. Se pide una
+   *  vez al abrir el editor; si falla, se escribe a mano y ya está. */
+  readonly catalogoDotes = signal<Feat[]>([]);
   /** El monedero se edita en po/pp/pc; al guardar se recompone a piezas de cobre. */
   readonly purseOro = signal(0);
   readonly pursePlata = signal(0);
@@ -203,6 +208,13 @@ export class FichaStore {
       vigor: f.vigor, maxVigor: f.maxVigor, carga: f.carga,
     };
     this.editSkills.set(f.skills.map(k => ({ name: k.name, keyAbility: k.keyAbility, ranks: k.ranks, miscMod: k.miscMod })));
+    this.editFeats.set((f.feats ?? []).map(d => ({ name: d.name, detail: d.detail })));
+    if (this.catalogoDotes().length === 0) {
+      this.juego.dotes().subscribe({
+        next: ds => this.catalogoDotes.set(ds),
+        error: () => this.catalogoDotes.set([]),   // sin sugerencias, pero se puede escribir
+      });
+    }
     // Descomponer el monedero (cp) en po/pp/pc para editarlo con comodidad.
     const cp = f.purseCp ?? 0;
     this.purseOro.set(Math.floor(cp / 100));
@@ -221,6 +233,14 @@ export class FichaStore {
     this.editSkills.update(rows => rows.filter((_, idx) => idx !== i));
   }
 
+  anadirDote(): void {
+    this.editFeats.update(rows => [...rows, { name: '', detail: '' }]);
+  }
+
+  quitarDote(i: number): void {
+    this.editFeats.update(rows => rows.filter((_, idx) => idx !== i));
+  }
+
   guardar(): void {
     if (!this.edit || this.guardando()) return;
     this.guardando.set(true);
@@ -233,7 +253,11 @@ export class FichaStore {
     const nn = (s: () => number) => Math.max(0, Math.floor(Number(s()) || 0));
     const purseCp = nn(this.purseOro) * 100 + nn(this.pursePlata) * 10 + nn(this.purseCobre);
 
-    this.juego.editarFicha(this.personajeId(), { ...this.edit, purseCp, skills }).subscribe({
+    const feats = this.editFeats()
+      .filter(r => r.name.trim() !== '')
+      .map(r => ({ name: r.name.trim(), detail: (r.detail ?? '').trim() }));
+
+    this.juego.editarFicha(this.personajeId(), { ...this.edit, purseCp, skills, feats }).subscribe({
       next: f => {
         this.ficha.set(f);
         this.guardando.set(false);

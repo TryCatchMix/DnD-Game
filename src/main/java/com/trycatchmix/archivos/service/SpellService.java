@@ -5,8 +5,10 @@ import com.trycatchmix.archivos.domain.Spell;
 import com.trycatchmix.archivos.domain.SpellClass;
 import com.trycatchmix.archivos.error.ApiException;
 import com.trycatchmix.archivos.repo.ClassFeatureRepository;
+import com.trycatchmix.archivos.repo.FeatRepository;
 import com.trycatchmix.archivos.repo.InvocationRepository;
 import com.trycatchmix.archivos.repo.SpellRepository;
+import com.trycatchmix.archivos.web.dto.SpellDtos.FeatView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.FeatureView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.InvocationView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.SpellClassInput;
@@ -34,6 +36,7 @@ public class SpellService {
     private final SpellRepository spells;
     private final InvocationRepository invocations;
     private final ClassFeatureRepository classFeatures;
+    private final FeatRepository feats;
 
     /** Con qué atributo lanza cada clase: de ahí sale la CD. Así el formulario
      *  de "añadir habilidad" no tiene que preguntarlo; se deduce de la clase.
@@ -89,6 +92,28 @@ public class SpellService {
         return lista.stream()
                 .map(f -> new FeatureView(f.getClazz(), f.getName(), f.getLevel(),
                         f.getKind(), f.getDescription(), f.getSource()))
+                .toList();
+    }
+
+    /**
+     * Las dotes del manual. Filtra por tipo ("General", "Metamágica"…) y por
+     * nombre sin acentos; son 110, así que no hace falta paginarlas.
+     *
+     * A diferencia de las aptitudes de clase, una dote no pertenece a ninguna
+     * clase: la elige quien quiera, si cumple el prerrequisito.
+     */
+    @Transactional(readOnly = true)
+    public List<FeatView> dotes(String tipo, String q) {
+        boolean todos = tipo == null || tipo.isBlank() || "Todas".equalsIgnoreCase(tipo);
+        String needle = norm(q);
+        return feats.findAllByOrderByNameAsc().stream()
+                .filter(f -> todos || f.getKind().equalsIgnoreCase(tipo))
+                .filter(f -> needle.isEmpty()
+                        || norm(f.getName()).contains(needle)
+                        || norm(f.getNameEn()).contains(needle))
+                .map(f -> new FeatView(f.getId().toString(), f.getName(), f.getNameEn(),
+                        f.getKind(), f.getPrerequisite(), f.getBenefit(),
+                        f.getNormal(), f.getSpecial(), f.getSource()))
                 .toList();
     }
 

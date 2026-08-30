@@ -2,6 +2,7 @@ import { Component, ElementRef, effect, inject, viewChild } from '@angular/core'
 import { FormsModule } from '@angular/forms';
 
 import { ConjurosPanel } from '../spells-panel';
+import { DotesPanel } from '../feats-panel';
 import { FichaEditor } from '../sheet-editor';
 import { FichaStore } from '../sheet.store';
 import { KgPipe } from '../../../shared/weight.pipe';
@@ -18,7 +19,7 @@ import { KgPipe } from '../../../shared/weight.pipe';
  */
 @Component({
   selector: 'arc-ficha-pergamino',
-  imports: [FormsModule, FichaEditor, ConjurosPanel, KgPipe],
+  imports: [FormsModule, FichaEditor, ConjurosPanel, DotesPanel, KgPipe],
   template: `
     <div class="contenedor contenedor--hoja">
       @if (store.cargando()) {
@@ -310,6 +311,12 @@ import { KgPipe } from '../../../shared/weight.pipe';
               <span class="carga-total">{{ store.totalPreparados() }} preparados</span>
             </div>
             <arc-conjuros-panel />
+          </section>
+
+          <!-- ============ DOTES ============ -->
+          <section class="bloque">
+            <p class="rotulo">Dotes</p>
+            <arc-dotes-panel />
           </section>
         }
 

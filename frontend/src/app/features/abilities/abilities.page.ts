@@ -2,7 +2,7 @@ import { Component, computed, inject, input, signal, OnInit } from '@angular/cor
 import { FormsModule } from '@angular/forms';
 
 import { JuegoService } from '../../core/game.service';
-import { ClassFeature, Invocation, Spell, SpellCreate, SpellPage } from '../../core/api.types';
+import { ClassFeature, Feat, Invocation, Spell, SpellCreate, SpellPage } from '../../core/api.types';
 import { NavBar } from '../../shared/nav';
 
 const norm = (s: string) =>
@@ -12,6 +12,9 @@ const norm = (s: string) =>
 const CLASES_CONJURO = ['Mago', 'Hechicero', 'Clérigo', 'Bardo', 'Druida', 'Paladín', 'Explorador'];
 /** Clases marciales con aptitudes (no lanzan conjuros). */
 const CLASES_APTITUD = ['Bárbaro', 'Guerrero', 'Monje'];
+/** Tipos de dote del SRD. La dote no es de nadie: la elige quien cumpla el
+ *  prerrequisito, así que se agrupan por tipo y no por clase. */
+const TIPOS_DOTE = ['General', 'Metamágica', 'Creación de objetos', 'Especial'];
 
 /** Estado de una clase en el formulario de alta: si está marcada y a qué nivel. */
 interface ClaseForm { sel: boolean; level: number; }
@@ -57,6 +60,12 @@ interface ClaseForm { sel: boolean; level: number; }
             <optgroup label="Aptitudes de clase">
               @for (c of clasesAptitud; track c) {
                 <option [value]="'aptitud:' + c">{{ c }}</option>
+              }
+            </optgroup>
+            <optgroup label="Dotes">
+              <option value="dote:Todas">Todas las dotes</option>
+              @for (t of tiposDote; track t) {
+                <option [value]="'dote:' + t">{{ t }}</option>
               }
             </optgroup>
           </select>
@@ -137,6 +146,34 @@ interface ClaseForm { sel: boolean; level: number; }
               <p class="escuela">{{ a.kind }}</p>
               <p class="desc">{{ a.description }}</p>
               <p class="fuente">{{ a.source }}</p>
+            </li>
+          }
+        </ul>
+      }
+
+      <!-- ========================= DOTES ========================= -->
+      @else if (kind() === 'dote') {
+        <p class="aviso aviso--dote">
+          Una <strong>dote</strong> no pertenece a ninguna clase: la elige quien
+          cumpla su prerrequisito, al crear el personaje y cada tres niveles.
+          El apartado «sin ella» es el que explica de verdad para qué sirve.
+        </p>
+        <p class="recuento">{{ dotesMostradas().length }} de {{ dotesFiltradas().length }} dote(s)</p>
+        <ul class="lista">
+          @for (d of dotesMostradas(); track d.name) {
+            <li class="hoja hechizo hechizo--dote">
+              <div class="fila">
+                <h2>{{ d.name }}</h2>
+                <span class="nivel">{{ d.kind }}</span>
+              </div>
+              <p class="escuela"><span class="en">{{ d.nameEn }}</span></p>
+              @if (d.prerequisite) {
+                <p class="requisito"><strong>Requiere:</strong> {{ d.prerequisite }}</p>
+              }
+              <p class="desc">{{ d.benefit }}</p>
+              @if (d.normal) { <p class="sin-ella"><strong>Sin ella:</strong> {{ d.normal }}</p> }
+              @if (d.special) { <p class="especial">{{ d.special }}</p> }
+              <p class="fuente">{{ d.source }}</p>
             </li>
           }
         </ul>
@@ -340,6 +377,16 @@ interface ClaseForm { sel: boolean; level: number; }
     }
     .aviso strong { color: var(--tinta); }
     .aviso--apt { border-left-color: var(--musgo); background: rgba(76,106,55,.08); }
+    .aviso--dote { border-left-color: var(--oro); background: rgba(157,122,47,.08); }
+    .hechizo--dote { border-left: 2px solid rgba(157,122,47,.5); }
+    .requisito { margin: 0 0 8px; font-size: 14px; color: var(--sepia-hondo); }
+    .requisito strong { color: var(--tinta); }
+    .sin-ella {
+      margin: 8px 0 0; font-size: 14px; color: var(--sepia-hondo);
+      border-left: 2px solid var(--linea-clara); padding-left: 10px;
+    }
+    .sin-ella strong { color: var(--tinta); }
+    .especial { margin: 8px 0 0; font-size: 13px; color: var(--sepia); font-style: italic; }
 
     /* --- Alta de habilidad de la casa --- */
     .anadir { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 14px 0 4px; }
@@ -440,6 +487,7 @@ export class HabilidadesPage implements OnInit {
 
   readonly clasesConjuro = CLASES_CONJURO;
   readonly clasesAptitud = CLASES_APTITUD;
+  readonly tiposDote = TIPOS_DOTE;
   readonly escuelas = ['Abjuración', 'Adivinación', 'Conjuración', 'Encantamiento',
                        'Evocación', 'Ilusión', 'Nigromancia', 'Transmutación', 'Universal'];
 
@@ -454,6 +502,7 @@ export class HabilidadesPage implements OnInit {
   readonly pagina = signal<SpellPage>({ total: 0, items: [] });
   readonly invocaciones = signal<Invocation[]>([]);
   readonly aptitudes = signal<ClassFeature[]>([]);
+  readonly dotes = signal<Feat[]>([]);
 
   // --- Formulario de "añadir habilidad de la casa" ---
   readonly mostrarForm = signal(false);
@@ -503,6 +552,13 @@ export class HabilidadesPage implements OnInit {
   });
   readonly aptitudesMostradas = computed(() => this.aptitudesFiltradas().slice(0, this.tope()));
 
+  readonly dotesFiltradas = computed(() => {
+    const q = norm(this.busqueda().trim());
+    return this.dotes()
+      .filter(d => !q || norm(d.name).includes(q) || norm(d.nameEn).includes(q));
+  });
+  readonly dotesMostradas = computed(() => this.dotesFiltradas().slice(0, this.tope()));
+
   private debounce: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
@@ -530,7 +586,7 @@ export class HabilidadesPage implements OnInit {
 
   onBuscar(v: string): void {
     this.busqueda.set(v);
-    if (this.kind() !== 'hechizo') return;   // invos/aptitudes filtran en cliente
+    if (this.kind() !== 'hechizo') return;   // invos, aptitudes y dotes filtran en cliente
     if (this.debounce) clearTimeout(this.debounce);
     this.debounce = setTimeout(() => this.recargarHechizos(), 300);
   }
@@ -539,6 +595,7 @@ export class HabilidadesPage implements OnInit {
     const k = this.kind();
     if (k === 'invocacion') this.cargarInvocaciones();
     else if (k === 'aptitud') this.cargarAptitudes();
+    else if (k === 'dote') this.cargarDotes();
     else this.recargarHechizos();
   }
 
@@ -563,6 +620,17 @@ export class HabilidadesPage implements OnInit {
     this.juego.aptitudes(this.clase()).subscribe({
       next: as => { this.aptitudes.set(as); this.cargando.set(false); this.error.set(null); },
       error: () => { this.cargando.set(false); this.error.set('No se han podido cargar las aptitudes.'); },
+    });
+  }
+
+  private cargarDotes(): void {
+    this.cargando.set(true);
+    // se pide el tipo al servidor y el nombre se filtra aquí: son 110, así que
+    // escribir en el buscador no tiene por qué ir al servidor
+    const tipo = this.clase() === 'Todas' ? '' : this.clase();
+    this.juego.dotes(tipo).subscribe({
+      next: ds => { this.dotes.set(ds); this.cargando.set(false); this.error.set(null); },
+      error: () => { this.cargando.set(false); this.error.set('No se han podido cargar las dotes.'); },
     });
   }
 

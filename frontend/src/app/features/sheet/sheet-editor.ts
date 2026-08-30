@@ -121,6 +121,29 @@ import { FichaStore } from './sheet.store';
         </ul>
         <button type="button" class="boton" (click)="store.anadirHabilidad()">+ Añadir habilidad</button>
 
+        <p class="rotulo separador">Dotes</p>
+        <p class="editor-nota">Escribe el nombre y, si la dote se elige «para algo»
+          (Arma focalizada con la espada larga, Conjuro focalizado en Evocación),
+          apúntalo en el segundo hueco. Si es una del manual, la ficha enseñará
+          sola lo que hace.</p>
+        <!-- Sugerencias del compendio: es un datalist, así que se puede
+             escribir cualquier cosa (una dote de la casa, por ejemplo). -->
+        <datalist id="catalogo-dotes">
+          @for (d of store.catalogoDotes(); track d.name) { <option [value]="d.name"></option> }
+        </datalist>
+        <ul class="habs-edit">
+          @for (row of store.editFeats(); track $index) {
+            <li class="fila-dote">
+              <input class="d-nombre" name="d_name_{{$index}}" list="catalogo-dotes"
+                     placeholder="Dote" [(ngModel)]="row.name" />
+              <input class="d-detalle" name="d_det_{{$index}}"
+                     placeholder="¿con qué? (opcional)" [(ngModel)]="row.detail" />
+              <button type="button" class="quitar" (click)="store.quitarDote($index)">✕</button>
+            </li>
+          }
+        </ul>
+        <button type="button" class="boton" (click)="store.anadirDote()">+ Añadir dote</button>
+
         @if (store.errorEdit(); as err) { <p class="error" role="alert">{{ err }}</p> }
 
         <div class="acciones acciones--editor">
@@ -142,6 +165,9 @@ import { FichaStore } from './sheet.store';
     .campos select { font: inherit; font-size: 13px; padding: 10px 8px; border: 1px solid var(--linea-fuerte); border-radius: var(--radio); background: var(--pergamino-claro); color: var(--tinta); }
 
     .habs-edit { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; }
+    .fila-dote {
+      display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; align-items: center;
+    }
     .fila-hab { display: flex; gap: 6px; align-items: center; }
     .fila-hab .h-nombre { flex: 1 1 auto; min-width: 0; width: auto; }
     .fila-hab .h-num { width: 74px; flex: 0 0 auto; font-family: var(--dato); }

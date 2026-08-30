@@ -3,6 +3,7 @@ package com.trycatchmix.archivos.web;
 import com.trycatchmix.archivos.error.ApiException;
 import com.trycatchmix.archivos.security.AuthPrincipal;
 import com.trycatchmix.archivos.service.SpellService;
+import com.trycatchmix.archivos.web.dto.SpellDtos.FeatView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.FeatureView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.InvocationView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.SpellCreate;
@@ -48,6 +49,14 @@ public class SpellController {
     @GetMapping("/aptitudes")
     public List<FeatureView> aptitudes(@RequestParam(required = false) String clase) {
         return spells.aptitudes(clase);
+    }
+
+    /** Las dotes del manual: las 110 del SRD. Filtra por tipo y por nombre.
+     *  Son pocas, así que se devuelven enteras. */
+    @GetMapping("/dotes")
+    public List<FeatView> dotes(@RequestParam(required = false) String tipo,
+                                @RequestParam(required = false) String q) {
+        return spells.dotes(tipo, q);
     }
 
     // ---- Conjuros "de la casa": cualquier jugador (DM o no) los añade/borra ----

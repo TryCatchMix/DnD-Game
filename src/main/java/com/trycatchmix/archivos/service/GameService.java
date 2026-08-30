@@ -20,6 +20,8 @@ public class GameService {
 
     private final GameCharacterRepository characters;
     private final CharacterSkillRepository characterSkills;
+    private final CharacterFeatRepository characterFeats;
+    private final FeatRepository feats;
     private final QuestRepository quests;
     private final SceneRepository scenes;
     private final SceneOptionRepository options;
@@ -119,6 +121,8 @@ public class GameService {
         inventory.deleteAll(inventory.findByCharacterIdOrderByNameAsc(charId));
         characterSkills.deleteAll(c.getSkills());
         characterSkills.flush();
+        characterFeats.deleteByCharacterId(charId);
+        characterFeats.flush();
 
         characters.delete(c);
         characters.flush();
@@ -213,6 +217,27 @@ public class GameService {
             characterSkills.saveAll(nuevas);
         } else {
             nuevas = characterSkills.findByCharacterIdOrderByNameAsc(charId);
+        }
+
+        // dotes: reemplazo completo si viene la lista
+        if (r.feats() != null) {
+            characterFeats.deleteByCharacterId(charId);
+            characterFeats.flush();
+            List<CharacterFeat> dotes = new ArrayList<>();
+            int orden = 0;
+            for (var f : r.feats()) {
+                if (f.name() == null || f.name().isBlank()) continue;
+                CharacterFeat cf = new CharacterFeat();
+                cf.setCharacterId(charId);
+                cf.setName(f.name().trim());
+                cf.setDetail(f.detail() == null ? "" : f.detail().trim());
+                // se enlaza con el compendio por nombre; si no está, es de la casa
+                feats.findByNameIgnoreCase(cf.getName())
+                        .ifPresent(cat -> cf.setFeatId(cat.getId()));
+                cf.setSortOrdinal(orden++);
+                dotes.add(cf);
+            }
+            characterFeats.saveAll(dotes);
         }
 
         return buildFicha(c, nuevas);
@@ -332,7 +357,30 @@ public class GameService {
                 c.getSaveFort(), c.getSaveRef(), c.getSaveWill(),
                 c.getDamageReduction(),
                 c.getVigor(), c.getMaxVigor(), c.getPurseCp(), Money.format(c.getPurseCp()), c.getCarga(),
-                skills);
+                skills,
+                dotesDe(c.getId()));
+    }
+
+    /**
+     * Las dotes del personaje, resueltas contra el compendio.
+     *
+     * Se busca la del manual para poder mandar su beneficio con la ficha: así
+     * el jugador lee lo que hace su dote sin salir de la hoja, que era medio
+     * sentido de importarlas. Una dote de la casa viaja sin beneficio.
+     */
+    private List<FeatOnSheetView> dotesDe(UUID charId) {
+        return characterFeats.findByCharacterIdOrderBySortOrdinalAscNameAsc(charId).stream()
+                .map(cf -> {
+                    var cat = cf.getFeatId() == null
+                            ? feats.findByNameIgnoreCase(cf.getName())
+                            : feats.findById(cf.getFeatId());
+                    return new FeatOnSheetView(
+                            cf.getName(), cf.getDetail(),
+                            cat.map(f -> f.getKind()).orElse(""),
+                            cat.map(f -> f.getPrerequisite()).orElse(""),
+                            cat.map(f -> f.getBenefit()).orElse(""));
+                })
+                .toList();
     }
 
     /** Código en minúsculas y sin espacios para casar con las opciones de escena. */

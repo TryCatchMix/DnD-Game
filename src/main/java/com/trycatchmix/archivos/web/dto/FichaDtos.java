@@ -9,6 +9,17 @@ public final class FichaDtos {
     /** Una característica: puntuación (editable) y su modificador (calculado). */
     public record AbilityView(String key, String name, int score, int modifier) {}
 
+    /** Una dote del personaje, ya resuelta contra el compendio: además de lo
+     *  que eligió el jugador, viaja el beneficio para poder leerlo en la ficha
+     *  sin ir a buscarlo. `benefit` va vacío si es una dote de la casa. */
+    public record FeatOnSheetView(
+            String name,
+            /** Con qué: "espada larga", "Evocación"… */
+            String detail,
+            String kind,
+            String prerequisite,
+            String benefit) {}
+
     /** Una habilidad con su desglose 3.5. */
     public record SkillDetailView(
             String name, String code, String keyAbility,
@@ -38,7 +49,9 @@ public final class FichaDtos {
             // recursos del juego + bolsa (purseCp es el monedero en crudo, para editarlo)
             int vigor, int maxVigor, long purseCp, String bolsa, String carga,
             // habilidades
-            List<SkillDetailView> skills) {}
+            List<SkillDetailView> skills,
+            // dotes elegidas
+            List<FeatOnSheetView> feats) {}
 
     /** Lo que llega al editar. Todo lo editable; el monedero se toca en la
      *  tienda, no aquí. Las características son puntuaciones; los modificadores
@@ -57,8 +70,12 @@ public final class FichaDtos {
             Integer saveFort, Integer saveRef, Integer saveWill,
             String damageReduction,
             Integer vigor, Integer maxVigor, Long purseCp, String carga,
-            List<SkillEdit> skills) {
+            List<SkillEdit> skills,
+            List<FeatEdit> feats) {
 
         public record SkillEdit(String name, String keyAbility, Integer ranks, Integer miscMod) {}
+
+        /** Una dote elegida: el nombre y, si aplica, con qué. */
+        public record FeatEdit(String name, String detail) {}
     }
 }

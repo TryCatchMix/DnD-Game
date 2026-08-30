@@ -2,6 +2,7 @@ import { Component, ElementRef, effect, inject, viewChild } from '@angular/core'
 import { FormsModule } from '@angular/forms';
 
 import { ConjurosPanel } from '../spells-panel';
+import { DotesPanel } from '../feats-panel';
 import { FichaEditor } from '../sheet-editor';
 import { FichaStore } from '../sheet.store';
 import { KgPipe } from '../../../shared/weight.pipe';
@@ -19,7 +20,7 @@ import { KgPipe } from '../../../shared/weight.pipe';
  */
 @Component({
   selector: 'arc-ficha-mesa',
-  imports: [FormsModule, FichaEditor, ConjurosPanel, KgPipe],
+  imports: [FormsModule, FichaEditor, ConjurosPanel, DotesPanel, KgPipe],
   template: `
     <div class="contenedor contenedor--mesa">
       @if (store.cargando()) {
@@ -173,6 +174,12 @@ import { KgPipe } from '../../../shared/weight.pipe';
               <span class="dato">{{ store.totalPreparados() }}</span>
             </div>
             <arc-conjuros-panel />
+          </section>
+
+          <!-- ============ DOTES ============ -->
+          <section class="bloque">
+            <p class="rotulo">Dotes</p>
+            <arc-dotes-panel />
           </section>
 
           <!-- ============ QUIÉN ES Y QUÉ LLEVA ENCIMA ============ -->

@@ -6,7 +6,7 @@ import {
   Backstory, Character, CharacterCreate, ChronicleCreate, ChronicleEntry, ClassFeature, DomainDetail,
   DomainSummary, Ficha, FichaEdit, Holdings, ImportResult, Inventory, Invocation, Note,
   NoteRequest, Notes, PreparedList, PropertyBuyRequest, QuestCard, QuestSummary,
-  BestiaryFilters, Monster, MonsterPage,
+  BestiaryFilters, Feat, Monster, MonsterPage,
   ResolutionView, SceneView, Shop, ShopOfferCreate, Spell, SpellCreate, SpellPage, ValidationReport,
 } from './api.types';
 
@@ -230,6 +230,15 @@ export class JuegoService {
   /** Aptitudes de clase de Bárbaro, Guerrero y Monje. Son pocas. */
   aptitudes(clase: string): Observable<ClassFeature[]> {
     return this.http.get<ClassFeature[]>('/api/habilidades/aptitudes', { params: { clase } });
+  }
+
+  /** Las dotes del manual (110). Filtra por tipo y por nombre; son pocas, así
+   *  que vienen enteras y el resto del filtrado es instantáneo. */
+  dotes(tipo = '', q = ''): Observable<Feat[]> {
+    const params: Record<string, string> = {};
+    if (tipo) params['tipo'] = tipo;
+    if (q) params['q'] = q;
+    return this.http.get<Feat[]>('/api/habilidades/dotes', { params });
   }
 
   /** Crea un conjuro "de la casa": queda como uno más y sale en su categoría.

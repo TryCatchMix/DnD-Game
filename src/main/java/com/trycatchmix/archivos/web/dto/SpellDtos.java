@@ -54,6 +54,21 @@ public final class SpellDtos {
             String description,
             String source) {}
 
+    /** Una dote del manual. A diferencia de una aptitud de clase, la ELIGE el
+     *  personaje, así que no lleva clase ni nivel: lleva prerrequisito. */
+    public record FeatView(
+            String id,
+            String name,
+            String nameEn,
+            /** General, Metamágica, Creación de objetos, Especial. */
+            String kind,
+            String prerequisite,
+            String benefit,
+            /** Qué pasaría sin la dote; es lo que la hace entender. */
+            String normal,
+            String special,
+            String source) {}
+
     /** Una invocación de warlock. No tiene nivel de conjuro 0-9: tiene grado y
      *  se usa a voluntad. */
     public record InvocationView(

@@ -131,6 +131,7 @@ export interface Ficha {
   damageReduction: string;
   vigor: number; maxVigor: number; purseCp: number; bolsa: string; carga: string;
   skills: SkillDetail[];
+  feats: FeatOnSheet[];
 }
 
 /** Lo que se manda al editar la ficha. Todo opcional; el backend recalcula
@@ -150,6 +151,7 @@ export interface FichaEdit {
   damageReduction?: string;
   vigor?: number; maxVigor?: number; purseCp?: number; carga?: string;
   skills?: { name: string; keyAbility: string; ranks: number; miscMod: number }[];
+  feats?: { name: string; detail: string }[];
 }
 
 // --- Tienda (pantalla 06) ---
@@ -179,6 +181,32 @@ export interface InventoryItem {
   sellPrice: string;
   weightLb: number;
   stats: string;
+}
+
+/** Una dote del manual, tal cual se consulta en el compendio. */
+export interface Feat {
+  id: string;
+  name: string;
+  nameEn: string;
+  /** General, Metamágica, Creación de objetos, Especial. */
+  kind: string;
+  prerequisite: string;
+  benefit: string;
+  /** Qué pasaría sin la dote; es lo que la hace entender. */
+  normal: string;
+  special: string;
+  source: string;
+}
+
+/** Una dote que tiene un personaje, ya resuelta contra el compendio. */
+export interface FeatOnSheet {
+  name: string;
+  /** Con qué: "espada larga", "Evocación"… */
+  detail: string;
+  kind: string;
+  prerequisite: string;
+  /** Vacío si es una dote de la casa que no está en el manual. */
+  benefit: string;
 }
 
 export interface Shop {
