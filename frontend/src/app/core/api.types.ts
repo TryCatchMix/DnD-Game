@@ -518,3 +518,60 @@ export interface ResolutionView {
   finished: boolean;
   waitingFor?: string;
 }
+
+// --- Bestiario (las criaturas del SRD) ---
+
+/** Lo justo para pintar una criatura en la lista. */
+export interface MonsterRow {
+  id: string;
+  name: string;
+  nameEn: string;
+  sizeType: string;
+  creatureType: string;
+  /** El VD ya formateado: "½", "7", "—". */
+  cr: string;
+  environment: string;
+  /** 'criatura' o 'plantilla'. */
+  kind: string;
+}
+
+/** La ficha completa, con el bloque de estadísticas tal cual se lee. */
+export interface Monster extends MonsterRow {
+  family: string;
+  challengeRating: string;
+  hitDice: string;
+  initiative: string;
+  speed: string;
+  armorClass: string;
+  baseAttack: string;
+  attack: string;
+  fullAttack: string;
+  spaceReach: string;
+  specialAttacks: string;
+  specialQualities: string;
+  saves: string;
+  abilities: string;
+  skills: string;
+  feats: string;
+  organization: string;
+  treasure: string;
+  alignment: string;
+  advancement: string;
+  levelAdjustment: string;
+  /** La prosa del SRD; sigue en inglés, como la de los conjuros. */
+  description: string;
+  source: string;
+}
+
+export interface MonsterPage {
+  total: number;
+  items: MonsterRow[];
+}
+
+/** Los valores de filtro que existen de verdad en los datos. */
+export interface BestiaryFilters {
+  types: string[];
+  environments: string[];
+  minCr: number;
+  maxCr: number;
+}

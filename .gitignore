@@ -35,6 +35,13 @@ data/
 .env
 !.env.prod.example
 
+# === Raspadores del SRD (tools/) ===
+# Los scripts SÍ se suben; lo que descargan y generan, no: se regenera
+# ejecutándolos y son cientos de páginas HTML y varios MB de JSON.
+tools/*/pages/
+tools/*/*.htm
+tools/*/*.json
+
 # === Herramientas locales de Claude Code ===
 .claude/
 

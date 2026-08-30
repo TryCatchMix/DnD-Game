@@ -6,6 +6,7 @@ import {
   Backstory, Character, CharacterCreate, ChronicleCreate, ChronicleEntry, ClassFeature, DomainDetail,
   DomainSummary, Ficha, FichaEdit, Holdings, ImportResult, Inventory, Invocation, Note,
   NoteRequest, Notes, PreparedList, PropertyBuyRequest, QuestCard, QuestSummary,
+  BestiaryFilters, Monster, MonsterPage,
   ResolutionView, SceneView, Shop, ShopOfferCreate, Spell, SpellCreate, SpellPage, ValidationReport,
 } from './api.types';
 
@@ -240,6 +241,37 @@ export class JuegoService {
   /** Borra un conjuro de la casa (los del SRD no se pueden borrar). */
   borrarHechizo(id: string): Observable<void> {
     return this.http.delete<void>(`/api/habilidades/hechizos/${id}`);
+  }
+
+  // --- Bestiario ---
+
+  /** Criaturas filtradas y paginadas EN EL SERVIDOR. `limite <= 0` = todas.
+   *  Los filtros vacíos no se mandan, para no ensuciar la URL. */
+  bestiario(filtros: {
+    q?: string; tipo?: string; entorno?: string;
+    vdMin?: number | null; vdMax?: number | null;
+    orden?: string; limite: number; offset?: number;
+  }): Observable<MonsterPage> {
+    const params: Record<string, string> = {
+      limite: String(filtros.limite), offset: String(filtros.offset ?? 0),
+    };
+    if (filtros.q) params['q'] = filtros.q;
+    if (filtros.tipo) params['tipo'] = filtros.tipo;
+    if (filtros.entorno) params['entorno'] = filtros.entorno;
+    if (filtros.vdMin != null) params['vdMin'] = String(filtros.vdMin);
+    if (filtros.vdMax != null) params['vdMax'] = String(filtros.vdMax);
+    if (filtros.orden) params['orden'] = filtros.orden;
+    return this.http.get<MonsterPage>('/api/bestiario', { params });
+  }
+
+  /** Los tipos y entornos que hay, para poblar los desplegables. */
+  filtrosBestiario(): Observable<BestiaryFilters> {
+    return this.http.get<BestiaryFilters>('/api/bestiario/filtros');
+  }
+
+  /** La ficha completa de una criatura (se pide al abrirla). */
+  criatura(id: string): Observable<Monster> {
+    return this.http.get<Monster>(`/api/bestiario/${id}`);
   }
 
   // --- Conjuros preparados ---

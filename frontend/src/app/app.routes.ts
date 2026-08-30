@@ -60,6 +60,11 @@ export const routes: Routes = [
       import('./features/abilities/abilities.page').then(m => m.HabilidadesPage),
   },
   {
+    path: 'personajes/:personajeId/bestiario',
+    loadComponent: () =>
+      import('./features/bestiary/bestiary.page').then(m => m.BestiarioPage),
+  },
+  {
     path: 'personajes/:personajeId/notas',
     loadComponent: () =>
       import('./features/notes/notes.page').then(m => m.NotasPage),

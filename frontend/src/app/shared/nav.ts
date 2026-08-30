@@ -24,6 +24,8 @@ import { AuthService } from '../core/auth.service';
            routerLinkActive="activa">Crónica</a>
         <a class="tab tab--arcano" [routerLink]="['/personajes', personajeId(), 'habilidades']"
            routerLinkActive="activa">Habilidades</a>
+        <a class="tab tab--bestia" [routerLink]="['/personajes', personajeId(), 'bestiario']"
+           routerLinkActive="activa">Bestiario</a>
         <a class="tab tab--nota" [routerLink]="['/personajes', personajeId(), 'notas']"
            routerLinkActive="activa">Notas</a>
         <a class="tab tab--trasfondo" [routerLink]="['/personajes', personajeId(), 'trasfondo']"
@@ -85,6 +87,8 @@ import { AuthService } from '../core/auth.service';
     .tab--dm.activa { color: #6a8a4f; border-color: rgba(76, 106, 55, .5); }
     .tab--arcano { color: #8a7bb0; }
     .tab--arcano.activa { color: #a294c9; border-color: rgba(138, 123, 176, .5); }
+    .tab--bestia { color: var(--vino); }
+    .tab--bestia.activa { color: #c4614f; border-color: rgba(143, 46, 34, .55); }
     .tab--nota { color: var(--oro); }
     .tab--nota.activa { color: #c69a3d; border-color: rgba(157, 122, 47, .5); }
     .tab--trasfondo { color: #b0846a; }
