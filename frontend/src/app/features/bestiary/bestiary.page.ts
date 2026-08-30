@@ -114,7 +114,9 @@ const TRAMOS: { etiqueta: string; min: number | null; max: number | null }[] = [
                       [attr.aria-expanded]="abierta() === c.id">
                 <div class="fila">
                   <h2>{{ c.name }}</h2>
-                  <span class="vd" [class.vd--plantilla]="c.kind === 'plantilla'">
+                  <span class="vd" [class.vd--plantilla]="c.kind === 'plantilla'"
+                        [title]="c.kind === 'plantilla' ? 'Regla para modificar otra criatura'
+                                 : 'Valor de desafío ' + c.cr + ': lo que cuesta enfrentarse a ella'">
                     @if (c.kind === 'plantilla') { plantilla } @else { VD {{ c.cr }} }
                   </span>
                 </div>
@@ -127,6 +129,36 @@ const TRAMOS: { etiqueta: string; min: number | null; max: number | null }[] = [
 
               @if (abierta() === c.id) {
                 @if (ficha(); as f) {
+                  @if (f.scaling; as e) {
+                    <div class="niveles">
+                      <label class="nivel-ctrl">
+                        <span class="rotulo">Nivel de {{ e.className }}</span>
+                        <select [ngModel]="e.level" (ngModelChange)="cambiarNivel(c, $event)">
+                          @for (n of rango(e.minLevel, e.maxLevel); track n) {
+                            <option [value]="n">{{ n }}@if (n === e.baseLevel) { · el del manual }</option>
+                          }
+                        </select>
+                      </label>
+
+                      @if (e.original) {
+                        <p class="nivel-nota">
+                          Estás viendo el bloque tal cual viene en el manual.
+                        </p>
+                      } @else {
+                        <p class="nivel-nota nivel-nota--calc">
+                          Recalculado desde el nivel {{ e.baseLevel }}: dados de golpe, ataque base,
+                          presa, ataques y salvaciones. VD estimado <strong>{{ e.estimatedCr }}</strong>
+                          (es una estimación, no un dato del manual).
+                        </p>
+                        @if (e.notes.length) {
+                          <ul class="nivel-avisos">
+                            @for (n of e.notes; track n) { <li>{{ n }}</li> }
+                          </ul>
+                        }
+                      }
+                    </div>
+                  }
+
                   @if (f.kind !== 'plantilla') {
                     <dl class="stats">
                       @if (f.hitDice) { <div><dt>Dados de golpe</dt><dd>{{ f.hitDice }}</dd></div> }
@@ -146,7 +178,12 @@ const TRAMOS: { etiqueta: string; min: number | null; max: number | null }[] = [
                       @if (f.skills) { <div class="ancho"><dt>Habilidades</dt><dd>{{ f.skills }}</dd></div> }
                       @if (f.feats) { <div class="ancho"><dt>Dotes</dt><dd>{{ f.feats }}</dd></div> }
                       @if (f.organization) { <div class="ancho"><dt>Organización</dt><dd>{{ f.organization }}</dd></div> }
-                      @if (f.challengeRating) { <div class="ancho"><dt>Valor de desafío</dt><dd>{{ f.challengeRating }}</dd></div> }
+                      @if (f.challengeRating) {
+                        <div class="ancho">
+                          <dt title="Lo que cuesta enfrentarse a ella: un grupo de cuatro personajes de ese nivel debería poder con ella">Valor de desafío (VD)</dt>
+                          <dd>{{ f.challengeRating }}</dd>
+                        </div>
+                      }
                       @if (f.treasure) { <div><dt>Tesoro</dt><dd>{{ f.treasure }}</dd></div> }
                       @if (f.alignment) { <div><dt>Alineamiento</dt><dd>{{ f.alignment }}</dd></div> }
                       @if (f.advancement) { <div class="ancho"><dt>Avance</dt><dd>{{ f.advancement }}</dd></div> }
@@ -232,6 +269,25 @@ const TRAMOS: { etiqueta: string; min: number | null; max: number | null }[] = [
     }
     .stats dd { margin: 0; color: var(--tinta); font-size: 14px; min-width: 0; }
     .stats dd.dano { color: var(--vino); font-family: var(--dato); font-size: 13px; }
+
+    .niveles {
+      margin: 0; padding: 12px 18px;
+      border-top: 1px solid var(--linea-clara);
+      background: rgba(157, 122, 47, .05);
+    }
+    .nivel-ctrl { display: grid; gap: 4px; max-width: 260px; }
+    .nivel-ctrl .rotulo { color: var(--sepia-claro); }
+    .nivel-ctrl select {
+      font: inherit; padding: 8px 10px; border: 1px solid var(--linea-fuerte);
+      border-radius: var(--radio); background: var(--pergamino-claro); color: var(--tinta);
+    }
+    .nivel-nota { margin: 8px 0 0; font-size: 13px; color: var(--sepia); line-height: 1.5; }
+    .nivel-nota--calc { color: var(--sepia-hondo); }
+    .nivel-nota strong { color: var(--vino); }
+    .nivel-avisos {
+      margin: 8px 0 0; padding-left: 18px; font-size: 13px;
+      color: var(--sepia-hondo); line-height: 1.6;
+    }
 
     .aviso-idioma {
       margin: 0; padding: 10px 18px 0; font-size: 12px; color: var(--sepia);
@@ -348,6 +404,27 @@ export class BestiarioPage implements OnInit {
         if (this.abierta() === c.id) this.ficha.set(f);
       },
       error: () => this.errorFicha.set('No se ha podido leer esa ficha.'),
+    });
+  }
+
+  /** Los niveles que ofrece el selector. */
+  rango(desde: number, hasta: number): number[] {
+    return Array.from({ length: hasta - desde + 1 }, (_, i) => desde + i);
+  }
+
+  /**
+   * Pedir la ficha a otro nivel.
+   *
+   * NO se guarda en la caché de fichas: la caché es "la criatura tal cual la
+   * trae el manual", y meter ahí una versión escalada haría que al reabrirla
+   * saliera con el nivel de la última vez sin que nadie lo hubiera pedido.
+   */
+  cambiarNivel(c: MonsterRow, nivel: number | string): void {
+    const n = Number(nivel);
+    this.errorFicha.set('');
+    this.juego.criatura(c.id, n).subscribe({
+      next: f => { if (this.abierta() === c.id) this.ficha.set(f); },
+      error: () => this.errorFicha.set('No se ha podido recalcular a ese nivel.'),
     });
   }
 

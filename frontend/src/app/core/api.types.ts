@@ -646,6 +646,29 @@ export interface MonsterRow {
   kind: string;
 }
 
+/** Lo que hace falta para el selector de nivel de una criatura con clase.
+ *  `notes` recoge lo que el escalado NO puede decidir: qué dote coges, dónde
+ *  va el +1 de característica, en qué gastas los puntos de habilidad. */
+export interface Escalado {
+  /** La clase en inglés, que es la clave real (Warrior ≠ Fighter). */
+  classNameEn: string;
+  className: string;
+  /** El nivel que trae el manual. */
+  baseLevel: number;
+  /** El nivel que se está viendo. */
+  level: number;
+  minLevel: number;
+  maxLevel: number;
+  /** true si se está viendo el nivel original, sin recalcular nada. */
+  original: boolean;
+  featsGained: number;
+  abilityIncreases: number;
+  skillPoints: number;
+  /** VD estimado; la interfaz avisa de que lo es. */
+  estimatedCr: string;
+  notes: string[];
+}
+
 /** La ficha completa, con el bloque de estadísticas tal cual se lee. */
 export interface Monster extends MonsterRow {
   family: string;
@@ -672,6 +695,8 @@ export interface Monster extends MonsterRow {
   /** La prosa del SRD; sigue en inglés, como la de los conjuros. */
   description: string;
   source: string;
+  /** Solo si la criatura tiene niveles de clase. */
+  scaling: Escalado | null;
 }
 
 export interface MonsterPage {

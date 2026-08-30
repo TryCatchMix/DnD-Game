@@ -300,9 +300,12 @@ export class JuegoService {
     return this.http.get<BestiaryFilters>('/api/bestiario/filtros');
   }
 
-  /** La ficha completa de una criatura (se pide al abrirla). */
-  criatura(id: string): Observable<Monster> {
-    return this.http.get<Monster>(`/api/bestiario/${id}`);
+  /** La ficha completa de una criatura (se pide al abrirla).
+   *  Con `nivel`, si la criatura tiene niveles de clase, vuelve recalculada. */
+  criatura(id: string, nivel?: number): Observable<Monster> {
+    const params: Record<string, string> = {};
+    if (nivel != null) params['nivel'] = String(nivel);
+    return this.http.get<Monster>(`/api/bestiario/${id}`, { params });
   }
 
   // --- Conjuros preparados ---

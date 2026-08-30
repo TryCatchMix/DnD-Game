@@ -46,12 +46,18 @@ public class MonsterController {
         return bestiario.filtros();
     }
 
-    /** La ficha completa de una criatura. */
+    /**
+     * La ficha completa de una criatura.
+     *
+     * Con `nivel`, si la criatura tiene niveles de clase, devuelve el bloque
+     * recalculado para ese nivel. Sin él, el del manual tal cual.
+     */
     @GetMapping("/{id}")
     public MonsterView ficha(@AuthenticationPrincipal AuthPrincipal p,
-                             @PathVariable UUID id) {
+                             @PathVariable UUID id,
+                             @RequestParam(required = false) Integer nivel) {
         exigeSesion(p);
-        return bestiario.ficha(id);
+        return bestiario.ficha(id, nivel);
     }
 
     private void exigeSesion(AuthPrincipal p) {

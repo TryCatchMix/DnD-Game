@@ -124,6 +124,16 @@ public class Monster {
     @Column(nullable = false, columnDefinition = "text")
     private String description = "";
 
+    /** La clase que tiene, en INGLÉS ("Warrior", "Fighter"), sacada del nombre
+     *  original. Vacío si la criatura no tiene niveles de clase. En español
+     *  Warrior y Fighter se llaman casi igual, y no son la misma clase. */
+    @Column(name = "class_name_en", nullable = false)
+    private String classNameEn = "";
+
+    /** A qué nivel de esa clase está. 0 si no tiene. */
+    @Column(name = "class_level", nullable = false)
+    private int classLevel = 0;
+
     /** 'criatura' o 'plantilla'. */
     @Column(nullable = false)
     private String kind = "criatura";
