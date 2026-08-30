@@ -5,10 +5,16 @@ import com.trycatchmix.archivos.domain.Spell;
 import com.trycatchmix.archivos.domain.SpellClass;
 import com.trycatchmix.archivos.error.ApiException;
 import com.trycatchmix.archivos.repo.ClassFeatureRepository;
+import com.trycatchmix.archivos.repo.ConditionRepository;
+import com.trycatchmix.archivos.repo.DiseaseRepository;
+import com.trycatchmix.archivos.repo.PoisonRepository;
 import com.trycatchmix.archivos.repo.FeatRepository;
 import com.trycatchmix.archivos.repo.InvocationRepository;
 import com.trycatchmix.archivos.repo.SpellRepository;
+import com.trycatchmix.archivos.web.dto.SpellDtos.ConditionView;
+import com.trycatchmix.archivos.web.dto.SpellDtos.DiseaseView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.FeatView;
+import com.trycatchmix.archivos.web.dto.SpellDtos.PoisonView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.FeatureView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.InvocationView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.SpellClassInput;
@@ -37,6 +43,9 @@ public class SpellService {
     private final InvocationRepository invocations;
     private final ClassFeatureRepository classFeatures;
     private final FeatRepository feats;
+    private final ConditionRepository conditions;
+    private final DiseaseRepository diseases;
+    private final PoisonRepository poisons;
 
     /** Con qué atributo lanza cada clase: de ahí sale la CD. Así el formulario
      *  de "añadir habilidad" no tiene que preguntarlo; se deduce de la clase.
@@ -114,6 +123,46 @@ public class SpellService {
                 .map(f -> new FeatView(f.getId().toString(), f.getName(), f.getNameEn(),
                         f.getKind(), f.getPrerequisite(), f.getBenefit(),
                         f.getNormal(), f.getSpecial(), f.getSource()))
+                .toList();
+    }
+
+    /** Las condiciones del SRD. Son 38 y cortas: van enteras. */
+    @Transactional(readOnly = true)
+    public List<ConditionView> condiciones(String q) {
+        String needle = norm(q);
+        return conditions.findAllByOrderByNameAsc().stream()
+                .filter(c -> needle.isEmpty()
+                        || norm(c.getName()).contains(needle)
+                        || norm(c.getNameEn()).contains(needle))
+                .map(c -> new ConditionView(c.getName(), c.getNameEn(),
+                        c.getDescription(), c.getSource()))
+                .toList();
+    }
+
+    /** Las enfermedades, con la CD que el bestiario menciona sin dar. */
+    @Transactional(readOnly = true)
+    public List<DiseaseView> enfermedades(String q) {
+        String needle = norm(q);
+        return diseases.findAllByOrderByNameAsc().stream()
+                .filter(d -> needle.isEmpty()
+                        || norm(d.getName()).contains(needle)
+                        || norm(d.getNameEn()).contains(needle))
+                .map(d -> new DiseaseView(d.getName(), d.getNameEn(), d.getInfection(),
+                        d.getDc(), d.getIncubation(), d.getDamage(), d.getNotes(), d.getSource()))
+                .toList();
+    }
+
+    /** Los venenos, con su CD y sus dos daños. */
+    @Transactional(readOnly = true)
+    public List<PoisonView> venenos(String q) {
+        String needle = norm(q);
+        return poisons.findAllByOrderByNameAsc().stream()
+                .filter(p -> needle.isEmpty()
+                        || norm(p.getName()).contains(needle)
+                        || norm(p.getNameEn()).contains(needle))
+                .map(p -> new PoisonView(p.getName(), p.getNameEn(), p.getKind(), p.getDc(),
+                        p.getInitialDamage(), p.getSecondaryDamage(),
+                        p.getPriceCp(), Money.format(p.getPriceCp()), p.getSource()))
                 .toList();
     }
 

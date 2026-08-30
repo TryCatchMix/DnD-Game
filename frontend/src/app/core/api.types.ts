@@ -216,6 +216,40 @@ export interface Equipo {
   attacks: Ataque[];
 }
 
+/** Una condición: cegado, aturdido, en el suelo… */
+export interface Condicion {
+  name: string;
+  nameEn: string;
+  description: string;
+  source: string;
+}
+
+/** Una enfermedad, con la CD que el bestiario menciona sin dar. */
+export interface Enfermedad {
+  name: string;
+  nameEn: string;
+  /** Ingerida, Inhalada, Herida o Contacto. */
+  infection: string;
+  dc: number;
+  incubation: string;
+  damage: string;
+  notes: string;
+  source: string;
+}
+
+/** Un veneno, con su CD y sus dos daños. */
+export interface Veneno {
+  name: string;
+  nameEn: string;
+  kind: string;
+  dc: number;
+  initialDamage: string;
+  secondaryDamage: string;
+  priceCp: number;
+  price: string;
+  source: string;
+}
+
 /** Una dote del manual, tal cual se consulta en el compendio. */
 export interface Feat {
   id: string;

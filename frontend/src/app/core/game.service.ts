@@ -6,7 +6,7 @@ import {
   Backstory, Character, CharacterCreate, ChronicleCreate, ChronicleEntry, ClassFeature, DomainDetail,
   DomainSummary, Ficha, FichaEdit, Holdings, ImportResult, Inventory, Invocation, Note,
   NoteRequest, Notes, PreparedList, PropertyBuyRequest, QuestCard, QuestSummary,
-  BestiaryFilters, Feat, Monster, MonsterPage,
+  BestiaryFilters, Condicion, Enfermedad, Feat, Monster, MonsterPage, Veneno,
   ResolutionView, SceneView, Shop, ShopOfferCreate, Spell, SpellCreate, SpellPage, ValidationReport,
 } from './api.types';
 
@@ -239,6 +239,21 @@ export class JuegoService {
     if (tipo) params['tipo'] = tipo;
     if (q) params['q'] = q;
     return this.http.get<Feat[]>('/api/habilidades/dotes', { params });
+  }
+
+  /** Las condiciones del SRD (38). Se consultan a media pelea. */
+  condiciones(): Observable<Condicion[]> {
+    return this.http.get<Condicion[]>('/api/habilidades/condiciones');
+  }
+
+  /** Las enfermedades, con la CD que el bestiario no da. */
+  enfermedades(): Observable<Enfermedad[]> {
+    return this.http.get<Enfermedad[]>('/api/habilidades/enfermedades');
+  }
+
+  /** Los venenos, con su CD y sus dos daños. */
+  venenos(): Observable<Veneno[]> {
+    return this.http.get<Veneno[]>('/api/habilidades/venenos');
   }
 
   /** Crea un conjuro "de la casa": queda como uno más y sale en su categoría.

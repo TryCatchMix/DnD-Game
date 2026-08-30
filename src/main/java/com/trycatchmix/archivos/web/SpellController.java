@@ -3,7 +3,10 @@ package com.trycatchmix.archivos.web;
 import com.trycatchmix.archivos.error.ApiException;
 import com.trycatchmix.archivos.security.AuthPrincipal;
 import com.trycatchmix.archivos.service.SpellService;
+import com.trycatchmix.archivos.web.dto.SpellDtos.ConditionView;
+import com.trycatchmix.archivos.web.dto.SpellDtos.DiseaseView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.FeatView;
+import com.trycatchmix.archivos.web.dto.SpellDtos.PoisonView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.FeatureView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.InvocationView;
 import com.trycatchmix.archivos.web.dto.SpellDtos.SpellCreate;
@@ -57,6 +60,24 @@ public class SpellController {
     public List<FeatView> dotes(@RequestParam(required = false) String tipo,
                                 @RequestParam(required = false) String q) {
         return spells.dotes(tipo, q);
+    }
+
+    /** Las condiciones del SRD: cegado, aturdido, en el suelo… */
+    @GetMapping("/condiciones")
+    public List<ConditionView> condiciones(@RequestParam(required = false) String q) {
+        return spells.condiciones(q);
+    }
+
+    /** Las enfermedades, con su CD y su incubación. */
+    @GetMapping("/enfermedades")
+    public List<DiseaseView> enfermedades(@RequestParam(required = false) String q) {
+        return spells.enfermedades(q);
+    }
+
+    /** Los venenos, con su CD y sus dos daños. */
+    @GetMapping("/venenos")
+    public List<PoisonView> venenos(@RequestParam(required = false) String q) {
+        return spells.venenos(q);
     }
 
     // ---- Conjuros "de la casa": cualquier jugador (DM o no) los añade/borra ----

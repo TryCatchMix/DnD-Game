@@ -54,6 +54,22 @@ public final class SpellDtos {
             String description,
             String source) {}
 
+    /** Una condición: cegado, aturdido, en el suelo… */
+    public record ConditionView(String name, String nameEn, String description, String source) {}
+
+    /** Una enfermedad, con la CD que el bestiario no da. */
+    public record DiseaseView(
+            String name, String nameEn,
+            /** Ingerida, Inhalada, Herida o Contacto. */
+            String infection,
+            int dc, String incubation, String damage, String notes, String source) {}
+
+    /** Un veneno, con su CD y sus dos daños. */
+    public record PoisonView(
+            String name, String nameEn, String kind, int dc,
+            String initialDamage, String secondaryDamage,
+            long priceCp, String price, String source) {}
+
     /** Una dote del manual. A diferencia de una aptitud de clase, la ELIGE el
      *  personaje, así que no lleva clase ni nivel: lleva prerrequisito. */
     public record FeatView(

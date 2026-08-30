@@ -1,8 +1,11 @@
-import { Component, computed, inject, input, signal, OnInit } from '@angular/core';
+import { Component, WritableSignal, computed, inject, input, signal, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 
 import { JuegoService } from '../../core/game.service';
-import { ClassFeature, Feat, Invocation, Spell, SpellCreate, SpellPage } from '../../core/api.types';
+import {
+  ClassFeature, Condicion, Enfermedad, Feat, Invocation, Spell, SpellCreate, SpellPage, Veneno,
+} from '../../core/api.types';
 import { NavBar } from '../../shared/nav';
 
 const norm = (s: string) =>
@@ -61,6 +64,11 @@ interface ClaseForm { sel: boolean; level: number; }
               @for (c of clasesAptitud; track c) {
                 <option [value]="'aptitud:' + c">{{ c }}</option>
               }
+            </optgroup>
+            <optgroup label="En la mesa">
+              <option value="condicion:Todas">Condiciones</option>
+              <option value="veneno:Todos">Venenos</option>
+              <option value="enfermedad:Todas">Enfermedades</option>
             </optgroup>
             <optgroup label="Dotes">
               <option value="dote:Todas">Todas las dotes</option>
@@ -146,6 +154,79 @@ interface ClaseForm { sel: boolean; level: number; }
               <p class="escuela">{{ a.kind }}</p>
               <p class="desc">{{ a.description }}</p>
               <p class="fuente">{{ a.source }}</p>
+            </li>
+          }
+        </ul>
+      }
+
+      <!-- ====================== CONDICIONES ====================== -->
+      @else if (kind() === 'condicion') {
+        <p class="aviso aviso--estado">
+          Lo que se discute a media pelea: qué te quita estar <strong>cegado</strong>,
+          <strong>aturdido</strong> o <strong>en el suelo</strong>.
+        </p>
+        <p class="recuento">{{ condicionesMostradas().length }} de {{ condicionesFiltradas().length }} condición(es)</p>
+        <ul class="lista">
+          @for (c of condicionesMostradas(); track c.name) {
+            <li class="hoja hechizo hechizo--estado">
+              <div class="fila">
+                <h2>{{ c.name }}</h2>
+                <span class="escuela"><span class="en">{{ c.nameEn }}</span></span>
+              </div>
+              <p class="desc">{{ c.description }}</p>
+              <p class="fuente">{{ c.source }}</p>
+            </li>
+          }
+        </ul>
+      }
+
+      <!-- ========================= VENENOS ======================== -->
+      @else if (kind() === 'veneno') {
+        <p class="aviso aviso--veneno">
+          Cuando un monstruo dice «veneno», esto es lo que le falta: la CD, el
+          daño de golpe y el de un minuto después.
+        </p>
+        <p class="recuento">{{ venenosMostrados().length }} de {{ venenosFiltrados().length }} veneno(s)</p>
+        <ul class="lista">
+          @for (v of venenosMostrados(); track v.name) {
+            <li class="hoja hechizo hechizo--veneno">
+              <div class="fila">
+                <h2>{{ v.name }}</h2>
+                <span class="nivel">{{ v.kind }} · CD {{ v.dc }}</span>
+              </div>
+              <p class="escuela"><span class="en">{{ v.nameEn }}</span></p>
+              <dl class="stats">
+                <div><dt>Daño inicial</dt><dd class="dano">{{ v.initialDamage || '—' }}</dd></div>
+                <div><dt>Daño secundario</dt><dd class="dano">{{ v.secondaryDamage || '—' }}</dd></div>
+                @if (v.priceCp) { <div><dt>Precio</dt><dd>{{ v.price }}</dd></div> }
+              </dl>
+              <p class="fuente">{{ v.source }}</p>
+            </li>
+          }
+        </ul>
+      }
+
+      <!-- ======================= ENFERMEDADES ===================== -->
+      @else if (kind() === 'enfermedad') {
+        <p class="aviso aviso--veneno">
+          Igual que los venenos: el bestiario las menciona sin decir la CD ni
+          cuánto tardan en manifestarse.
+        </p>
+        <p class="recuento">{{ enfermedadesMostradas().length }} de {{ enfermedadesFiltradas().length }} enfermedad(es)</p>
+        <ul class="lista">
+          @for (e of enfermedadesMostradas(); track e.name) {
+            <li class="hoja hechizo hechizo--veneno">
+              <div class="fila">
+                <h2>{{ e.name }}</h2>
+                <span class="nivel">{{ e.infection }} · CD {{ e.dc }}</span>
+              </div>
+              <p class="escuela"><span class="en">{{ e.nameEn }}</span></p>
+              <dl class="stats">
+                <div><dt>Incubación</dt><dd>{{ e.incubation }}</dd></div>
+                <div><dt>Daño</dt><dd class="dano">{{ e.damage }}</dd></div>
+              </dl>
+              @if (e.notes) { <p class="desc">{{ e.notes }}</p> }
+              <p class="fuente">{{ e.source }}</p>
             </li>
           }
         </ul>
@@ -378,6 +459,10 @@ interface ClaseForm { sel: boolean; level: number; }
     .aviso strong { color: var(--tinta); }
     .aviso--apt { border-left-color: var(--musgo); background: rgba(76,106,55,.08); }
     .aviso--dote { border-left-color: var(--oro); background: rgba(157,122,47,.08); }
+    .aviso--estado { border-left-color: var(--sepia); background: rgba(120,100,80,.08); }
+    .aviso--veneno { border-left-color: var(--vino); background: rgba(143,46,34,.08); }
+    .hechizo--estado { border-left: 2px solid rgba(120,100,80,.5); }
+    .hechizo--veneno { border-left: 2px solid rgba(143,46,34,.5); }
     .hechizo--dote { border-left: 2px solid rgba(157,122,47,.5); }
     .requisito { margin: 0 0 8px; font-size: 14px; color: var(--sepia-hondo); }
     .requisito strong { color: var(--tinta); }
@@ -503,6 +588,9 @@ export class HabilidadesPage implements OnInit {
   readonly invocaciones = signal<Invocation[]>([]);
   readonly aptitudes = signal<ClassFeature[]>([]);
   readonly dotes = signal<Feat[]>([]);
+  readonly condiciones = signal<Condicion[]>([]);
+  readonly venenos = signal<Veneno[]>([]);
+  readonly enfermedades = signal<Enfermedad[]>([]);
 
   // --- Formulario de "añadir habilidad de la casa" ---
   readonly mostrarForm = signal(false);
@@ -559,6 +647,24 @@ export class HabilidadesPage implements OnInit {
   });
   readonly dotesMostradas = computed(() => this.dotesFiltradas().slice(0, this.tope()));
 
+  readonly condicionesFiltradas = computed(() => {
+    const q = norm(this.busqueda().trim());
+    return this.condiciones().filter(c => !q || norm(c.name).includes(q) || norm(c.nameEn).includes(q));
+  });
+  readonly condicionesMostradas = computed(() => this.condicionesFiltradas().slice(0, this.tope()));
+
+  readonly venenosFiltrados = computed(() => {
+    const q = norm(this.busqueda().trim());
+    return this.venenos().filter(v => !q || norm(v.name).includes(q) || norm(v.nameEn).includes(q));
+  });
+  readonly venenosMostrados = computed(() => this.venenosFiltrados().slice(0, this.tope()));
+
+  readonly enfermedadesFiltradas = computed(() => {
+    const q = norm(this.busqueda().trim());
+    return this.enfermedades().filter(e => !q || norm(e.name).includes(q) || norm(e.nameEn).includes(q));
+  });
+  readonly enfermedadesMostradas = computed(() => this.enfermedadesFiltradas().slice(0, this.tope()));
+
   private debounce: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
@@ -596,6 +702,9 @@ export class HabilidadesPage implements OnInit {
     if (k === 'invocacion') this.cargarInvocaciones();
     else if (k === 'aptitud') this.cargarAptitudes();
     else if (k === 'dote') this.cargarDotes();
+    else if (k === 'condicion') this.cargarLista(this.juego.condiciones(), this.condiciones, 'las condiciones');
+    else if (k === 'veneno') this.cargarLista(this.juego.venenos(), this.venenos, 'los venenos');
+    else if (k === 'enfermedad') this.cargarLista(this.juego.enfermedades(), this.enfermedades, 'las enfermedades');
     else this.recargarHechizos();
   }
 
@@ -631,6 +740,15 @@ export class HabilidadesPage implements OnInit {
     this.juego.dotes(tipo).subscribe({
       next: ds => { this.dotes.set(ds); this.cargando.set(false); this.error.set(null); },
       error: () => { this.cargando.set(false); this.error.set('No se han podido cargar las dotes.'); },
+    });
+  }
+
+  /** Las tres listas de la mesa se cargan igual: son pocas y vienen enteras. */
+  private cargarLista<T>(fuente: Observable<T[]>, destino: WritableSignal<T[]>, que: string): void {
+    this.cargando.set(true);
+    fuente.subscribe({
+      next: xs => { destino.set(xs); this.cargando.set(false); this.error.set(null); },
+      error: () => { this.cargando.set(false); this.error.set(`No se han podido cargar ${que}.`); },
     });
   }
 
