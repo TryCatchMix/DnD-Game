@@ -163,6 +163,12 @@ export interface ShopOffer {
   price: string;        // ya formateado: "1 po · 2 pp"
   affordable: boolean;
   stock: number;        // -1 = sin límite
+  /** La familia del SRD: "Arma marcial (una mano)", "Armadura pesada". */
+  group: string;
+  weightLb: number;
+  /** El bloque del SRD ya montado: "1d8 · 19-20/×2 · Cortante". Vacío si no
+   *  es un arma ni una armadura. */
+  stats: string;
 }
 
 export interface InventoryItem {
@@ -171,6 +177,8 @@ export interface InventoryItem {
   quantity: number;
   sellPriceCp: number;
   sellPrice: string;
+  weightLb: number;
+  stats: string;
 }
 
 export interface Shop {

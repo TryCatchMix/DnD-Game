@@ -169,7 +169,8 @@ public class ShopService {
             items.findById(o.getItemCode()).ifPresent(item -> offerViews.add(new ShopOfferView(
                     item.getCode(), item.getName(), item.getDescription(), item.getCategory(),
                     o.getPriceCp(), Money.format(o.getPriceCp()),
-                    c.getPurseCp() >= o.getPriceCp(), o.getStock())));
+                    c.getPurseCp() >= o.getPriceCp(), o.getStock(),
+                    item.getEquipmentGroup(), item.getWeightLb(), stats(item))));
         }
 
         // La tienda solo compra lo que salió de su catálogo (item_code no nulo).
@@ -180,12 +181,40 @@ public class ShopService {
             items.findById(e.getItemCode()).ifPresent(item -> {
                 long sell = item.getPriceCp() / 2;
                 invViews.add(new InventoryItemView(
-                        item.getCode(), item.getName(), e.getQuantity(), sell, Money.format(sell)));
+                        item.getCode(), item.getName(), e.getQuantity(), sell, Money.format(sell),
+                        item.getWeightLb(), stats(item)));
             });
         }
 
         return new ShopView(c.getPurseCp(), Money.format(c.getPurseCp()),
                 c.getCity(), offerViews, invViews);
+    }
+
+    /**
+     * El bloque del SRD de un objeto, montado en una línea para leerlo de un
+     * vistazo en el mostrador: "1d8 · 19-20/×2 · Cortante · 10 pies" en un arma,
+     * "CA +8 · Des máx +1 · −6 · 35% · 20 pies" en una armadura.
+     *
+     * Se arma aquí y no en el frontend por lo mismo que el precio ya viaja
+     * formateado: la vitrina solo tiene que pintarlo.
+     */
+    private String stats(Item item) {
+        List<String> partes = new ArrayList<>();
+        if (!item.getDamageMedium().isBlank()) partes.add(item.getDamageMedium());
+        if (!item.getCritical().isBlank()) partes.add(item.getCritical());
+        if (!item.getDamageType().isBlank()) partes.add(item.getDamageType());
+        if (!item.getRangeIncrement().isBlank()) partes.add(item.getRangeIncrement());
+
+        if (!item.getAcBonus().isBlank()) partes.add("CA +" + item.getAcBonus());
+        if (!item.getMaxDex().isBlank()) partes.add("Des máx +" + item.getMaxDex());
+        // el penalizador del SRD ya viene con signo ("-4"); el 0 no dice nada
+        if (!item.getArmorCheck().isBlank() && !"0".equals(item.getArmorCheck()))
+            partes.add(item.getArmorCheck().replace("-", "−"));
+        if (!item.getSpellFailure().isBlank() && !"0%".equals(item.getSpellFailure()))
+            partes.add(item.getSpellFailure() + " de fallo");
+        if (!item.getSpeed30().isBlank()) partes.add("vel. " + item.getSpeed30());
+
+        return String.join(" · ", partes);
     }
 
     /** La oferta de un objeto. Si quedaran restos de la época de tiendas por

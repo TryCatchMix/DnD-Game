@@ -25,14 +25,23 @@ public final class ShopDtos {
             long priceCp,
             String price,
             boolean affordable,
-            int stock) {}     // -1 = sin límite
+            int stock,        // -1 = sin límite
+            /** La familia del SRD: "Arma marcial (una mano)", "Armadura pesada". */
+            String group,
+            double weightLb,
+            /** El bloque del SRD ya montado para leer de un vistazo:
+             *  "1d8 · 19-20/×2 · Cortante" o "CA +8 · Des máx +1 · −6 · 35%".
+             *  Se arma en el servidor para que la vitrina solo tenga que pintarlo. */
+            String stats) {}
 
     public record InventoryItemView(
             String itemCode,
             String name,
             int quantity,
             long sellPriceCp,
-            String sellPrice) {}
+            String sellPrice,
+            double weightLb,
+            String stats) {}
 
     /** Lo que manda el DM para poner algo a la venta: nombre, precio (en piezas
      *  de cobre) y cantidad (stock; usa null o -1 para "sin límite"). La

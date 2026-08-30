@@ -4,6 +4,7 @@ import { InventoryItem, Shop, ShopOffer } from '../../core/api.types';
 import { AuthService } from '../../core/auth.service';
 import { FormsModule } from '@angular/forms';
 import { JuegoService } from '../../core/game.service';
+import { KgPipe } from '../../shared/weight.pipe';
 import { NavBar } from '../../shared/nav';
 import { Router } from '@angular/router';
 
@@ -129,7 +130,7 @@ const FRASES_TENDERO = [
  */
 @Component({
   selector: 'arc-shop',
-  imports: [NavBar, FormsModule],
+  imports: [NavBar, FormsModule, KgPipe],
   template: `
     <arc-nav [personajeId]="personajeId()" />
 
@@ -453,11 +454,14 @@ const FRASES_TENDERO = [
                   <div class="art-texto">
                     <h2>{{ o.name }}</h2>
                     <p class="precio" [class.precio--caro]="!o.affordable">{{ o.price }}</p>
+                    @if (o.stats) { <p class="bloque">{{ o.stats }}</p> }
                     @if (o.description) { <p class="desc">{{ o.description }}</p> }
                   </div>
 
                   <p class="meta">
-                    @if (o.category) { <span class="etq">{{ o.category }}</span> }
+                    @if (o.group) { <span class="etq">{{ o.group }}</span> }
+                    @else if (o.category) { <span class="etq">{{ o.category }}</span> }
+                    @if (o.weightLb) { <span class="peso">{{ o.weightLb | kg }}</span> }
                     @if (o.stock >= 0) {
                       <span class="existencias" [class.agotado]="o.stock === 0">
                         {{ o.stock === 0 ? 'agotado' : 'quedan ' + o.stock }}
@@ -699,6 +703,12 @@ const FRASES_TENDERO = [
 
     .buscador { flex: 0 1 280px; width: auto; padding: 9px 12px; }
 
+    .bloque {
+      font-family: var(--dato); font-size: 12px; color: var(--vino);
+      margin: 2px 0 0; line-height: 1.4;
+    }
+    .peso { font-family: var(--dato); font-size: 10px; color: var(--sepia); }
+
     .filtros { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
     .filtro {
       font-family: var(--dato); font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
@@ -885,7 +895,9 @@ export class ShopPage implements OnInit, OnDestroy {
       if (cat && o.category !== cat) return false;
       if (soloPago && (!o.affordable || o.stock === 0)) return false;
       if (!q) return true;
-      return this.normalizar(o.name + ' ' + (o.description ?? '') + ' ' + (o.category ?? '')).includes(q);
+      return this.normalizar(
+        o.name + ' ' + (o.description ?? '') + ' ' + (o.category ?? '') + ' '
+        + (o.group ?? '') + ' ' + (o.stats ?? '')).includes(q);
     });
   });
 
