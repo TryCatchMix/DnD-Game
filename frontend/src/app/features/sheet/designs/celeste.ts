@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 
 import { ConjurosPanel } from '../spells-panel';
 import { DotesPanel } from '../feats-panel';
+import { EquipoPanel } from '../gear-panel';
 import { FichaEditor } from '../sheet-editor';
 import { FichaStore } from '../sheet.store';
 import { KgPipe } from '../../../shared/weight.pipe';
@@ -33,7 +34,7 @@ function romano(n: number): string {
  */
 @Component({
   selector: 'arc-ficha-celeste',
-  imports: [FormsModule, FichaEditor, ConjurosPanel, DotesPanel, KgPipe],
+  imports: [FormsModule, FichaEditor, ConjurosPanel, DotesPanel, EquipoPanel, KgPipe],
   template: `
     <!-- El cielo cubre la pantalla entera, también por detrás de la barra. -->
     <div class="cielo" aria-hidden="true"></div>
@@ -376,6 +377,12 @@ function romano(n: number): string {
               <span class="carga-total">{{ store.totalPreparados() }} preparados</span>
             </div>
             <arc-conjuros-panel />
+          </section>
+
+          <!-- ============ EQUIPO PUESTO ============ -->
+          <section class="bloque">
+            <p class="rotulo">Equipo</p>
+            <arc-equipo-panel />
           </section>
 
           <!-- ============ DOTES ============ -->

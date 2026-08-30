@@ -20,6 +20,49 @@ public final class FichaDtos {
             String prerequisite,
             String benefit) {}
 
+    /** Una línea de ataque salida de un arma equipada. */
+    public record AtaqueView(
+            String weapon,
+            /** "cuerpo a cuerpo" o "a distancia". */
+            String mode,
+            /** El bonificador ya con signo: "+5". */
+            String attack,
+            /** El daño con el modificador de Fuerza dentro: "1d8+3". */
+            String damage,
+            String critical,
+            String damageType,
+            /** Incremento de distancia; vacío en las armas cuerpo a cuerpo. */
+            String rangeIncrement) {}
+
+    /**
+     * Lo que aporta lo que el personaje lleva PUESTO.
+     *
+     * Se manda al lado de la ficha, no dentro: los valores de la hoja los
+     * escribe el jugador (ahí van la armadura natural, la desviación y las
+     * reglas de la casa) y esto es lo que dice el equipo, para comparar.
+     */
+    public record EquipoView(
+            String armor,
+            String shield,
+            int acFromArmor,
+            int acFromShield,
+            /** Tope de Destreza de la armadura; null si no lleva ninguna. */
+            Integer maxDex,
+            int dexMod,
+            /** El modificador de Destreza que de verdad cuenta, ya topado. */
+            int dexApplied,
+            /** Penalizador de armadura (negativo o 0). */
+            int armorCheck,
+            /** Fallo de conjuros arcanos, en tanto por ciento. */
+            int spellFailure,
+            /** Velocidad con la armadura puesta. */
+            int speed,
+            // la CA que sale de lo puesto, para comparar con la de la ficha
+            int suggestedAc,
+            int suggestedTouch,
+            int suggestedFlatFooted,
+            List<AtaqueView> attacks) {}
+
     /** Una habilidad con su desglose 3.5. */
     public record SkillDetailView(
             String name, String code, String keyAbility,
@@ -51,7 +94,9 @@ public final class FichaDtos {
             // habilidades
             List<SkillDetailView> skills,
             // dotes elegidas
-            List<FeatOnSheetView> feats) {}
+            List<FeatOnSheetView> feats,
+            /** Lo que aporta el equipo puesto. Nunca pisa los valores de arriba. */
+            EquipoView equipo) {}
 
     /** Lo que llega al editar. Todo lo editable; el monedero se toca en la
      *  tienda, no aquí. Las características son puntuaciones; los modificadores

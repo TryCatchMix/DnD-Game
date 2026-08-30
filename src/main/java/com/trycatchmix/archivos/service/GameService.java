@@ -30,6 +30,7 @@ public class GameService {
     private final QuestRunRepository runs;
     private final InventoryRepository inventory;
     private final DiceService dice;
+    private final GearService gear;
 
     /** Una habilidad del catálogo base (nombre + característica clave). */
     private record SkillDef(String name, String keyAbility) {}
@@ -358,7 +359,8 @@ public class GameService {
                 c.getDamageReduction(),
                 c.getVigor(), c.getMaxVigor(), c.getPurseCp(), Money.format(c.getPurseCp()), c.getCarga(),
                 skills,
-                dotesDe(c.getId()));
+                dotesDe(c.getId()),
+                gear.calcular(c));
     }
 
     /**

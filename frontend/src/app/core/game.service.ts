@@ -252,6 +252,13 @@ export class JuegoService {
     return this.http.delete<void>(`/api/habilidades/hechizos/${id}`);
   }
 
+  /** Ponerse o quitarse un objeto. Devuelve la bolsa repintada. */
+  equipar(personajeId: string, entryId: string, puesto: boolean): Observable<Inventory> {
+    return this.http.post<Inventory>(
+      `/api/personajes/${personajeId}/inventario/${entryId}/equipar`, null,
+      { params: { puesto: String(puesto) } });
+  }
+
   // --- Bestiario ---
 
   /** Criaturas filtradas y paginadas EN EL SERVIDOR. `limite <= 0` = todas.

@@ -5,6 +5,7 @@ import com.trycatchmix.archivos.domain.InventoryEntry;
 import com.trycatchmix.archivos.error.ApiException;
 import com.trycatchmix.archivos.repo.GameCharacterRepository;
 import com.trycatchmix.archivos.repo.InventoryRepository;
+import com.trycatchmix.archivos.repo.ItemRepository;
 import com.trycatchmix.archivos.web.dto.InventoryDtos.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class InventoryService {
 
     private final GameCharacterRepository characters;
     private final InventoryRepository inventory;
+    private final ItemRepository items;
 
     @Transactional(readOnly = true)
     public InventoryView inventario(UUID userId, UUID charId) {
@@ -69,6 +71,35 @@ public class InventoryService {
         return build(charId);
     }
 
+    /**
+     * Ponerse o quitarse un objeto.
+     *
+     * Solo se puede llevar UNA armadura y UN escudo a la vez, así que al
+     * equipar uno se quita solo el que hubiera: es lo que espera cualquiera y
+     * evita fichas con dos corazas puestas sumando CA.
+     *
+     * Las armas no compiten entre sí: se pueden llevar varias empuñadas o al
+     * cinto, y quién ataca con cuál es cosa de la mesa.
+     */
+    @Transactional
+    public InventoryView equipar(UUID userId, UUID charId, UUID entryId, boolean puesto) {
+        ownedCharacter(userId, charId);
+        InventoryEntry e = linea(charId, entryId);
+
+        String tipo = Gear.kind(catalogo(e));
+        if (tipo.isEmpty())
+            throw ApiException.conflict("Eso no es algo que se lleve puesto.");
+
+        if (puesto && (tipo.equals(Gear.ARMADURA) || tipo.equals(Gear.ESCUDO))) {
+            for (InventoryEntry otro : inventory.findByCharacterIdOrderByNameAsc(charId)) {
+                if (otro.getId().equals(e.getId()) || !otro.isEquipped()) continue;
+                if (Gear.kind(catalogo(otro)).equals(tipo)) otro.setEquipped(false);
+            }
+        }
+        e.setEquipped(puesto);
+        return build(charId);
+    }
+
     @Transactional
     public InventoryView eliminar(UUID userId, UUID charId, UUID entryId) {
         ownedCharacter(userId, charId);
@@ -80,15 +111,25 @@ public class InventoryService {
 
     private InventoryView build(UUID charId) {
         List<InventoryLine> lines = inventory.findByCharacterIdOrderByNameAsc(charId).stream()
-                .map(e -> new InventoryLine(
-                        e.getId().toString(), e.getName(), e.getQuantity(), e.getWeightLb(),
-                        redondear(e.getWeightLb() * e.getQuantity()), e.getItemCode() != null))
+                .map(e -> {
+                    var item = catalogo(e);
+                    return new InventoryLine(
+                            e.getId().toString(), e.getName(), e.getQuantity(), e.getWeightLb(),
+                            redondear(e.getWeightLb() * e.getQuantity()), e.getItemCode() != null,
+                            e.isEquipped(), Gear.equipable(item), Gear.kind(item), Gear.stats(item));
+                })
                 .toList();
         double total = lines.stream().mapToDouble(InventoryLine::lineWeight).sum();
         return new InventoryView(lines, redondear(total));
     }
 
     private double redondear(double v) { return Math.round(v * 100.0) / 100.0; }
+
+    /** La ficha del catálogo de una línea de la bolsa, o null si es un objeto
+     *  añadido a mano (esos no tienen estadísticas del SRD). */
+    private com.trycatchmix.archivos.domain.Item catalogo(InventoryEntry e) {
+        return e.getItemCode() == null ? null : items.findById(e.getItemCode()).orElse(null);
+    }
 
     private InventoryEntry linea(UUID charId, UUID entryId) {
         InventoryEntry e = inventory.findById(entryId)

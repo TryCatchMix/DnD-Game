@@ -12,7 +12,15 @@ public final class InventoryDtos {
             int quantity,
             double weightLb,
             double lineWeight,     // weightLb * quantity
-            boolean sellable) {}   // viene del catálogo (se puede vender en la tienda)
+            boolean sellable,      // viene del catálogo (se puede vender en la tienda)
+            /** Si lo lleva puesto. */
+            boolean equipped,
+            /** Si tiene sentido ponérselo: solo armas, armaduras y escudos. */
+            boolean equipable,
+            /** 'arma', 'armadura', 'escudo' o '' — para saber qué sustituye a qué. */
+            String gearKind,
+            /** El bloque del SRD ya montado: "1d8 · 19-20/×2 · Cortante". */
+            String stats) {}
 
     public record InventoryView(List<InventoryLine> items, double totalWeight) {}
 

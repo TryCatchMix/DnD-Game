@@ -36,6 +36,14 @@ public class InventoryController {
         return inventory.fijarCantidad(user(p), charId, entryId, req.quantity());
     }
 
+    /** Ponerse o quitarse un objeto. `puesto=false` lo desequipa. */
+    @PostMapping("/{entryId}/equipar")
+    public InventoryView equipar(@AuthenticationPrincipal AuthPrincipal p,
+                                 @PathVariable UUID charId, @PathVariable UUID entryId,
+                                 @RequestParam(defaultValue = "true") boolean puesto) {
+        return inventory.equipar(user(p), charId, entryId, puesto);
+    }
+
     @DeleteMapping("/{entryId}")
     public InventoryView eliminar(@AuthenticationPrincipal AuthPrincipal p,
                                   @PathVariable UUID charId, @PathVariable UUID entryId) {

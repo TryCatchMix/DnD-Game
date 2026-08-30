@@ -38,4 +38,9 @@ public class InventoryEntry {
     /** Peso por unidad, en libras. */
     @Column(name = "weight_lb", nullable = false)
     private double weightLb = 0;
+
+    /** Si lo lleva PUESTO (empuñado o vestido), no solo encima. De aquí salen
+     *  la CA, el penalizador de armadura y el fallo de conjuros de la ficha. */
+    @Column(nullable = false)
+    private boolean equipped = false;
 }

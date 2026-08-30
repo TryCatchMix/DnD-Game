@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 
 import { ConjurosPanel } from '../spells-panel';
 import { DotesPanel } from '../feats-panel';
+import { EquipoPanel } from '../gear-panel';
 import { FichaEditor } from '../sheet-editor';
 import { FichaStore } from '../sheet.store';
 import { KgPipe } from '../../../shared/weight.pipe';
@@ -20,7 +21,7 @@ import { KgPipe } from '../../../shared/weight.pipe';
  */
 @Component({
   selector: 'arc-ficha-mesa',
-  imports: [FormsModule, FichaEditor, ConjurosPanel, DotesPanel, KgPipe],
+  imports: [FormsModule, FichaEditor, ConjurosPanel, DotesPanel, EquipoPanel, KgPipe],
   template: `
     <div class="contenedor contenedor--mesa">
       @if (store.cargando()) {
@@ -174,6 +175,12 @@ import { KgPipe } from '../../../shared/weight.pipe';
               <span class="dato">{{ store.totalPreparados() }}</span>
             </div>
             <arc-conjuros-panel />
+          </section>
+
+          <!-- ============ EQUIPO PUESTO ============ -->
+          <section class="bloque">
+            <p class="rotulo">Equipo</p>
+            <arc-equipo-panel />
           </section>
 
           <!-- ============ DOTES ============ -->

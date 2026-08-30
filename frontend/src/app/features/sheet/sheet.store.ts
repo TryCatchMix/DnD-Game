@@ -73,6 +73,9 @@ export class FichaStore {
   // --- bolsa / inventario ---
   readonly inventario = signal<Inventory | null>(null);
   readonly errorBolsa = signal<string | null>(null);
+  /** El id de la línea que se está equipando, para deshabilitar su interruptor. */
+  readonly equipando = signal<string | null>(null);
+  readonly aplicando = signal(false);
   readonly nuevoNombre = signal('');
   readonly nuevaCantidad = signal(1);
   readonly nuevoPeso = signal(0);
@@ -361,6 +364,56 @@ export class FichaStore {
     this.juego.fijarCantidad(this.personajeId(), it.id, nueva).subscribe({
       next: inv => this.inventario.set(inv),
       error: () => this.errorBolsa.set('No se ha podido actualizar la cantidad.'),
+    });
+  }
+
+  /**
+   * Ponerse o quitarse un objeto.
+   *
+   * Recarga TAMBIÉN la ficha porque el bloque de equipo (CA, penalizador,
+   * velocidad, líneas de ataque) lo calcula el backend a partir de lo puesto:
+   * si solo se repintara la bolsa, los números de al lado se quedarían viejos.
+   */
+  equipar(it: InventoryLine): void {
+    this.equipando.set(it.id);
+    this.juego.equipar(this.personajeId(), it.id, !it.equipped).subscribe({
+      next: inv => {
+        this.inventario.set(inv);
+        this.juego.ficha(this.personajeId()).subscribe({
+          next: f => { this.ficha.set(f); this.equipando.set(null); },
+          error: () => this.equipando.set(null),
+        });
+      },
+      error: err => {
+        this.equipando.set(null);
+        this.errorBolsa.set(err?.error?.message ?? 'No se ha podido equipar.');
+      },
+    });
+  }
+
+  /**
+   * Copiar a la ficha la CA y la velocidad que salen del equipo.
+   *
+   * Es un botón y no algo automático a propósito: en esos campos el jugador
+   * puede tener armadura natural, bonificadores de desviación o un conjuro
+   * activo, y machacárselos al ponerse un escudo sería perder datos suyos.
+   */
+  aplicarEquipo(): void {
+    const f = this.ficha();
+    if (!f || this.aplicando()) return;
+    const e = f.equipo;
+    this.aplicando.set(true);
+    this.juego.editarFicha(this.personajeId(), {
+      acTotal: e.suggestedAc,
+      acTouch: e.suggestedTouch,
+      acFlatFooted: e.suggestedFlatFooted,
+      speed: e.speed,
+    }).subscribe({
+      next: actualizada => { this.ficha.set(actualizada); this.aplicando.set(false); },
+      error: () => {
+        this.aplicando.set(false);
+        this.errorBolsa.set('No se ha podido aplicar a la ficha.');
+      },
     });
   }
 

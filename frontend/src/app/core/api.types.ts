@@ -132,6 +132,7 @@ export interface Ficha {
   vigor: number; maxVigor: number; purseCp: number; bolsa: string; carga: string;
   skills: SkillDetail[];
   feats: FeatOnSheet[];
+  equipo: Equipo;
 }
 
 /** Lo que se manda al editar la ficha. Todo opcional; el backend recalcula
@@ -181,6 +182,38 @@ export interface InventoryItem {
   sellPrice: string;
   weightLb: number;
   stats: string;
+}
+
+/** Una línea de ataque salida de un arma equipada. */
+export interface Ataque {
+  weapon: string;
+  /** "cuerpo a cuerpo" o "a distancia". */
+  mode: string;
+  attack: string;       // ya con signo: "+5"
+  damage: string;       // con el modificador dentro: "1d8+3"
+  critical: string;
+  damageType: string;
+  rangeIncrement: string;
+}
+
+/** Lo que aporta lo que el personaje lleva PUESTO. Va al lado de la ficha,
+ *  no dentro: nunca pisa los valores que escribe el jugador. */
+export interface Equipo {
+  armor: string;
+  shield: string;
+  acFromArmor: number;
+  acFromShield: number;
+  /** Tope de Destreza de la armadura; null si no lleva ninguna. */
+  maxDex: number | null;
+  dexMod: number;
+  dexApplied: number;
+  armorCheck: number;
+  spellFailure: number;
+  speed: number;
+  suggestedAc: number;
+  suggestedTouch: number;
+  suggestedFlatFooted: number;
+  attacks: Ataque[];
 }
 
 /** Una dote del manual, tal cual se consulta en el compendio. */
@@ -238,6 +271,14 @@ export interface InventoryLine {
   weightLb: number;
   lineWeight: number;
   sellable: boolean;
+  /** Si lo lleva puesto. */
+  equipped: boolean;
+  /** Si tiene sentido ponérselo: solo armas, armaduras y escudos. */
+  equipable: boolean;
+  /** 'arma', 'armadura', 'escudo' o ''. */
+  gearKind: string;
+  /** El bloque del SRD: "1d8 · 19-20/×2 · Cortante". */
+  stats: string;
 }
 
 export interface Inventory {
