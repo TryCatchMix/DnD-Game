@@ -1,6 +1,6 @@
 import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 
-import { AuthService } from '../../core/auth.service';
+import { CampanasService } from '../../core/campaign.service';
 import { ChronicleEntry } from '../../core/api.types';
 import { FormsModule } from '@angular/forms';
 import { JuegoService } from '../../core/game.service';
@@ -162,10 +162,17 @@ export class CronicaPage implements OnInit {
   readonly personajeId = input.required<string>();
 
   private readonly juego = inject(JuegoService);
-  private readonly auth = inject(AuthService);
+  private readonly campanas = inject(CampanasService);
 
   readonly categorias = CATEGORIAS;
-  readonly esDM = computed(() => this.auth.rol() === 'DM');
+
+  /**
+   * La crónica es la historia del mundo y no se parte por campañas, pero
+   * escribirla sigue siendo cosa del clan de Los Archivos. Con el papel de
+   * máster ya repartido por mesas, la regla es la misma que aplica el backend:
+   * escribe quien dirija AL MENOS UNA campaña.
+   */
+  readonly esDM = signal(false);
 
   readonly entradas = signal<ChronicleEntry[]>([]);
   readonly cargando = signal(true);
@@ -178,6 +185,11 @@ export class CronicaPage implements OnInit {
   nueva = this.entradaVacia();
 
   ngOnInit(): void {
+    this.campanas.mias().subscribe({
+      next: v => this.esDM.set(v.campaigns.some(c => c.role === 'DM')),
+      error: () => this.esDM.set(false),
+    });
+
     this.juego.cronica().subscribe({
       next: cs => { this.entradas.set(cs); this.cargando.set(false); },
       error: () => {

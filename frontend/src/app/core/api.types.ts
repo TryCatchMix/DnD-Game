@@ -73,7 +73,13 @@ export interface PropertyBuyRequest {
   name: string;
 }
 
-/** Un personaje del jugador. Lo lista la pantalla /personajes. */
+/**
+ * Un personaje del jugador. Lo lista la pantalla /personajes.
+ *
+ * La lista mezcla dos cosas: los tuyos y, si diriges alguna mesa, los de tu
+ * grupo. De ahí `mine` y el nombre de la campaña: sin ellos no se sabría a
+ * quién estás mirando ni en qué partida juega.
+ */
 export interface Character {
   id: string;
   name: string;
@@ -83,6 +89,10 @@ export interface Character {
   vigor?: number;
   maxVigor?: number;
   location?: string;
+  /** null si todavía no se ha unido a ninguna campaña. */
+  campaignId?: string | null;
+  campaignName?: string | null;
+  mine?: boolean;
 }
 
 export interface Ability {

@@ -2,7 +2,9 @@ package com.trycatchmix.archivos.web;
 
 import com.trycatchmix.archivos.error.ApiException;
 import com.trycatchmix.archivos.security.AuthPrincipal;
+import com.trycatchmix.archivos.service.CampaignService;
 import com.trycatchmix.archivos.service.GameService;
+import com.trycatchmix.archivos.web.dto.CampaignDtos.CampaignContext;
 import com.trycatchmix.archivos.web.dto.FichaDtos.FichaEditRequest;
 import com.trycatchmix.archivos.web.dto.FichaDtos.FichaView;
 import com.trycatchmix.archivos.web.dto.GameDtos.*;
@@ -23,10 +25,11 @@ import java.util.UUID;
 public class GameController {
 
     private final GameService game;
+    private final CampaignService campanas;
 
     @GetMapping
     public List<CharacterView> personajes(@AuthenticationPrincipal AuthPrincipal p) {
-        return game.listCharacters(user(p), isAdmin(p));
+        return game.listCharacters(user(p));
     }
 
     /** Crear un personaje nuevo. Devuelve su ficha ya montada. */
@@ -40,7 +43,7 @@ public class GameController {
     @GetMapping("/{charId}")
     public FichaView ficha(@AuthenticationPrincipal AuthPrincipal p,
                            @PathVariable UUID charId) {
-        return game.ficha(user(p), charId, isAdmin(p));
+        return game.ficha(user(p), charId);
     }
 
     /** Editar la ficha (todos los campos y la lista de habilidades). */
@@ -48,14 +51,27 @@ public class GameController {
     public FichaView editarFicha(@AuthenticationPrincipal AuthPrincipal p,
                                  @PathVariable UUID charId,
                                  @RequestBody FichaEditRequest req) {
-        return game.editarFicha(user(p), charId, isAdmin(p), req);
+        return game.editarFicha(user(p), charId, req);
     }
 
     /** Borrar el personaje con todo lo suyo. Devuelve la lista ya sin él. */
     @DeleteMapping("/{charId}")
     public List<CharacterView> borrar(@AuthenticationPrincipal AuthPrincipal p,
                                       @PathVariable UUID charId) {
-        return game.borrarPersonaje(user(p), charId, isAdmin(p));
+        return game.borrarPersonaje(user(p), charId);
+    }
+
+    /**
+     * En qué campaña juega este personaje y qué soy yo en ella.
+     *
+     * Lo pregunta cada pantalla que cuelga de un personaje antes de pedir nada
+     * más: la ruta del navegador lleva el personaje, pero el bloc, la tienda y
+     * La Mesa son de la campaña. Devuelve todo a null si aún no se ha unido.
+     */
+    @GetMapping("/{charId}/campana")
+    public CampaignContext campana(@AuthenticationPrincipal AuthPrincipal p,
+                                   @PathVariable UUID charId) {
+        return campanas.contexto(user(p), charId);
     }
 
     @GetMapping("/{charId}/tablon")
@@ -88,10 +104,5 @@ public class GameController {
     private UUID user(AuthPrincipal p) {
         if (p == null) throw ApiException.sessionExpired();
         return p.userId();
-    }
-
-    /** El máster (DM) es el administrador de la mesa. */
-    private boolean isAdmin(AuthPrincipal p) {
-        return p != null && "DM".equals(p.role());
     }
 }

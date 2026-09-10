@@ -28,16 +28,16 @@ public class BackstoryService {
      *  60-80 páginas de texto con formato. Corta un pegado accidental enorme. */
     private static final int MAX_LARGO = 200_000;
 
-    private final GameCharacterRepository characters;
+    private final CampaignAccess access;
 
     @Transactional(readOnly = true)
-    public BackstoryView ver(UUID userId, UUID charId, boolean admin) {
-        return build(accessibleCharacter(userId, charId, admin));
+    public BackstoryView ver(UUID userId, UUID charId) {
+        return build(access.exigePersonaje(userId, charId));
     }
 
     @Transactional
-    public BackstoryView guardar(UUID userId, UUID charId, boolean admin, SaveRequest req) {
-        GameCharacter c = accessibleCharacter(userId, charId, admin);
+    public BackstoryView guardar(UUID userId, UUID charId, SaveRequest req) {
+        GameCharacter c = access.exigePersonaje(userId, charId);
         String html = req == null || req.html() == null ? "" : req.html();
         if (html.length() > MAX_LARGO)
             throw ApiException.conflict("El trasfondo es demasiado largo.");
@@ -53,12 +53,4 @@ public class BackstoryService {
         return new BackstoryView(c.getBackstory() == null ? "" : c.getBackstory(), iso);
     }
 
-    /** El dueño pasa siempre; el máster (admin) pasa para cualquier personaje. */
-    private GameCharacter accessibleCharacter(UUID userId, UUID charId, boolean admin) {
-        GameCharacter c = characters.findById(charId)
-                .orElseThrow(() -> ApiException.notFound("No existe ese personaje."));
-        if (!admin && !c.getUserId().equals(userId))
-            throw ApiException.forbidden("Ese personaje no es tuyo.");
-        return c;
-    }
 }

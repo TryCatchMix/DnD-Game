@@ -27,14 +27,14 @@ public class PreparedSpellController {
     @GetMapping
     public PreparedList listar(@AuthenticationPrincipal AuthPrincipal p,
                                @PathVariable UUID charId) {
-        return prepared.listar(user(p), charId, isAdmin(p));
+        return prepared.listar(user(p), charId);
     }
 
     @PostMapping
     public PreparedList preparar(@AuthenticationPrincipal AuthPrincipal p,
                                  @PathVariable UUID charId,
                                  @RequestBody PrepareRequest req) {
-        return prepared.preparar(user(p), charId, isAdmin(p), req.name(), req.prepared());
+        return prepared.preparar(user(p), charId, req.name(), req.prepared());
     }
 
     @PatchMapping("/{prepId}")
@@ -42,22 +42,18 @@ public class PreparedSpellController {
                                       @PathVariable UUID charId,
                                       @PathVariable UUID prepId,
                                       @RequestBody CountRequest req) {
-        return prepared.fijarCantidad(user(p), charId, isAdmin(p), prepId, req.prepared());
+        return prepared.fijarCantidad(user(p), charId, prepId, req.prepared());
     }
 
     @DeleteMapping("/{prepId}")
     public PreparedList quitar(@AuthenticationPrincipal AuthPrincipal p,
                                @PathVariable UUID charId,
                                @PathVariable UUID prepId) {
-        return prepared.quitar(user(p), charId, isAdmin(p), prepId);
+        return prepared.quitar(user(p), charId, prepId);
     }
 
     private UUID user(AuthPrincipal p) {
         if (p == null) throw ApiException.sessionExpired();
         return p.userId();
-    }
-
-    private boolean isAdmin(AuthPrincipal p) {
-        return p != null && "DM".equals(p.role());
     }
 }

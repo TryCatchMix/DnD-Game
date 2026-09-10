@@ -7,6 +7,14 @@ import java.util.List;
 public final class GameDtos {
     private GameDtos() {}
 
+    /**
+     * Un personaje en la lista de «mis personajes».
+     *
+     * Lleva la campaña encima porque la lista mezcla dos cosas: los personajes
+     * de quien mira y, si dirige alguna mesa, los de su grupo. Sin decir de qué
+     * campaña es cada uno y si es tuyo, la pantalla no sabría cómo pintarlos.
+     * `campaignId` a null = todavía no se ha unido a ninguna.
+     */
     public record CharacterView(
             String id,
             String name,
@@ -15,7 +23,10 @@ public final class GameDtos {
             int level,
             int vigor,
             int maxVigor,
-            String location) {}
+            String location,
+            String campaignId,
+            String campaignName,
+            boolean mine) {}
 
     /** Lo que manda el creador de personaje. Solo el nombre es obligatorio; lo
      *  demás tiene valores por defecto sensatos y se afina luego en la ficha. */

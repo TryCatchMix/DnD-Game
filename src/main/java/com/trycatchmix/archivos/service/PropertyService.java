@@ -32,16 +32,16 @@ public class PropertyService {
     private static final double SEGUNDOS_POR_DIA = 86_400.0;
 
     private final PropertyRepository properties;
-    private final GameCharacterRepository characters;
+    private final CampaignAccess access;
 
     @Transactional(readOnly = true)
-    public HoldingsView holdings(UUID userId, UUID charId, boolean admin) {
-        return build(accessibleCharacter(userId, charId, admin));
+    public HoldingsView holdings(UUID userId, UUID charId) {
+        return build(access.exigePersonaje(userId, charId));
     }
 
     @Transactional
-    public HoldingsView comprar(UUID userId, UUID charId, boolean admin, BuyRequest req) {
-        GameCharacter c = accessibleCharacter(userId, charId, admin);
+    public HoldingsView comprar(UUID userId, UUID charId, BuyRequest req) {
+        GameCharacter c = access.exigePersonaje(userId, charId);
         PropertyKind kind = PropertyKind.fromCode(req.kind());
 
         String nombre = req.name() == null ? "" : req.name().trim();
@@ -67,8 +67,8 @@ public class PropertyService {
     }
 
     @Transactional
-    public HoldingsView mejorar(UUID userId, UUID charId, boolean admin, UUID propId) {
-        GameCharacter c = accessibleCharacter(userId, charId, admin);
+    public HoldingsView mejorar(UUID userId, UUID charId, UUID propId) {
+        GameCharacter c = access.exigePersonaje(userId, charId);
         Property p = ownedProperty(c, propId);
         PropertyKind kind = PropertyKind.fromCode(p.getKind());
 
@@ -85,8 +85,8 @@ public class PropertyService {
     }
 
     @Transactional
-    public HoldingsView recaudar(UUID userId, UUID charId, boolean admin, UUID propId) {
-        GameCharacter c = accessibleCharacter(userId, charId, admin);
+    public HoldingsView recaudar(UUID userId, UUID charId, UUID propId) {
+        GameCharacter c = access.exigePersonaje(userId, charId);
         Property p = ownedProperty(c, propId);
 
         long pendiente = pendingCp(p);
@@ -100,8 +100,8 @@ public class PropertyService {
     }
 
     @Transactional
-    public HoldingsView vender(UUID userId, UUID charId, boolean admin, UUID propId) {
-        GameCharacter c = accessibleCharacter(userId, charId, admin);
+    public HoldingsView vender(UUID userId, UUID charId, UUID propId) {
+        GameCharacter c = access.exigePersonaje(userId, charId);
         Property p = ownedProperty(c, propId);
         PropertyKind kind = PropertyKind.fromCode(p.getKind());
 
@@ -167,12 +167,4 @@ public class PropertyService {
         return p;
     }
 
-    /** El dueño pasa siempre; el admin (máster) pasa para cualquier personaje. */
-    private GameCharacter accessibleCharacter(UUID userId, UUID charId, boolean admin) {
-        GameCharacter c = characters.findById(charId)
-                .orElseThrow(() -> ApiException.notFound("No existe ese personaje."));
-        if (!admin && !c.getUserId().equals(userId))
-            throw ApiException.forbidden("Ese personaje no es tuyo.");
-        return c;
-    }
 }

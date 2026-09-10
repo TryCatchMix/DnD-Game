@@ -59,7 +59,16 @@ public class SecurityConfig {
                         "/api/auth/refresh", "/api/auth/logout").permitAll();
                 // Los endpoints de desarrollo solo existen y se abren en dev.
                 if (dev) reg.requestMatchers("/api/dev/**").permitAll();
-                reg.requestMatchers("/api/admin/**", "/api/mesa/**").hasRole("DM");
+                // Ya NO hay ninguna rama reservada por el rol de la cuenta.
+                //
+                // Antes /api/admin/** y /api/mesa/** pedían hasRole("DM"), y eso
+                // convertía a alguien en máster de TODAS las mesas a la vez. Con
+                // varias campañas el permiso es otro: dirigir ESTA. Lo comprueba
+                // CampaignAccess dentro de cada controlador, que es el único
+                // sitio donde se sabe de qué campaña se está hablando.
+                //
+                // Basta, pues, con exigir sesión: quien no dirija la campaña que
+                // pide se lleva un 403 del servicio, no del filtro.
                 reg.anyRequest().authenticated();
             })
             .exceptionHandling(e -> e.authenticationEntryPoint((req, res, ex) -> {

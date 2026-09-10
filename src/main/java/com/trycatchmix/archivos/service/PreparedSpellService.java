@@ -29,18 +29,18 @@ public class PreparedSpellService {
 
     private final PreparedSpellRepository prepared;
     private final SpellRepository spells;
-    private final GameService game;
+    private final CampaignAccess access;
     private final SpellService spellService;
 
     @Transactional(readOnly = true)
-    public PreparedList listar(UUID userId, UUID charId, boolean admin) {
-        GameCharacter c = game.accesible(userId, charId, admin);
+    public PreparedList listar(UUID userId, UUID charId) {
+        GameCharacter c = access.exigePersonaje(userId, charId);
         return build(c);
     }
 
     @Transactional
-    public PreparedList preparar(UUID userId, UUID charId, boolean admin, String name, Integer count) {
-        GameCharacter c = game.accesible(userId, charId, admin);
+    public PreparedList preparar(UUID userId, UUID charId, String name, Integer count) {
+        GameCharacter c = access.exigePersonaje(userId, charId);
         if (name == null || name.isBlank())
             throw ApiException.badRequest("Falta el nombre del conjuro.");
 
@@ -62,8 +62,8 @@ public class PreparedSpellService {
     }
 
     @Transactional
-    public PreparedList fijarCantidad(UUID userId, UUID charId, boolean admin, UUID prepId, Integer count) {
-        GameCharacter c = game.accesible(userId, charId, admin);
+    public PreparedList fijarCantidad(UUID userId, UUID charId, UUID prepId, Integer count) {
+        GameCharacter c = access.exigePersonaje(userId, charId);
         PreparedSpell ps = mio(charId, prepId);
         if (count == null || count <= 0) {
             prepared.delete(ps);
@@ -74,8 +74,8 @@ public class PreparedSpellService {
     }
 
     @Transactional
-    public PreparedList quitar(UUID userId, UUID charId, boolean admin, UUID prepId) {
-        GameCharacter c = game.accesible(userId, charId, admin);
+    public PreparedList quitar(UUID userId, UUID charId, UUID prepId) {
+        GameCharacter c = access.exigePersonaje(userId, charId);
         prepared.delete(mio(charId, prepId));
         return build(c);
     }

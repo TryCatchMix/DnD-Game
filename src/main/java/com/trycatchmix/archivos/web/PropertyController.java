@@ -26,40 +26,36 @@ public class PropertyController {
     @GetMapping
     public HoldingsView listar(@AuthenticationPrincipal AuthPrincipal p,
                                @PathVariable UUID charId) {
-        return properties.holdings(user(p), charId, isAdmin(p));
+        return properties.holdings(user(p), charId);
     }
 
     @PostMapping
     public HoldingsView comprar(@AuthenticationPrincipal AuthPrincipal p,
                                 @PathVariable UUID charId,
                                 @RequestBody BuyRequest req) {
-        return properties.comprar(user(p), charId, isAdmin(p), req);
+        return properties.comprar(user(p), charId, req);
     }
 
     @PostMapping("/{propId}/mejorar")
     public HoldingsView mejorar(@AuthenticationPrincipal AuthPrincipal p,
                                 @PathVariable UUID charId, @PathVariable UUID propId) {
-        return properties.mejorar(user(p), charId, isAdmin(p), propId);
+        return properties.mejorar(user(p), charId, propId);
     }
 
     @PostMapping("/{propId}/recaudar")
     public HoldingsView recaudar(@AuthenticationPrincipal AuthPrincipal p,
                                  @PathVariable UUID charId, @PathVariable UUID propId) {
-        return properties.recaudar(user(p), charId, isAdmin(p), propId);
+        return properties.recaudar(user(p), charId, propId);
     }
 
     @DeleteMapping("/{propId}")
     public HoldingsView vender(@AuthenticationPrincipal AuthPrincipal p,
                                @PathVariable UUID charId, @PathVariable UUID propId) {
-        return properties.vender(user(p), charId, isAdmin(p), propId);
+        return properties.vender(user(p), charId, propId);
     }
 
     private UUID user(AuthPrincipal p) {
         if (p == null) throw ApiException.sessionExpired();
         return p.userId();
-    }
-
-    private boolean isAdmin(AuthPrincipal p) {
-        return p != null && "DM".equals(p.role());
     }
 }

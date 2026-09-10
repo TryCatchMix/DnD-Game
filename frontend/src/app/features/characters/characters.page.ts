@@ -50,7 +50,19 @@ import { Character } from '../../core/api.types';
                 @if (p.ancestry) { {{ p.ancestry }} }
                 @if (p.ancestry && p.role) { <span class="sep">·</span> }
                 @if (p.role) { {{ p.role }} }
+                @if (!p.mine) { <span class="sep">·</span> <span class="ajeno">de tu grupo</span> }
               </p>
+
+              <!-- La campaña no es un dato más: sin ella el personaje no tiene
+                   tablón, ni tienda, ni bloc, y conviene que se vea de un vistazo. -->
+              @if (p.campaignName) {
+                <p class="mesa">Juega en <strong>{{ p.campaignName }}</strong></p>
+              } @else {
+                <p class="mesa mesa--sin">
+                  Sin campaña.
+                  <button class="enlace" (click)="verCampanas($event)">Únete a una</button>
+                </p>
+              }
               <div class="pie-ficha">
                 @if (p.vigor != null) {
                   <span class="dato">Vigor {{ p.vigor }}@if (p.maxVigor != null) {/{{ p.maxVigor }}}</span>
@@ -73,6 +85,7 @@ import { Character } from '../../core/api.types';
 
       <div class="acciones">
         <button class="boton boton--lacre" (click)="crear()">+ Crear personaje</button>
+        <button class="boton" (click)="verCampanas()">Campañas</button>
       </div>
 
       <!-- Borrar un personaje no se deshace, así que va con parada obligatoria:
@@ -133,8 +146,19 @@ import { Character } from '../../core/api.types';
     h2 { font-size: 22px; color: var(--tinta); }
     .nivel { color: var(--oro); white-space: nowrap; }
 
-    .subtitulo { color: var(--sepia-hondo); margin: 6px 0 12px; }
+    .subtitulo { color: var(--sepia-hondo); margin: 6px 0 8px; }
     .sep { color: var(--linea-fuerte); margin: 0 4px; }
+    .ajeno { color: var(--musgo); font-family: var(--dato); font-size: 10px;
+             letter-spacing: .1em; text-transform: uppercase; }
+
+    .mesa { color: var(--sepia); font-size: 14px; margin: 0 0 12px; }
+    .mesa strong { color: var(--tinta); font-weight: 400; }
+    .mesa--sin { color: var(--oro); }
+    .enlace {
+      background: none; border: 0; padding: 0; font: inherit; cursor: pointer;
+      color: var(--oro); text-decoration: underline;
+    }
+    .enlace:hover { color: #c69a3d; }
 
     .pie-ficha {
       display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
@@ -189,12 +213,12 @@ export class CharactersPage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  /** «Mix · DM», o solo el nombre si el rol no dice nada interesante. */
-  readonly quien = computed(() => {
-    const nombre = this.auth.nombre();
-    if (!nombre) return null;
-    return this.auth.rol() === 'DM' ? nombre + ' · DM' : nombre;
-  });
+  /**
+   * De quién es la sesión. Antes ponía «Mix · DM» leyendo el rol de la cuenta;
+   * ya no, porque ser máster es serlo de una campaña concreta y no de todas.
+   * Quién dirige qué se ve en la pantalla de campañas, que es donde importa.
+   */
+  readonly quien = computed(() => this.auth.nombre());
 
   readonly personajes = signal<Character[]>([]);
   readonly cargando = signal(true);
@@ -217,6 +241,13 @@ export class CharactersPage implements OnInit {
 
   crear(): void {
     void this.router.navigate(['/personajes', 'nuevo']);
+  }
+
+  /** Se llama desde la tarjeta (con evento, para no navegar además a la ficha)
+   *  y desde el pie de la pantalla (sin él). */
+  verCampanas(ev?: Event): void {
+    ev?.stopPropagation();
+    void this.router.navigate(['/campanas']);
   }
 
   /** Elegir personaje entra en SU FICHA: al sentarte a jugar lo primero que

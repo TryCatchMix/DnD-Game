@@ -31,6 +31,8 @@ public class GameService {
     private final InventoryRepository inventory;
     private final DiceService dice;
     private final GearService gear;
+    private final CampaignAccess access;
+    private final CampaignRepository campaigns;
 
     /** Una habilidad del catálogo base (nombre + característica clave). */
     private record SkillDef(String name, String keyAbility) {}
@@ -92,14 +94,31 @@ public class GameService {
     // ---------------------------------------------------------- personajes ---
 
     @Transactional(readOnly = true)
-    public List<CharacterView> listCharacters(UUID userId, boolean admin) {
-        // El admin (máster) ve toda la mesa; un jugador, solo los suyos.
-        var lista = admin
-                ? characters.findAllByOrderByNameAsc()
-                : characters.findByUserIdOrderByNameAsc(userId);
-        return lista.stream()
+    public List<CharacterView> listCharacters(UUID userId) {
+        // Los míos, más el grupo de las campañas que dirijo. Antes el rol DM de
+        // la cuenta enseñaba TODOS los personajes de la base; con varias mesas
+        // eso es ver los de partidas ajenas, así que ahora un máster ve a sus
+        // jugadores y a nadie más.
+        var porId = new LinkedHashMap<UUID, GameCharacter>();
+        for (GameCharacter c : characters.findByUserIdOrderByNameAsc(userId))
+            porId.put(c.getId(), c);
+
+        var dirigidas = access.campanasQueDirige(userId);
+        if (!dirigidas.isEmpty())
+            for (GameCharacter c : characters.findByCampaignIdInOrderByNameAsc(dirigidas))
+                porId.put(c.getId(), c);
+
+        // El nombre de la campaña se busca una vez por campaña, no una por ficha.
+        var nombres = new HashMap<UUID, String>();
+        return porId.values().stream()
+                .sorted(Comparator.comparing(GameCharacter::getName))
                 .map(c -> new CharacterView(c.getId().toString(), c.getName(), null,
-                        c.getClazz(), c.getLevel(), c.getVigor(), c.getMaxVigor(), c.getCity()))
+                        c.getClazz(), c.getLevel(), c.getVigor(), c.getMaxVigor(), c.getCity(),
+                        c.getCampaignId() == null ? null : c.getCampaignId().toString(),
+                        c.getCampaignId() == null ? null : nombres.computeIfAbsent(
+                                c.getCampaignId(),
+                                id -> campaigns.findById(id).map(Campaign::getName).orElse(null)),
+                        c.getUserId().equals(userId)))
                 .toList();
     }
 
@@ -115,8 +134,8 @@ public class GameService {
      * Devuelve la lista ya sin él, para que la pantalla solo repinte.
      */
     @Transactional
-    public List<CharacterView> borrarPersonaje(UUID userId, UUID charId, boolean admin) {
-        GameCharacter c = accessibleCharacter(userId, charId, admin);
+    public List<CharacterView> borrarPersonaje(UUID userId, UUID charId) {
+        GameCharacter c = accessibleCharacter(userId, charId);
 
         runs.deleteAll(runs.findByCharacterId(charId));
         inventory.deleteAll(inventory.findByCharacterIdOrderByNameAsc(charId));
@@ -128,7 +147,7 @@ public class GameService {
         characters.delete(c);
         characters.flush();
 
-        return listCharacters(userId, admin);
+        return listCharacters(userId);
     }
 
     @Transactional(readOnly = true)
@@ -141,16 +160,16 @@ public class GameService {
 
     /** La hoja de personaje D&D 3.5 completa. */
     @Transactional(readOnly = true)
-    public FichaView ficha(UUID userId, UUID charId, boolean admin) {
-        GameCharacter c = accessibleCharacter(userId, charId, admin);
+    public FichaView ficha(UUID userId, UUID charId) {
+        GameCharacter c = accessibleCharacter(userId, charId);
         return buildFicha(c, c.getSkills());
     }
 
     /** Editar la ficha. Reemplaza todos los campos editables y la lista de
      *  habilidades entera (el JSON que llega es la verdad). */
     @Transactional
-    public FichaView editarFicha(UUID userId, UUID charId, boolean admin, FichaEditRequest r) {
-        GameCharacter c = accessibleCharacter(userId, charId, admin);
+    public FichaView editarFicha(UUID userId, UUID charId, FichaEditRequest r) {
+        GameCharacter c = accessibleCharacter(userId, charId);
 
         // identidad
         if (r.name() != null && !r.name().isBlank()) c.setName(r.name().trim());
@@ -570,20 +589,11 @@ public class GameService {
         return c;
     }
 
-    /** Igual que {@link #accessibleCharacter}, expuesto para que otros servicios
-     *  (conjuros preparados) reusen el MISMO control de propiedad: dueño o DM. */
-    public GameCharacter accesible(UUID userId, UUID charId, boolean admin) {
-        return accessibleCharacter(userId, charId, admin);
-    }
-
-    /** Como {@link #ownedCharacter} pero el admin (máster) pasa el filtro para
-     *  cualquier personaje: es quien lleva la mesa. */
-    private GameCharacter accessibleCharacter(UUID userId, UUID charId, boolean admin) {
-        GameCharacter c = characters.findById(charId)
-                .orElseThrow(() -> ApiException.notFound("No existe ese personaje."));
-        if (!admin && !c.getUserId().equals(userId))
-            throw ApiException.forbidden("Ese personaje no es tuyo.");
-        return c;
+    /** El dueño del personaje, o el máster de la campaña en la que juega. La
+     *  regla vive entera en {@link CampaignAccess}, que es quien la responde
+     *  también para la tienda, el trasfondo y las propiedades. */
+    private GameCharacter accessibleCharacter(UUID userId, UUID charId) {
+        return access.exigePersonaje(userId, charId);
     }
 
     private int skillMod(GameCharacter c, String code) {

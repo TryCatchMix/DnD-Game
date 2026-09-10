@@ -19,9 +19,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class InventoryService {
 
-    private final GameCharacterRepository characters;
     private final InventoryRepository inventory;
     private final ItemRepository items;
+    private final CampaignAccess access;
 
     @Transactional(readOnly = true)
     public InventoryView inventario(UUID userId, UUID charId) {
@@ -139,11 +139,14 @@ public class InventoryService {
         return e;
     }
 
+    /**
+     * El dueño de la bolsa, o el máster de la campaña en la que juega.
+     *
+     * Antes solo pasaba el dueño, y eso dejaba al máster fuera de la bolsa
+     * cuando ya podía editar la ficha y el monedero del mismo personaje. Ahora
+     * es la misma regla en todas partes, la de {@link CampaignAccess}.
+     */
     private GameCharacter ownedCharacter(UUID userId, UUID charId) {
-        GameCharacter c = characters.findById(charId)
-                .orElseThrow(() -> ApiException.notFound("No existe ese personaje."));
-        if (!c.getUserId().equals(userId))
-            throw ApiException.forbidden("Ese personaje no es tuyo.");
-        return c;
+        return access.exigePersonaje(userId, charId);
     }
 }

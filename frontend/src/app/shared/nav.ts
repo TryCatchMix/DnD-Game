@@ -1,12 +1,16 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
-import { AuthService } from '../core/auth.service';
+import { CampanasService } from '../core/campaign.service';
 
 /**
  * Barra de pestañas fija (arriba) para moverse entre las pantallas de un
  * personaje: tablón, ficha, tienda, crónica y volver a elegir personaje.
- * La pestaña del editor (DM) solo aparece si quien mira es el DM.
+ *
+ * Las pestañas del máster (La Mesa y el panel) salen si quien mira dirige LA
+ * CAMPAÑA de este personaje. Antes bastaba con tener el rol DM en la cuenta, y
+ * eso enseñaba el escritorio del máster también en las mesas donde solo se
+ * juega. Ahora se pregunta por el personaje que hay en la URL.
  */
 @Component({
   selector: 'arc-nav',
@@ -40,6 +44,8 @@ import { AuthService } from '../core/auth.service';
         }
         <a class="tab tab--ajuste" [routerLink]="['/personajes', personajeId(), 'ajustes']"
            routerLinkActive="activa">Diseño</a>
+        <a class="tab tab--campana" routerLink="/campanas"
+           routerLinkActive="activa">{{ campana() }}</a>
         <a class="tab tab--fin" [routerLink]="['/personajes']">Cambiar de personaje</a>
       </div>
     </nav>
@@ -97,6 +103,8 @@ import { AuthService } from '../core/auth.service';
     .tab--casa.activa { color: #6a8a4f; border-color: rgba(76, 106, 55, .5); }
     .tab--ajuste { color: var(--sepia); }
     .tab--ajuste.activa { color: var(--sepia-claro); }
+    .tab--campana { color: #8a7bb0; }
+    .tab--campana.activa { color: #a294c9; border-color: rgba(138, 123, 176, .5); }
     .tab--fin { margin-left: auto; }
   `,
 })
@@ -107,6 +115,14 @@ export class NavBar {
    *  contenido queda desalineado con sus propias pestañas. */
   readonly ancho = input(false);
 
-  private readonly auth = inject(AuthService);
-  readonly esDM = computed(() => this.auth.rol() === 'DM');
+  private readonly campanas = inject(CampanasService);
+
+  /** El contexto del personaje que hay en la URL: en qué mesa juega y qué soy
+   *  yo en ella. Va por señal y con caché, así que repintar no vuelve a pedirlo. */
+  private readonly contexto = computed(() => this.campanas.contexto(this.personajeId())());
+
+  readonly esDM = computed(() => this.contexto()?.dm ?? false);
+
+  /** El nombre de la campaña, o la invitación a unirse a una si no hay. */
+  readonly campana = computed(() => this.contexto()?.name ?? 'Campañas');
 }

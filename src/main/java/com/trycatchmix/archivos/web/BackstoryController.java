@@ -25,22 +25,18 @@ public class BackstoryController {
     @GetMapping
     public BackstoryView ver(@AuthenticationPrincipal AuthPrincipal p,
                              @PathVariable UUID charId) {
-        return backstory.ver(user(p), charId, isAdmin(p));
+        return backstory.ver(user(p), charId);
     }
 
     @PutMapping
     public BackstoryView guardar(@AuthenticationPrincipal AuthPrincipal p,
                                  @PathVariable UUID charId,
                                  @RequestBody SaveRequest req) {
-        return backstory.guardar(user(p), charId, isAdmin(p), req);
+        return backstory.guardar(user(p), charId, req);
     }
 
     private UUID user(AuthPrincipal p) {
         if (p == null) throw ApiException.sessionExpired();
         return p.userId();
-    }
-
-    private boolean isAdmin(AuthPrincipal p) {
-        return p != null && "DM".equals(p.role());
     }
 }
