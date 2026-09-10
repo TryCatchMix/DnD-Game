@@ -420,13 +420,14 @@ public class GameService {
         Optional<QuestRun> abierta = runs.findByCharacterIdAndStatus(charId, RunStatus.IN_PROGRESS);
         UUID enCursoQuestId = abierta.map(QuestRun::getQuestId).orElse(null);
 
-        return quests.tablon(c.getCity(), access.exigeCampanaDe(c)).stream()
-                .map(q -> toCard(q, enCursoQuestId))
+        UUID campana = access.exigeCampanaDe(c);
+        return quests.tablon(c.getCity(), campana).stream()
+                .map(q -> toCard(q, enCursoQuestId, campana))
                 .toList();
     }
 
-    private QuestCardView toCard(Quest q, UUID enCursoQuestId) {
-        String bloqueo = bloqueoDe(q);
+    private QuestCardView toCard(Quest q, UUID enCursoQuestId, UUID campanaId) {
+        String bloqueo = bloqueoDe(q, campanaId);
         String availability;
         String reason = null;
 
@@ -445,11 +446,18 @@ public class GameService {
                 q.getRewardNote(), null, null, availability, reason);
     }
 
-    /** Devuelve la etiqueta del requisito si el encargo está bloqueado, o null. */
-    private String bloqueoDe(Quest q) {
+    /**
+     * Devuelve la etiqueta del requisito si el encargo está bloqueado, o null.
+     *
+     * La bandera se busca EN LA CAMPAÑA: el puente puede estar caído en una mesa
+     * y en pie en otra. Si esa campaña no tiene la bandera, cuenta como false,
+     * que es lo mismo que hacía antes con una bandera desconocida.
+     */
+    private String bloqueoDe(Quest q, UUID campanaId) {
         if (q.getRequiredFlag() == null) return null;
         boolean esperado = q.getRequiredFlagState() == null || q.getRequiredFlagState();
-        boolean real = worldFlags.findById(q.getRequiredFlag()).map(WorldFlag::isState).orElse(false);
+        boolean real = worldFlags.findByCampaignIdAndFlagKey(campanaId, q.getRequiredFlag())
+                .map(WorldFlag::isState).orElse(false);
         if (real == esperado) return null;
         return q.getRequirementLabel() != null ? q.getRequirementLabel() : "Requiere: " + q.getRequiredFlag();
     }
@@ -476,7 +484,7 @@ public class GameService {
         if (q.getCampaignId() != null && !q.getCampaignId().equals(suCampana))
             throw ApiException.forbidden("Ese encargo es de otra campaña.");
 
-        String bloqueo = bloqueoDe(q);
+        String bloqueo = bloqueoDe(q, suCampana);
         if (bloqueo != null) throw ApiException.blocked(bloqueo);
 
         Optional<QuestRun> abierta = runs.findByCharacterIdAndStatus(charId, RunStatus.IN_PROGRESS);

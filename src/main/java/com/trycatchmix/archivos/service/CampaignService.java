@@ -41,6 +41,7 @@ public class CampaignService {
     private final GameCharacterRepository characters;
     private final AppUserRepository users;
     private final ShopOfferRepository offers;
+    private final WorldFlagRepository worldFlags;
     private final MesaAssetRepository assets;
     private final MesaStorage armario;
     private final QuestAuthoringService authoring;
@@ -129,6 +130,7 @@ public class CampaignService {
         members.save(dm);
 
         surtirTienda(c.getId());
+        estrenarMundo(c.getId());
 
         return abrir(userId, c.getId());
     }
@@ -143,6 +145,23 @@ public class CampaignService {
             o.setPriceCp(base.getPriceCp());
             o.setStock(base.getStock());
             offers.save(o);
+        }
+    }
+
+    /**
+     * Le da a la campaña su propio estado del mundo, copiado de la plantilla.
+     *
+     * Sin esto, un encargo que exija «Puente Norte en pie» saldría bloqueado
+     * para siempre en las mesas nuevas: la bandera se busca por campaña y allí
+     * no existiría ninguna.
+     */
+    private void estrenarMundo(UUID campaignId) {
+        for (WorldFlag base : worldFlags.findByCampaignIdIsNull()) {
+            WorldFlag f = new WorldFlag();
+            f.setCampaignId(campaignId);
+            f.setFlagKey(base.getFlagKey());
+            f.setState(base.isState());
+            worldFlags.save(f);
         }
     }
 
