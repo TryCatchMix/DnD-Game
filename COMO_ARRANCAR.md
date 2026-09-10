@@ -123,23 +123,29 @@ intentas seguir antes, recibes un **425 Too Early** con el tiempo que falta.
 Un encargo es un JSON sin UUIDs: las escenas se referencian por claves que
 eliges tú y todo lo demás por código.
 
+Los encargos son **de una campaña**, así que primero hace falta su id (sale en
+`GET /api/campanas`, entre las que diriges):
+
 ```bash
+CAMP=$(curl -s localhost:8080/api/campanas -H "Authorization: Bearer $TOKEN" \
+  | jq -r '.campaigns[] | select(.role=="DM") | .id' | head -1)
+
 # 1. Comprobar sin guardar nada
-curl -s -X POST localhost:8080/api/admin/encargos/check \
+curl -s -X POST localhost:8080/api/campanas/$CAMP/encargos/check \
   -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
   -d @encargos/ejemplo_aguas_dorakan.json | jq
 
 # 2. Guardar (no publica todavía)
-curl -s -X POST localhost:8080/api/admin/encargos \
+curl -s -X POST localhost:8080/api/campanas/$CAMP/encargos \
   -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
   -d @encargos/ejemplo_aguas_dorakan.json | jq
 
-# 3. Publicar: ya sale en el tablón
-curl -s -X POST localhost:8080/api/admin/encargos/aguas_dorakan/publicar \
+# 3. Publicar: ya sale en el tablón de esa campaña
+curl -s -X POST localhost:8080/api/campanas/$CAMP/encargos/aguas_dorakan/publicar \
   -H "Authorization: Bearer $TOKEN" | jq
 
 # 4. Bajarlo para editarlo y volver a subirlo
-curl -s localhost:8080/api/admin/encargos/aguas_dorakan \
+curl -s localhost:8080/api/campanas/$CAMP/encargos/aguas_dorakan \
   -H "Authorization: Bearer $TOKEN" | jq > mi_encargo.json
 ```
 
@@ -147,8 +153,10 @@ Si algo está mal, recibes un **422** con la lista completa de errores y avisos,
 cada uno con su ruta (`scenes[1].options[0].outcomes`). Los errores impiden
 publicar; los avisos no.
 
-Necesitas entrar como **DM** (`mix@trycatchmix.com`): `/api/admin/**` está
-reservado a ese rol.
+Tienes que **dirigir esa campaña**; si no, sale un **403**. Ya no hace falta un
+rol DM en la cuenta: crea una campaña y eres su máster. Los encargos que vienen
+de fábrica se ven desde todas las mesas y no se editan: bájalos, cámbiales el
+código y súbelos, y la copia será tuya (si no, sale un **409 COMMON_QUEST**).
 
 ## 8. Pasar los tests
 

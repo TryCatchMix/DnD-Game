@@ -71,39 +71,56 @@ cd frontend && npm run check   # compila y valida plantillas (strictTemplates)
 
 | Área | |
 |---|---|
+| **Campañas** | Crear una mesa, repartir su código y unir personajes (`/campanas`, `/api/campanas/**`) |
 | **Personajes** | Elegir, crear (`/personajes/nuevo`), borrar (con confirmación) y ficha D&D 3.5 completa y editable |
-| **Tienda** | Un único mostrador para toda la mesa (no depende de dónde esté el personaje); panel del DM para poner cosas a la venta |
-| **Crónica del clan** | Memoria compartida del mundo; el DM anota y revela verdades selladas |
+| **Tienda** | Un mostrador **por campaña** (dentro de ella no depende de la ciudad); panel del máster para poner cosas a la venta |
+| **Crónica del clan** | Memoria compartida del mundo, común a todas las campañas; quien dirija alguna anota y revela verdades selladas |
 | **Habilidades** | Conjuros (7 clases, stat block completo) + invocaciones de warlock + aptitudes de clase (Bárbaro/Guerrero/Monje); paginado en servidor (25 por defecto) |
-| **Bloc de notas** | Notas del jugador (PNJ, ciudades…) con categorías, fijado y búsqueda |
+| **Bloc de notas** | Notas del jugador **en cada campaña** (PNJ, ciudades…) con categorías, fijado y búsqueda |
 | **Propiedades** | Comprar negocios (taberna, mina, puerto…), recaudar renta, mejorar y vender |
 | **Tablón / Escena** | Encargos con los bloqueados a la vista; escena con la tirada lacrada |
-| **Editor del DM** | Crear/validar/publicar encargos (`/api/admin/encargos`) |
-| **La Mesa** (DM) | Preparar partidas: tarjetas de misión con portada, guion por pasos y material (imágenes y PDF subidos al servidor) + modo mesa para jugar (`/api/mesa`) |
+| **Editor del máster** | Crear/validar/publicar encargos de su campaña (`/api/campanas/{id}/encargos`) |
+| **La Mesa** (máster) | Preparar partidas: tarjetas de misión con portada, guion por pasos y material (imágenes y PDF subidos al servidor) + modo mesa para jugar (`/api/campanas/{id}/mesa`) |
 | **Cuentas** | Registro público (`/registro`); cada jugador solo ve y edita sus personajes |
+
+## Campañas
+
+Una **campaña** es la mesa: quien la crea la dirige, reparte un código de seis
+letras y los demás entran con él. Cada campaña tiene lo suyo y no ve lo de las
+otras: su tienda, su tablón de encargos, su estado del mundo, las misiones y el
+material del máster, sus enemigos y combates, y el bloc de notas de cada
+jugador. El catálogo de objetos, el bestiario, el grimorio y la crónica del clan
+siguen siendo comunes: son el manual, no la partida.
+
+Un personaje está **en una campaña o en ninguna**. Sin campaña se le puede
+rellenar la ficha, pero no tiene tablón, ni tienda, ni bloc; la pantalla
+`/campanas` es donde se apunta a una.
+
+Al crearse, una campaña nace con el surtido base de la tienda copiado y con su
+propio estado del mundo, para que el primer día haya algo que comprar y los
+encargos comunes no salgan bloqueados sin motivo.
 
 ## Cuentas y roles
 
-Hay dos roles: **PLAYER** (jugador) y **DM** (máster, que hace de administrador).
+**El papel de máster es de cada campaña, no de la cuenta.** Cualquiera puede
+abrir la suya y dirigirla, y ser jugador en la de al lado. Quien la crea es su
+dueño (el único que puede borrarla) y puede nombrar co-másters.
 
 - **Registro** (`POST /api/auth/register`, pantalla `/registro`): cualquiera crea
-  su cuenta. Nace **siempre como PLAYER** — el rol nunca llega desde el cliente,
-  así que nadie puede darse permisos de máster registrándose.
+  su cuenta y ya puede crear campañas. No hay nada que promover a mano.
 - **Propiedad de personajes**: un jugador solo lista, ve y edita **sus propios**
-  personajes. Intentar tocar el de otro devuelve `403`. Esto lo enforce el
-  backend (`GameService`), no solo la interfaz.
-- **Admin (DM)**: ve **todos** los personajes de la mesa y puede editar
-  cualquier ficha (es quien lleva la partida). Además gestiona la tienda, la
-  crónica y el editor de encargos (`/api/admin/**`, protegido con rol DM).
-- El único modo de tener un DM es sembrarlo por migración (`V10__admin_user.sql`)
-  o promover una cuenta a mano en la base de datos:
-  ```sql
-  update users set role = 'DM' where email = 'tu-correo@ejemplo.com';
-  ```
+  personajes; el máster de una campaña ve y edita además los del grupo de **esa**
+  mesa. Todo lo decide `CampaignAccess` en el backend, no la interfaz.
+- **Permisos de campaña**: hay dos, *miembro* (mira el tablón, la tienda y su
+  bloc) y *DM* (prepara misiones, escribe encargos, pone precios y saca
+  enemigos). Ninguna ruta se protege ya con `hasRole('DM')`: la comprobación
+  necesita saber **de qué campaña** se habla, y eso solo lo sabe el controlador.
+- `users.role` sigue existiendo pero ya no manda en el juego; queda como
+  administración de la instalación.
 
-Para cambiar la contraseña de las cuentas sembradas, lo más simple es
-registrarte con el correo que quieras y luego promover esa cuenta a DM con el
-`update` de arriba (y borrar las de ejemplo).
+La migración `V28` crea una campaña, **La mesa de siempre**, con todo lo que
+hubiera antes dentro y con todos los usuarios como miembros, así que al
+desplegar nadie pierde de vista sus personajes, sus notas ni sus misiones.
 
 ## Propiedades (mini-juego de gestión)
 
@@ -122,12 +139,13 @@ La economía de cada tipo (precios, renta, fórmula de mejora) vive en
 `PropertyKind` (Java), no en la BD, para poder ajustar el balance sin migrar.
 Endpoints en `/api/personajes/{id}/propiedades` (tabla `properties`, migración
 `V11`). Como todo lo del personaje, un jugador solo gestiona los suyos y el
-admin (DM) los de cualquiera.
+máster de su campaña los del grupo.
 
-## La Mesa (preparar partidas, solo DM)
+## La Mesa (preparar partidas, solo el máster)
 
-Pestaña **La Mesa** (`/personajes/:id/mesa`, endpoints `/api/mesa/**`, migración
-`V15`). Es el escritorio del máster, no una pantalla de juego:
+Pestaña **La Mesa** (`/personajes/:id/mesa`, endpoints
+`/api/campanas/{id}/mesa/**`, migraciones `V15` y `V28`). Es el escritorio del
+máster de esa campaña, no una pantalla de juego:
 
 - **Misiones**: una rejilla de tarjetas, cada una con su **portada**, su sello de
   estado (idea → preparando → lista → jugada), sus etiquetas y lo que lleva
