@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { AuthService } from '../../core/auth.service';
+import { CampanasService } from '../../core/campaign.service';
 import { NavBar } from '../../shared/nav';
 import { EncargosPanel } from './quests-panel';
 import { CronicaPanel } from './chronicle-panel';
@@ -37,8 +37,10 @@ type Pestana = 'encargos' | 'cronica';
                 (click)="pestana.set('cronica')">Crónica</button>
       </div>
 
-      @if (pestana() === 'encargos') {
-        <arc-encargos-panel />
+      @if (!campanaId()) {
+        <p class="rotulo">Abriendo el panel…</p>
+      } @else if (pestana() === 'encargos') {
+        <arc-encargos-panel [campanaId]="campanaId()!" />
       } @else {
         <arc-cronica-panel />
       }
@@ -63,16 +65,27 @@ export class AdminPage implements OnInit {
 
   readonly personajeId = input.required<string>();
 
-  private readonly auth = inject(AuthService);
+  private readonly campanas = inject(CampanasService);
   private readonly router = inject(Router);
 
   readonly pestana = signal<Pestana>('encargos');
-  readonly esDM = computed(() => this.auth.rol() === 'DM');
+
+  /** La campaña de este personaje. Los encargos que se escriban aquí salen en
+   *  SU tablón, así que el panel no se pinta hasta saber cuál es. */
+  readonly campanaId = signal<string | null>(null);
 
   ngOnInit(): void {
-    // El panel es solo del DM: si entra un jugador, de vuelta a su tablón.
-    if (!this.esDM()) {
-      void this.router.navigate(['/personajes', this.personajeId(), 'tablon']);
-    }
+    // El panel es del máster de esta campaña: si entra otro, a su tablón.
+    this.campanas.contextoDe(this.personajeId()).subscribe({
+      next: c => {
+        if (!c.campaignId || !c.dm) { this.fuera(); return; }
+        this.campanaId.set(c.campaignId);
+      },
+      error: () => this.fuera(),
+    });
+  }
+
+  private fuera(): void {
+    void this.router.navigate(['/personajes', this.personajeId(), 'tablon']);
   }
 }

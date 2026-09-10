@@ -344,33 +344,34 @@ export class JuegoService {
     return this.http.get<DomainDetail>(`/api/dominios/${code}`);
   }
 
-  // --- Editor de encargos del DM ---
+  // --- Editor de encargos del máster ---
+  // Lo que se escribe aquí sale en el tablón de ESA campaña y en ninguna otra.
 
-  /** La lista de encargos (publicados y borradores). */
-  encargos(): Observable<QuestSummary[]> {
-    return this.http.get<QuestSummary[]>('/api/admin/encargos');
+  /** Los encargos de la campaña (publicados y borradores) más los comunes. */
+  encargos(campanaId: string): Observable<QuestSummary[]> {
+    return this.http.get<QuestSummary[]>(`/api/campanas/${campanaId}/encargos`);
   }
 
   /** Validar un borrador sin guardar. */
-  comprobarEncargo(draft: unknown): Observable<ValidationReport> {
-    return this.http.post<ValidationReport>('/api/admin/encargos/check', draft);
+  comprobarEncargo(campanaId: string, draft: unknown): Observable<ValidationReport> {
+    return this.http.post<ValidationReport>(`/api/campanas/${campanaId}/encargos/check`, draft);
   }
 
   /** Guardar (crear o reemplazar). No publica. */
-  guardarEncargo(draft: unknown): Observable<ImportResult> {
-    return this.http.post<ImportResult>('/api/admin/encargos', draft);
+  guardarEncargo(campanaId: string, draft: unknown): Observable<ImportResult> {
+    return this.http.post<ImportResult>(`/api/campanas/${campanaId}/encargos`, draft);
   }
 
   /** Bajar un encargo en formato borrador para editarlo. */
-  exportarEncargo(code: string): Observable<unknown> {
-    return this.http.get(`/api/admin/encargos/${code}`);
+  exportarEncargo(campanaId: string, code: string): Observable<unknown> {
+    return this.http.get(`/api/campanas/${campanaId}/encargos/${code}`);
   }
 
-  publicarEncargo(code: string): Observable<unknown> {
-    return this.http.post(`/api/admin/encargos/${code}/publicar`, {});
+  publicarEncargo(campanaId: string, code: string): Observable<unknown> {
+    return this.http.post(`/api/campanas/${campanaId}/encargos/${code}/publicar`, {});
   }
 
-  despublicarEncargo(code: string): Observable<unknown> {
-    return this.http.post(`/api/admin/encargos/${code}/despublicar`, {});
+  despublicarEncargo(campanaId: string, code: string): Observable<unknown> {
+    return this.http.post(`/api/campanas/${campanaId}/encargos/${code}/despublicar`, {});
   }
 }

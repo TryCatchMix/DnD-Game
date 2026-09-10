@@ -521,6 +521,9 @@ export interface QuestSummary {
   location: string;
   published: boolean;
   sceneCount: number;
+  /** Viene de fábrica: se ve en el tablón de todas las campañas y no se edita
+   *  desde ninguna, porque el cambio las afectaría a todas. */
+  common: boolean;
 }
 
 export interface ValidationProblem { field: string; message: string; }

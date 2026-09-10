@@ -420,7 +420,7 @@ public class GameService {
         Optional<QuestRun> abierta = runs.findByCharacterIdAndStatus(charId, RunStatus.IN_PROGRESS);
         UUID enCursoQuestId = abierta.map(QuestRun::getQuestId).orElse(null);
 
-        return quests.findByLocationAndPublishedTrueOrderByTitleAsc(c.getCity()).stream()
+        return quests.tablon(c.getCity(), access.exigeCampanaDe(c)).stream()
                 .map(q -> toCard(q, enCursoQuestId))
                 .toList();
     }
@@ -469,6 +469,12 @@ public class GameService {
 
         if (!q.isPublished())
             throw ApiException.conflict("Ese encargo no está disponible.");
+
+        // Un encargo de otra mesa no se firma aunque se adivine su id. Los
+        // comunes (campaignId a null) valen para cualquier campaña.
+        UUID suCampana = access.exigeCampanaDe(c);
+        if (q.getCampaignId() != null && !q.getCampaignId().equals(suCampana))
+            throw ApiException.forbidden("Ese encargo es de otra campaña.");
 
         String bloqueo = bloqueoDe(q);
         if (bloqueo != null) throw ApiException.blocked(bloqueo);

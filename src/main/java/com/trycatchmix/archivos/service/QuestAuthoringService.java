@@ -32,7 +32,9 @@ public class QuestAuthoringService {
     private final QuestValidator validator;
 
     public record ImportResult(String code, String title, boolean created, Report report) {}
-    public record QuestSummary(String code, String title, String location, boolean published, int sceneCount) {}
+    /** `common` = viene de fábrica, se ve en todas las campañas y no se edita. */
+    public record QuestSummary(String code, String title, String location, boolean published,
+                               int sceneCount, boolean common) {}
 
     public static class InvalidDraftException extends RuntimeException {
         private final transient Report report;
@@ -56,14 +58,30 @@ public class QuestAuthoringService {
         }
     }
 
+    /** El código existe, pero es contenido común: no es de esta campaña. */
+    public static class CommonQuestException extends RuntimeException {
+        public CommonQuestException(String code) {
+            super(("El encargo '%s' viene de fábrica y se ve en todas las campañas, "
+                 + "así que no se edita desde aquí. Expórtalo, cámbiale el código e "
+                 + "impórtalo: la copia será tuya.").formatted(code));
+        }
+    }
+
     // ------------------------------------------------------------- listar ----
 
+    /**
+     * Los encargos que ve el editor de una campaña: los suyos y, marcados como
+     * comunes, los que vienen de fábrica. Los comunes se listan para saber qué
+     * hay ya en el tablón, pero no se pueden reescribir desde aquí.
+     */
     @Transactional(readOnly = true)
-    public List<QuestSummary> list() {
-        return quests.findAll().stream()
+    public List<QuestSummary> list(UUID campaignId) {
+        List<Quest> todos = new ArrayList<>(quests.findByCampaignIdOrderByTitleAsc(campaignId));
+        todos.addAll(quests.findByCampaignIdIsNullOrderByTitleAsc());
+        return todos.stream()
                 .sorted(Comparator.comparing(Quest::getTitle))
                 .map(q -> new QuestSummary(q.getCode(), q.getTitle(), q.getLocation(),
-                        q.isPublished(), q.getSceneCount()))
+                        q.isPublished(), q.getSceneCount(), q.getCampaignId() == null))
                 .toList();
     }
 
@@ -77,11 +95,14 @@ public class QuestAuthoringService {
     // ---------------------------------------------------------- importar -----
 
     @Transactional
-    public ImportResult importDraft(QuestDraft draft) {
+    public ImportResult importDraft(UUID campaignId, QuestDraft draft) {
         Report report = validator.validate(draft);
         if (!report.isValid()) throw new InvalidDraftException(report);
 
-        Optional<Quest> existente = quests.findByCode(draft.code());
+        // El código es único DENTRO de la campaña: dos mesas pueden tener cada
+        // una su 'minas_01' sin pisarse. Si el código choca con uno común, el
+        // de la campaña manda en su tablón, que es lo que quiere el máster.
+        Optional<Quest> existente = quests.findByCampaignIdAndCode(campaignId, draft.code());
 
         if (existente.isPresent()) {
             long enCurso = runs.countByQuestIdAndStatus(existente.get().getId(), RunStatus.IN_PROGRESS);
@@ -93,6 +114,7 @@ public class QuestAuthoringService {
         boolean creado = existente.isEmpty();
 
         cabecera(quest, draft);
+        quest.setCampaignId(campaignId);
         quest.setPublished(false);          // importar nunca publica
         quests.save(quest);
 
@@ -104,8 +126,8 @@ public class QuestAuthoringService {
     // --------------------------------------------------------- publicar -----
 
     @Transactional
-    public Quest publish(String code) {
-        Quest quest = quests.findByCode(code).orElseThrow(() -> new QuestNotFoundException(code));
+    public Quest publish(UUID campaignId, String code) {
+        Quest quest = suyo(campaignId, code);
 
         // Segunda red: comprobar el estado REAL de las opciones con tirada.
         List<QuestValidator.Problem> problemas = new ArrayList<>();
@@ -123,17 +145,20 @@ public class QuestAuthoringService {
     }
 
     @Transactional
-    public Quest unpublish(String code) {
-        Quest quest = quests.findByCode(code).orElseThrow(() -> new QuestNotFoundException(code));
+    public Quest unpublish(UUID campaignId, String code) {
+        Quest quest = suyo(campaignId, code);
         quest.setPublished(false);
         return quest;
     }
 
     // ---------------------------------------------------------- exportar ----
 
+    /** Un común se puede exportar (para copiarlo y retocarlo), pero no tocar. */
     @Transactional(readOnly = true)
-    public QuestDraft export(String code) {
-        Quest q = quests.findByCode(code).orElseThrow(() -> new QuestNotFoundException(code));
+    public QuestDraft export(UUID campaignId, String code) {
+        Quest q = quests.findByCampaignIdAndCode(campaignId, code)
+                .or(() -> quests.findByCampaignIdIsNullAndCode(code))
+                .orElseThrow(() -> new QuestNotFoundException(code));
 
         List<Scene> ordenadas = scenes.findByQuestIdOrderByOrdinalAsc(q.getId());
         Map<UUID, String> clavePorId = new HashMap<>();
@@ -190,6 +215,19 @@ public class QuestAuthoringService {
         q.setRequirementLabel(blankToNull(d.requirementLabel()));
         q.setSceneCount(d.scenes().size());
         q.setSkillTags(d.skills() == null ? "" : String.join(",", d.skills()));
+    }
+
+    /**
+     * El encargo de ESTA campaña. Si el código solo existe entre los comunes se
+     * dice con todas las letras: se pueden jugar y exportar, pero reescribirlos
+     * desde una mesa cambiaría el tablón de todas las demás.
+     */
+    private Quest suyo(UUID campaignId, String code) {
+        return quests.findByCampaignIdAndCode(campaignId, code).orElseThrow(() -> {
+            if (quests.findByCampaignIdIsNullAndCode(code).isPresent())
+                return new CommonQuestException(code);
+            return new QuestNotFoundException(code);
+        });
     }
 
     /**

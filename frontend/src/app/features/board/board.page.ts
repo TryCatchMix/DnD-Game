@@ -223,9 +223,13 @@ export class BoardPage implements OnInit {
   ngOnInit(): void {
     this.juego.tablon(this.personajeId()).subscribe({
       next: qs => { this.encargos.set(qs); this.cargando.set(false); },
-      error: () => {
+      // El tablón es el de la campaña del personaje. Si no está en ninguna, el
+      // backend lo dice con todas las letras y ese mensaje sirve de guía; el
+      // genérico solo diría «inténtalo otra vez» ante algo que no se arregla
+      // insistiendo.
+      error: err => {
         this.cargando.set(false);
-        this.error.set('No se ha podido leer el tablón. Inténtalo otra vez.');
+        this.error.set(err?.error?.message ?? 'No se ha podido leer el tablón. Inténtalo otra vez.');
       },
     });
   }

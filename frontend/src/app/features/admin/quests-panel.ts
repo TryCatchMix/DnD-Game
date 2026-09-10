@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, input, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { JuegoService } from '../../core/game.service';
@@ -82,14 +82,22 @@ const PLANTILLA = `{
               <p class="meta">
                 {{ q.code }} · {{ q.location }} · {{ q.sceneCount }} escenas ·
                 <span [class]="q.published ? 'pub' : 'bor'">{{ q.published ? 'publicado' : 'borrador' }}</span>
+                @if (q.common) { · <span class="comun">de fábrica</span> }
               </p>
             </div>
+            <!-- Un encargo común se ve desde todas las campañas, así que aquí
+                 solo se puede abrir para copiarlo: publicarlo o reescribirlo
+                 cambiaría el tablón de todas las mesas a la vez. -->
             <div class="acc">
-              <button class="boton" [disabled]="ocupado()" (click)="editar(q.code)">Editar</button>
-              @if (q.published) {
-                <button class="boton" [disabled]="ocupado()" (click)="despublicar(q.code)">Despublicar</button>
-              } @else {
-                <button class="boton boton--lacre" [disabled]="ocupado()" (click)="publicar(q.code)">Publicar</button>
+              <button class="boton" [disabled]="ocupado()" (click)="editar(q.code)">
+                {{ q.common ? 'Copiar' : 'Editar' }}
+              </button>
+              @if (!q.common) {
+                @if (q.published) {
+                  <button class="boton" [disabled]="ocupado()" (click)="despublicar(q.code)">Despublicar</button>
+                } @else {
+                  <button class="boton boton--lacre" [disabled]="ocupado()" (click)="publicar(q.code)">Publicar</button>
+                }
               }
             </div>
           </li>
@@ -149,6 +157,7 @@ const PLANTILLA = `{
     .meta { font-family: var(--dato); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--sepia); margin: 4px 0 0; }
     .pub { color: var(--musgo); }
     .bor { color: var(--oro); }
+    .comun { color: var(--sepia); font-style: italic; }
     .acc { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .acciones { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
@@ -175,6 +184,10 @@ const PLANTILLA = `{
 })
 export class EncargosPanel implements OnInit {
 
+  /** La campaÃ±a cuyo tablÃ³n se estÃ¡ escribiendo. Lo que se guarde aquÃ­ sale en
+   *  esa mesa y en ninguna otra, asÃ­ que el panel no funciona sin ella. */
+  readonly campanaId = input.required<string>();
+
   private readonly juego = inject(JuegoService);
 
   readonly encargos = signal<QuestSummary[]>([]);
@@ -187,7 +200,7 @@ export class EncargosPanel implements OnInit {
   ngOnInit(): void { this.cargarLista(); }
 
   private cargarLista(): void {
-    this.juego.encargos().subscribe({
+    this.juego.encargos(this.campanaId()).subscribe({
       next: qs => this.encargos.set(qs),
       error: () => this.error.set('No se ha podido leer la lista de encargos.'),
     });
@@ -203,7 +216,7 @@ export class EncargosPanel implements OnInit {
   editar(code: string): void {
     this.limpiar();
     this.ocupado.set(true);
-    this.juego.exportarEncargo(code).subscribe({
+    this.juego.exportarEncargo(this.campanaId(), code).subscribe({
       next: d => { this.draftText.set(JSON.stringify(d, null, 2)); this.ocupado.set(false); this.mensaje.set('Cargado «' + code + '».'); },
       error: () => { this.ocupado.set(false); this.error.set('No se ha podido cargar el encargo.'); },
     });
@@ -214,7 +227,7 @@ export class EncargosPanel implements OnInit {
     if (d === undefined) return;
     this.limpiar();
     this.ocupado.set(true);
-    this.juego.comprobarEncargo(d).subscribe({
+    this.juego.comprobarEncargo(this.campanaId(), d).subscribe({
       next: r => { this.report.set(r); this.ocupado.set(false); },
       error: err => { this.ocupado.set(false); this.mostrarError(err); },
     });
@@ -225,7 +238,7 @@ export class EncargosPanel implements OnInit {
     if (d === undefined) return;
     this.limpiar();
     this.ocupado.set(true);
-    this.juego.guardarEncargo(d).subscribe({
+    this.juego.guardarEncargo(this.campanaId(), d).subscribe({
       next: res => {
         this.report.set(res.report);
         this.mensaje.set((res.created ? 'Creado' : 'Actualizado') + ' «' + res.code + '». Ahora puedes publicarlo.');
@@ -239,7 +252,7 @@ export class EncargosPanel implements OnInit {
   publicar(code: string): void {
     this.limpiar();
     this.ocupado.set(true);
-    this.juego.publicarEncargo(code).subscribe({
+    this.juego.publicarEncargo(this.campanaId(), code).subscribe({
       next: () => { this.ocupado.set(false); this.mensaje.set('«' + code + '» publicado. Ya está en el tablón.'); this.cargarLista(); },
       error: err => { this.ocupado.set(false); this.mostrarError(err); },
     });
@@ -248,7 +261,7 @@ export class EncargosPanel implements OnInit {
   despublicar(code: string): void {
     this.limpiar();
     this.ocupado.set(true);
-    this.juego.despublicarEncargo(code).subscribe({
+    this.juego.despublicarEncargo(this.campanaId(), code).subscribe({
       next: () => { this.ocupado.set(false); this.mensaje.set('«' + code + '» retirado del tablón.'); this.cargarLista(); },
       error: err => { this.ocupado.set(false); this.mostrarError(err); },
     });

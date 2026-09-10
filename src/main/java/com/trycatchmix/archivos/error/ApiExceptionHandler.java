@@ -1,5 +1,6 @@
 package com.trycatchmix.archivos.error;
 
+import com.trycatchmix.archivos.service.QuestAuthoringService.CommonQuestException;
 import com.trycatchmix.archivos.service.QuestAuthoringService.InvalidDraftException;
 import com.trycatchmix.archivos.service.QuestAuthoringService.QuestInUseException;
 import com.trycatchmix.archivos.service.QuestAuthoringService.QuestNotFoundException;
@@ -39,5 +40,12 @@ public class ApiExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleNotFound(QuestNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", "NOT_FOUND", "message", ex.getMessage()));
+    }
+
+    /** Se intentó editar un encargo común desde una campaña. */
+    @ExceptionHandler(CommonQuestException.class)
+    public ResponseEntity<Map<String, Object>> handleCommon(CommonQuestException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", "COMMON_QUEST", "message", ex.getMessage()));
     }
 }
