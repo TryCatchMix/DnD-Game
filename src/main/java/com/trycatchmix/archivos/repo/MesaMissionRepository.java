@@ -8,6 +8,6 @@ import java.util.UUID;
 
 public interface MesaMissionRepository extends JpaRepository<MesaMission, UUID> {
 
-    /** Las del DM, en el orden que él las haya dejado. */
-    List<MesaMission> findByUserIdOrderByOrdinalAscCreatedAtDesc(UUID userId);
+    /** Las de la campaña, en el orden que el máster las haya dejado. */
+    List<MesaMission> findByCampaignIdOrderByOrdinalAscCreatedAtDesc(UUID campaignId);
 }

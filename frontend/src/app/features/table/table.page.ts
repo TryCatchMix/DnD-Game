@@ -1,7 +1,8 @@
 import { Component, computed, inject, input, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { AuthService } from '../../core/auth.service';
+import { CampanasService } from '../../core/campaign.service';
+import { MesaService } from '../../core/table.service';
 import { NavBar } from '../../shared/nav';
 import { BibliotecaPanel } from './library-panel';
 import { CombatePanel } from './combat-panel';
@@ -23,7 +24,13 @@ type Pestana = 'misiones' | 'biblioteca' | 'enemigos' | 'combate';
  * constantemente mientras preparas, y volver con el botón del navegador tiene
  * que devolverte a la lista de personajes, no a la tarjeta anterior.
  *
- * Solo entra el DM. Un jugador que llegue por la URL se va a su tablón.
+ * La Mesa es DE UNA CAMPAÑA. Esta pantalla cuelga de un personaje porque la
+ * barra de pestañas lo hace, así que lo primero que hace es traducir personaje
+ * → campaña y decírselo al servicio; hasta entonces no se pinta ningún panel,
+ * o pedirían datos sin saber de qué mesa.
+ *
+ * Entra quien dirija esa campaña. Un jugador que llegue por la URL se va a su
+ * tablón, y quien traiga un personaje sin campaña, también.
  */
 @Component({
   selector: 'arc-mesa',
@@ -32,7 +39,9 @@ type Pestana = 'misiones' | 'biblioteca' | 'enemigos' | 'combate';
     <arc-nav [personajeId]="personajeId()" [ancho]="true" />
 
     <div class="contenedor contenedor--ancho">
-      @if (abierta(); as id) {
+      @if (!lista()) {
+        <p class="intro">Abriendo la mesa…</p>
+      } @else if (abierta(); as id) {
         <arc-mision-detalle [misionId]="id" (volver)="cerrarMision()" />
       } @else {
         <header class="cabecera">
@@ -89,18 +98,31 @@ export class MesaPage implements OnInit {
 
   readonly personajeId = input.required<string>();
 
-  private readonly auth = inject(AuthService);
+  private readonly campanas = inject(CampanasService);
+  private readonly mesa = inject(MesaService);
   private readonly router = inject(Router);
 
   readonly pestana = signal<Pestana>('misiones');
   /** Id de la misión abierta, o null si estamos en la rejilla. */
   readonly abierta = signal<string | null>(null);
-  readonly esDM = computed(() => this.auth.rol() === 'DM');
+
+  /** Hasta que no está resuelta la campaña no se pinta nada: los paneles piden
+   *  datos en cuanto se montan y no sabrían a qué mesa. */
+  readonly lista = signal(false);
 
   ngOnInit(): void {
-    if (!this.esDM()) {
-      void this.router.navigate(['/personajes', this.personajeId(), 'tablon']);
-    }
+    this.campanas.contextoDe(this.personajeId()).subscribe({
+      next: c => {
+        if (!c.campaignId || !c.dm) { this.fuera(); return; }
+        this.mesa.usar(c.campaignId);
+        this.lista.set(true);
+      },
+      error: () => this.fuera(),
+    });
+  }
+
+  private fuera(): void {
+    void this.router.navigate(['/personajes', this.personajeId(), 'tablon']);
   }
 
   abrirMision(id: string): void {

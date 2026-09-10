@@ -8,15 +8,12 @@ import java.util.UUID;
 
 public interface MesaAssetRepository extends JpaRepository<MesaAsset, UUID> {
 
-    List<MesaAsset> findByUserIdOrderByCreatedAtDesc(UUID userId);
-
-    /** Todo el material de una campaña. Hace falta para borrarla: los bytes
-     *  están en disco y hay que barrerlos a mano. */
+    /** La biblioteca de la campaña: lo suyo, esté o no asignado a una misión. */
     List<MesaAsset> findByCampaignIdOrderByCreatedAtDesc(UUID campaignId);
+
+    List<MesaAsset> findByCampaignIdAndKindOrderByCreatedAtDesc(UUID campaignId, String kind);
 
     List<MesaAsset> findByMissionIdOrderByCreatedAtAsc(UUID missionId);
 
     long countByMissionIdAndKind(UUID missionId, String kind);
-
-    List<MesaAsset> findByUserIdAndKindOrderByCreatedAtDesc(UUID userId, String kind);
 }

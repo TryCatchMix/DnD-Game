@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MesaCombatRepository extends JpaRepository<MesaCombat, UUID> {
-    List<MesaCombat> findByUserIdOrderByCreatedAtDesc(UUID userId);
+    List<MesaCombat> findByCampaignIdOrderByCreatedAtDesc(UUID campaignId);
 }

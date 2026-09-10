@@ -25,10 +25,12 @@ import java.util.UUID;
  * La Mesa: preparar partidas. Misiones (carpetas), su guion (notas ordenadas)
  * y su material (imágenes y PDF).
  *
- * Todo es del DM que lo creó: cada consulta pasa por {@link #propia} o
- * {@link #propio}, que devuelven 403 si el recurso es de otro. El rol se
- * comprueba antes, en el controlador.
- */
+ * Todo cuelga de la CAMPAñA, no del móster que lo escribió. Antes bastaba con
+ * comparar el user_id; ahora cada consulta pasa por {@link #propia} o
+ * {@link #propio}, que devuelven 403 si el recurso es de otra mesa. Que quien
+ * pregunta dirige ESA campaña se comprueba antes, en el controlador
+ * (CampaignAccess.exigeDm). As el material de una partida no se cuela en otra
+ * aunque lo haya preparado la misma persona. */
 @Service
 @RequiredArgsConstructor
 public class MesaService {
@@ -48,36 +50,37 @@ public class MesaService {
     // ---------------------------------------------------------------- misiones
 
     @Transactional(readOnly = true)
-    public MesaView listar(UUID userId) {
-        return build(userId);
+    public MesaView listar(UUID campaignId) {
+        return build(campaignId);
     }
 
     @Transactional
-    public MissionDetail crear(UUID userId, MissionRequest r) {
+    public MissionDetail crear(UUID userId, UUID campaignId, MissionRequest r) {
         String titulo = r == null || r.title() == null ? "" : r.title().trim();
         if (titulo.isEmpty()) throw ApiException.badRequest("La misión necesita un título.");
 
         MesaMission m = new MesaMission();
         m.setUserId(userId);
+        m.setCampaignId(campaignId);
         m.setTitle(titulo);
         m.setSummary(texto(r.summary()));
         m.setStatus(estadoDe(r.status()));
         m.setTags(texto(r.tags()));
         m.setSessionDate(fechaDe(r.sessionDate()));
-        m.setOrdinal(siguienteOrdinal(userId));
+        m.setOrdinal(siguienteOrdinal(campaignId));
         misiones.save(m);
         return detalle(m);
     }
 
     @Transactional(readOnly = true)
-    public MissionDetail abrir(UUID userId, UUID misionId) {
-        return detalle(propia(userId, misionId));
+    public MissionDetail abrir(UUID campaignId, UUID misionId) {
+        return detalle(propia(campaignId, misionId));
     }
 
     /** Editar. Lo que llegue a null se deja como estaba. */
     @Transactional
-    public MissionDetail editar(UUID userId, UUID misionId, MissionRequest r) {
-        MesaMission m = propia(userId, misionId);
+    public MissionDetail editar(UUID campaignId, UUID misionId, MissionRequest r) {
+        MesaMission m = propia(campaignId, misionId);
         if (r != null) {
             if (r.title() != null && !r.title().isBlank()) m.setTitle(r.title().trim());
             if (r.summary() != null) m.setSummary(r.summary().trim());
@@ -85,7 +88,7 @@ public class MesaService {
             if (r.tags() != null) m.setTags(r.tags().trim());
             // La fecha se borra mandando "" (no null, que significa "no tocar").
             if (r.sessionDate() != null) m.setSessionDate(fechaDe(r.sessionDate()));
-            if (r.coverId() != null) m.setCoverId(portadaDe(userId, misionId, r.coverId()));
+            if (r.coverId() != null) m.setCoverId(portadaDe(campaignId, misionId, r.coverId()));
             m.setUpdatedAt(Instant.now());
         }
         return detalle(m);
@@ -96,21 +99,21 @@ public class MesaService {
      * biblioteca general, porque un mapa suele servir para otra partida.
      */
     @Transactional
-    public MesaView eliminar(UUID userId, UUID misionId) {
-        MesaMission m = propia(userId, misionId);
+    public MesaView eliminar(UUID campaignId, UUID misionId) {
+        MesaMission m = propia(campaignId, misionId);
         m.setCoverId(null);
         archivos.findByMissionIdOrderByCreatedAtAsc(misionId).forEach(a -> a.setMissionId(null));
         // El guion se va con ella por el ON DELETE CASCADE de la migración: no
         // lo borramos aquí para no pelearnos con el orden de flush de Hibernate.
         misiones.delete(m);
-        return build(userId);
+        return build(campaignId);
     }
 
     // ------------------------------------------------------------------- guion
 
     @Transactional
-    public MissionDetail anadirNota(UUID userId, UUID misionId, NoteRequest r) {
-        MesaMission m = propia(userId, misionId);
+    public MissionDetail anadirNota(UUID campaignId, UUID misionId, NoteRequest r) {
+        MesaMission m = propia(campaignId, misionId);
         MesaNote n = new MesaNote();
         n.setMissionId(misionId);
         n.setKind(tipoNotaDe(r == null ? null : r.kind()));
@@ -124,10 +127,10 @@ public class MesaService {
     }
 
     @Transactional
-    public MissionDetail editarNota(UUID userId, UUID notaId, NoteRequest r) {
+    public MissionDetail editarNota(UUID campaignId, UUID notaId, NoteRequest r) {
         MesaNote n = notas.findById(notaId)
                 .orElseThrow(() -> ApiException.notFound("No existe esa nota."));
-        MesaMission m = propia(userId, n.getMissionId());
+        MesaMission m = propia(campaignId, n.getMissionId());
         if (r != null) {
             if (r.kind() != null) n.setKind(tipoNotaDe(r.kind()));
             if (r.title() != null) n.setTitle(r.title().trim());
@@ -140,10 +143,10 @@ public class MesaService {
 
     /** Subir o bajar un paso del guion. {@code arriba} = hacia el principio. */
     @Transactional
-    public MissionDetail moverNota(UUID userId, UUID notaId, boolean arriba) {
+    public MissionDetail moverNota(UUID campaignId, UUID notaId, boolean arriba) {
         MesaNote n = notas.findById(notaId)
                 .orElseThrow(() -> ApiException.notFound("No existe esa nota."));
-        MesaMission m = propia(userId, n.getMissionId());
+        MesaMission m = propia(campaignId, n.getMissionId());
 
         List<MesaNote> lista = notas.findByMissionIdOrderByOrdinalAscCreatedAtAsc(n.getMissionId());
         int i = indiceDe(lista, notaId);
@@ -161,10 +164,10 @@ public class MesaService {
     }
 
     @Transactional
-    public MissionDetail quitarNota(UUID userId, UUID notaId) {
+    public MissionDetail quitarNota(UUID campaignId, UUID notaId) {
         MesaNote n = notas.findById(notaId)
                 .orElseThrow(() -> ApiException.notFound("No existe esa nota."));
-        MesaMission m = propia(userId, n.getMissionId());
+        MesaMission m = propia(campaignId, n.getMissionId());
         notas.delete(n);
         m.setUpdatedAt(Instant.now());
         return detalle(m);
@@ -174,8 +177,8 @@ public class MesaService {
 
     /** La biblioteca entera del DM: lo suyo esté o no asignado a una misión. */
     @Transactional(readOnly = true)
-    public List<AssetView> biblioteca(UUID userId) {
-        return archivos.findByUserIdOrderByCreatedAtDesc(userId).stream().map(this::vista).toList();
+    public List<AssetView> biblioteca(UUID campaignId) {
+        return archivos.findByCampaignIdOrderByCreatedAtDesc(campaignId).stream().map(this::vista).toList();
     }
 
     /**
@@ -183,10 +186,10 @@ public class MesaService {
      * si no, se queda en la biblioteca general.
      */
     @Transactional
-    public AssetView subir(UUID userId, MultipartFile file, String misionId, String titulo) {
+    public AssetView subir(UUID userId, UUID campaignId, MultipartFile file, String misionId, String titulo) {
         UUID mision = null;
         if (misionId != null && !misionId.isBlank()) {
-            mision = propia(userId, uuid(misionId, "misión")).getId();
+            mision = propia(campaignId, uuid(misionId, "misión")).getId();
         }
 
         String kind = armario.kindDe(file == null ? null : file.getContentType());
@@ -194,6 +197,7 @@ public class MesaService {
 
         MesaAsset a = new MesaAsset();
         a.setUserId(userId);
+        a.setCampaignId(campaignId);
         a.setMissionId(mision);
         a.setKind(kind);
         a.setFilename(nombreLimpio(file.getOriginalFilename()));
@@ -209,15 +213,15 @@ public class MesaService {
 
     /** Los bytes, para servirlos. Devuelve también el MIME y el nombre. */
     @Transactional(readOnly = true)
-    public Descarga descargar(UUID userId, UUID assetId) {
-        MesaAsset a = propio(userId, assetId);
+    public Descarga descargar(UUID campaignId, UUID assetId) {
+        MesaAsset a = propio(campaignId, assetId);
         return new Descarga(armario.leer(a.getStorageName()), a.getMime(), a.getFilename());
     }
 
     /** Renombrar o mover de misión. {@code misionId} vacío = a la biblioteca. */
     @Transactional
-    public AssetView editarArchivo(UUID userId, UUID assetId, AssetRequest r) {
-        MesaAsset a = propio(userId, assetId);
+    public AssetView editarArchivo(UUID campaignId, UUID assetId, AssetRequest r) {
+        MesaAsset a = propio(campaignId, assetId);
         if (r != null) {
             if (r.title() != null && !r.title().isBlank()) a.setTitle(r.title().trim());
             if (r.misionId() != null) {
@@ -225,7 +229,7 @@ public class MesaService {
                     soltarPortada(a);
                     a.setMissionId(null);
                 } else {
-                    UUID destino = propia(userId, uuid(r.misionId(), "misión")).getId();
+                    UUID destino = propia(campaignId, uuid(r.misionId(), "misión")).getId();
                     if (!destino.equals(a.getMissionId())) soltarPortada(a);
                     a.setMissionId(destino);
                 }
@@ -235,8 +239,8 @@ public class MesaService {
     }
 
     @Transactional
-    public void borrarArchivo(UUID userId, UUID assetId) {
-        MesaAsset a = propio(userId, assetId);
+    public void borrarArchivo(UUID campaignId, UUID assetId) {
+        MesaAsset a = propio(campaignId, assetId);
         soltarPortada(a);
         archivos.delete(a);
         armario.borrar(a.getStorageName());
@@ -252,10 +256,10 @@ public class MesaService {
      * para enseñar dónde. Vacío si la consulta es muy corta o no aparece.
      */
     @Transactional(readOnly = true)
-    public List<AssetHit> buscar(UUID userId, String q) {
+    public List<AssetHit> buscar(UUID campaignId, String q) {
         String aguja = PdfTexto.normalizar(q == null ? "" : q.trim());
         if (aguja.length() < 2) return List.of();
-        return archivos.findByUserIdAndKindOrderByCreatedAtDesc(userId, "pdf").stream()
+        return archivos.findByCampaignIdAndKindOrderByCreatedAtDesc(campaignId, "pdf").stream()
                 .map(a -> {
                     var c = PdfTexto.buscar(a.getTextContent(), aguja);
                     if (c == null) return null;
@@ -274,9 +278,9 @@ public class MesaService {
      * de que existiera la búsqueda por contenido). Devuelve cuántos se indexaron.
      */
     @Transactional
-    public int reindexar(UUID userId) {
+    public int reindexar(UUID campaignId) {
         int hechos = 0;
-        for (MesaAsset a : archivos.findByUserIdAndKindOrderByCreatedAtDesc(userId, "pdf")) {
+        for (MesaAsset a : archivos.findByCampaignIdAndKindOrderByCreatedAtDesc(campaignId, "pdf")) {
             if (!a.getTextContent().isBlank()) continue;
             try {
                 String texto = pdfTexto.extraer(armario.leer(a.getStorageName()));
@@ -290,8 +294,8 @@ public class MesaService {
 
     // ------------------------------------------------------------------ dentro
 
-    private MesaView build(UUID userId) {
-        List<MissionCard> tarjetas = misiones.findByUserIdOrderByOrdinalAscCreatedAtDesc(userId)
+    private MesaView build(UUID campaignId) {
+        List<MissionCard> tarjetas = misiones.findByCampaignIdOrderByOrdinalAscCreatedAtDesc(campaignId)
                 .stream()
                 .map(m -> {
                     var suyos = archivos.findByMissionIdOrderByCreatedAtAsc(m.getId());
@@ -344,9 +348,9 @@ public class MesaService {
     }
 
     /** La portada tiene que ser una imagen y estar en esa misma misión. */
-    private UUID portadaDe(UUID userId, UUID misionId, String coverId) {
+    private UUID portadaDe(UUID campaignId, UUID misionId, String coverId) {
         if (coverId.isBlank()) return null;
-        MesaAsset a = propio(userId, uuid(coverId, "archivo"));
+        MesaAsset a = propio(campaignId, uuid(coverId, "archivo"));
         if (!"imagen".equals(a.getKind()))
             throw ApiException.badRequest("La portada tiene que ser una imagen.");
         if (!misionId.equals(a.getMissionId()))
@@ -354,24 +358,24 @@ public class MesaService {
         return a.getId();
     }
 
-    private MesaMission propia(UUID userId, UUID misionId) {
+    private MesaMission propia(UUID campaignId, UUID misionId) {
         MesaMission m = misiones.findById(misionId)
                 .orElseThrow(() -> ApiException.notFound("No existe esa misión."));
-        if (!m.getUserId().equals(userId))
-            throw ApiException.forbidden("Esa misión no es tuya.");
+        if (!campaignId.equals(m.getCampaignId()))
+            throw ApiException.forbidden("Esa misión no es de esta campaña.");
         return m;
     }
 
-    private MesaAsset propio(UUID userId, UUID assetId) {
+    private MesaAsset propio(UUID campaignId, UUID assetId) {
         MesaAsset a = archivos.findById(assetId)
                 .orElseThrow(() -> ApiException.notFound("No existe ese archivo."));
-        if (!a.getUserId().equals(userId))
-            throw ApiException.forbidden("Ese archivo no es tuyo.");
+        if (!campaignId.equals(a.getCampaignId()))
+            throw ApiException.forbidden("Ese archivo no es de esta campaña.");
         return a;
     }
 
-    private int siguienteOrdinal(UUID userId) {
-        return misiones.findByUserIdOrderByOrdinalAscCreatedAtDesc(userId).stream()
+    private int siguienteOrdinal(UUID campaignId) {
+        return misiones.findByCampaignIdOrderByOrdinalAscCreatedAtDesc(campaignId).stream()
                 .mapToInt(MesaMission::getOrdinal).max().orElse(-1) + 1;
     }
 

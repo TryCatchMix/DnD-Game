@@ -44,8 +44,8 @@ public class CombatService {
     // ------------------------------------------------------------------ enemigos
 
     @Transactional(readOnly = true)
-    public List<EnemyView> enemigos(UUID userId) {
-        return enemies.findByUserIdOrderByNameAsc(userId).stream().map(this::toView).toList();
+    public List<EnemyView> enemigos(UUID campaignId) {
+        return enemies.findByCampaignIdOrderByNameAsc(campaignId).stream().map(this::toView).toList();
     }
 
     /**
@@ -56,7 +56,7 @@ public class CombatService {
      * del bloque del SRD, que es lo que ahorra el trabajo.
      */
     @Transactional
-    public EnemyView copiarDelBestiario(UUID userId, EnemyFromMonsterRequest req) {
+    public EnemyView copiarDelBestiario(UUID userId, UUID campaignId, EnemyFromMonsterRequest req) {
         if (req == null || req.monsterId() == null || req.monsterId().isBlank())
             throw ApiException.badRequest("Dime qué criatura quieres copiar.");
 
@@ -65,6 +65,7 @@ public class CombatService {
 
         MesaEnemy e = new MesaEnemy();
         e.setUserId(userId);
+        e.setCampaignId(campaignId);
         e.setMisionId(req.misionId() == null || req.misionId().isBlank()
                 ? null : uuid(req.misionId(), "misión"));
         e.setMonsterId(m.getId());
@@ -94,11 +95,12 @@ public class CombatService {
 
     /** Un enemigo inventado de cero. Solo el nombre es obligatorio. */
     @Transactional
-    public EnemyView crear(UUID userId, EnemyUpsertRequest req) {
+    public EnemyView crear(UUID userId, UUID campaignId, EnemyUpsertRequest req) {
         if (req == null || vacio(req.name()))
             throw ApiException.badRequest("El enemigo necesita un nombre.");
         MesaEnemy e = new MesaEnemy();
         e.setUserId(userId);
+        e.setCampaignId(campaignId);
         e.setName(req.name().trim());
         aplicar(e, req);
         enemies.save(e);
@@ -106,32 +108,33 @@ public class CombatService {
     }
 
     @Transactional
-    public EnemyView editar(UUID userId, UUID enemigoId, EnemyUpsertRequest req) {
-        MesaEnemy e = miEnemigo(userId, enemigoId);
+    public EnemyView editar(UUID campaignId, UUID enemigoId, EnemyUpsertRequest req) {
+        MesaEnemy e = miEnemigo(campaignId, enemigoId);
         if (!vacio(req.name())) e.setName(req.name().trim());
         aplicar(e, req);
         return toView(e);
     }
 
     @Transactional
-    public void borrar(UUID userId, UUID enemigoId) {
-        enemies.delete(miEnemigo(userId, enemigoId));
+    public void borrar(UUID campaignId, UUID enemigoId) {
+        enemies.delete(miEnemigo(campaignId, enemigoId));
     }
 
     // ------------------------------------------------------------------ combates
 
     @Transactional(readOnly = true)
-    public List<CombatSummary> combates(UUID userId) {
-        return combats.findByUserIdOrderByCreatedAtDesc(userId).stream()
+    public List<CombatSummary> combates(UUID campaignId) {
+        return combats.findByCampaignIdOrderByCreatedAtDesc(campaignId).stream()
                 .map(c -> new CombatSummary(c.getId().toString(), c.getTitle(), c.getRound(),
                         combatants.findByCombateIdOrderBySortOrdinalAsc(c.getId()).size()))
                 .toList();
     }
 
     @Transactional
-    public CombatView crearCombate(UUID userId, CombatCreateRequest req) {
+    public CombatView crearCombate(UUID userId, UUID campaignId, CombatCreateRequest req) {
         MesaCombat c = new MesaCombat();
         c.setUserId(userId);
+        c.setCampaignId(campaignId);
         c.setTitle(req == null || vacio(req.title()) ? "Combate" : req.title().trim());
         if (req != null && !vacio(req.misionId())) c.setMisionId(uuid(req.misionId(), "misión"));
         combats.save(c);
@@ -139,13 +142,13 @@ public class CombatService {
     }
 
     @Transactional(readOnly = true)
-    public CombatView combate(UUID userId, UUID combateId) {
-        return vista(miCombate(userId, combateId));
+    public CombatView combate(UUID campaignId, UUID combateId) {
+        return vista(miCombate(campaignId, combateId));
     }
 
     @Transactional
-    public void borrarCombate(UUID userId, UUID combateId) {
-        MesaCombat c = miCombate(userId, combateId);
+    public void borrarCombate(UUID campaignId, UUID combateId) {
+        MesaCombat c = miCombate(campaignId, combateId);
         combatants.deleteByCombateId(c.getId());
         combatants.flush();
         combats.delete(c);
@@ -156,9 +159,9 @@ public class CombatService {
      * ("Trasgo 1", "Trasgo 2"), que es como se distinguen en la mesa.
      */
     @Transactional
-    public CombatView anadirEnemigos(UUID userId, UUID combateId, AddEnemiesRequest req) {
-        MesaCombat c = miCombate(userId, combateId);
-        MesaEnemy e = miEnemigo(userId, uuid(req.enemigoId(), "enemigo"));
+    public CombatView anadirEnemigos(UUID campaignId, UUID combateId, AddEnemiesRequest req) {
+        MesaCombat c = miCombate(campaignId, combateId);
+        MesaEnemy e = miEnemigo(campaignId, uuid(req.enemigoId(), "enemigo"));
         int cuantos = req.count() == null ? 1 : Math.max(1, Math.min(20, req.count()));
 
         int orden = siguienteOrden(combateId);
@@ -180,10 +183,14 @@ public class CombatService {
 
     /** Meter un personaje del grupo. Sus PG y su CA se copian de la ficha. */
     @Transactional
-    public CombatView anadirPersonaje(UUID userId, UUID combateId, AddCharacterRequest req) {
-        MesaCombat c = miCombate(userId, combateId);
+    public CombatView anadirPersonaje(UUID campaignId, UUID combateId, AddCharacterRequest req) {
+        MesaCombat c = miCombate(campaignId, combateId);
         GameCharacter p = characters.findById(uuid(req.characterId(), "personaje"))
                 .orElseThrow(() -> ApiException.notFound("No existe ese personaje."));
+        // Solo el grupo de ESTA campaña entra en el combate: un personaje de
+        // otra mesa no pinta nada aqu, ni siquiera para el mismo mster.
+        if (!campaignId.equals(p.getCampaignId()))
+            throw ApiException.forbidden("Ese personaje no juega en esta campaña.");
 
         MesaCombatant k = new MesaCombatant();
         k.setCombateId(combateId);
@@ -200,8 +207,8 @@ public class CombatService {
 
     /** Alguien escrito a mano, sin plantilla: un guardia, un perro, lo que sea. */
     @Transactional
-    public CombatView anadirSuelto(UUID userId, UUID combateId, AddLooseRequest req) {
-        MesaCombat c = miCombate(userId, combateId);
+    public CombatView anadirSuelto(UUID campaignId, UUID combateId, AddLooseRequest req) {
+        MesaCombat c = miCombate(campaignId, combateId);
         if (req == null || vacio(req.name()))
             throw ApiException.badRequest("Ponle un nombre.");
 
@@ -225,8 +232,8 @@ public class CombatService {
      * suele tirar sus dados y cantarla.
      */
     @Transactional
-    public CombatView tirarIniciativa(UUID userId, UUID combateId, boolean incluirPersonajes) {
-        MesaCombat c = miCombate(userId, combateId);
+    public CombatView tirarIniciativa(UUID campaignId, UUID combateId, boolean incluirPersonajes) {
+        MesaCombat c = miCombate(campaignId, combateId);
         var rnd = ThreadLocalRandom.current();
 
         for (MesaCombatant k : combatants.findByCombateIdOrderBySortOrdinalAsc(combateId)) {
@@ -241,8 +248,8 @@ public class CombatService {
 
     /** Pasar al siguiente. Al dar la vuelta, sube el asalto. */
     @Transactional
-    public CombatView siguienteTurno(UUID userId, UUID combateId) {
-        MesaCombat c = miCombate(userId, combateId);
+    public CombatView siguienteTurno(UUID campaignId, UUID combateId) {
+        MesaCombat c = miCombate(campaignId, combateId);
         List<MesaCombatant> lista = combatants.findByCombateIdOrderBySortOrdinalAsc(combateId);
         if (lista.isEmpty()) return vista(c);
         if (c.getRound() == 0) { c.setRound(1); c.setTurnOrdinal(0); return vista(c); }
@@ -258,8 +265,8 @@ public class CombatService {
 
     /** Daño (negativo) o curación (positivo). No baja de 0 ni pasa del máximo. */
     @Transactional
-    public CombatView cambiarPg(UUID userId, UUID combateId, UUID combatantId, Integer delta) {
-        MesaCombat c = miCombate(userId, combateId);
+    public CombatView cambiarPg(UUID campaignId, UUID combateId, UUID combatantId, Integer delta) {
+        MesaCombat c = miCombate(campaignId, combateId);
         MesaCombatant k = combatiente(combateId, combatantId);
         int d = delta == null ? 0 : delta;
         int nuevo = Math.max(0, k.getHpCurrent() + d);
@@ -272,9 +279,9 @@ public class CombatService {
     }
 
     @Transactional
-    public CombatView editarCombatiente(UUID userId, UUID combateId, UUID combatantId,
+    public CombatView editarCombatiente(UUID campaignId, UUID combateId, UUID combatantId,
                                         CombatantEditRequest req) {
-        MesaCombat c = miCombate(userId, combateId);
+        MesaCombat c = miCombate(campaignId, combateId);
         MesaCombatant k = combatiente(combateId, combatantId);
         if (!vacio(req.name())) k.setName(req.name().trim());
         if (req.initiative() != null) k.setInitiative(req.initiative());
@@ -289,8 +296,8 @@ public class CombatService {
     }
 
     @Transactional
-    public CombatView quitarCombatiente(UUID userId, UUID combateId, UUID combatantId) {
-        MesaCombat c = miCombate(userId, combateId);
+    public CombatView quitarCombatiente(UUID campaignId, UUID combateId, UUID combatantId) {
+        MesaCombat c = miCombate(campaignId, combateId);
         combatants.delete(combatiente(combateId, combatantId));
         combatants.flush();
         ordenar(combateId);
@@ -379,19 +386,19 @@ public class CombatService {
         }
     }
 
-    private MesaEnemy miEnemigo(UUID userId, UUID enemigoId) {
+    private MesaEnemy miEnemigo(UUID campaignId, UUID enemigoId) {
         MesaEnemy e = enemies.findById(enemigoId)
                 .orElseThrow(() -> ApiException.notFound("Ese enemigo ya no está."));
-        if (!e.getUserId().equals(userId))
-            throw ApiException.forbidden("Ese enemigo no es tuyo.");
+        if (!campaignId.equals(e.getCampaignId()))
+            throw ApiException.forbidden("Ese enemigo no es de esta campaña.");
         return e;
     }
 
-    private MesaCombat miCombate(UUID userId, UUID combateId) {
+    private MesaCombat miCombate(UUID campaignId, UUID combateId) {
         MesaCombat c = combats.findById(combateId)
                 .orElseThrow(() -> ApiException.notFound("Ese combate ya no está."));
-        if (!c.getUserId().equals(userId))
-            throw ApiException.forbidden("Ese combate no es tuyo.");
+        if (!campaignId.equals(c.getCampaignId()))
+            throw ApiException.forbidden("Ese combate no es de esta campaña.");
         return c;
     }
 

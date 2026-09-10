@@ -2,6 +2,7 @@ package com.trycatchmix.archivos.web;
 
 import com.trycatchmix.archivos.error.ApiException;
 import com.trycatchmix.archivos.security.AuthPrincipal;
+import com.trycatchmix.archivos.service.CampaignAccess;
 import com.trycatchmix.archivos.service.MesaService;
 import com.trycatchmix.archivos.web.dto.MesaDtos.*;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,6 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,123 +20,142 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * La Mesa: el escritorio donde el DM prepara las partidas. Solo rol DM.
+ * La Mesa: el escritorio donde se prepara una campaña. Cuelga de la campaña
+ * porque lo que hay dentro es suyo: el guion, los mapas y los PDF de una
+ * partida no pintan nada en otra.
  *
- *   GET    /api/mesa/misiones                 -> rejilla de tarjetas
- *   POST   /api/mesa/misiones                 -> crear
- *   GET    /api/mesa/misiones/{id}            -> detalle (guion + material)
- *   PUT    /api/mesa/misiones/{id}            -> editar
- *   DELETE /api/mesa/misiones/{id}            -> borrar (el material se queda)
+ *   GET    …/mesa/misiones                 -> rejilla de tarjetas
+ *   POST   …/mesa/misiones                 -> crear
+ *   GET    …/mesa/misiones/{id}            -> detalle (guion + material)
+ *   PUT    …/mesa/misiones/{id}            -> editar
+ *   DELETE …/mesa/misiones/{id}            -> borrar (el material se queda)
  *
- *   POST   /api/mesa/misiones/{id}/notas      -> añadir paso al guion
- *   PUT    /api/mesa/notas/{id}               -> editar paso
- *   POST   /api/mesa/notas/{id}/mover?arriba= -> reordenar
- *   DELETE /api/mesa/notas/{id}               -> quitar paso
+ *   POST   …/mesa/misiones/{id}/notas      -> añadir paso al guion
+ *   PUT    …/mesa/notas/{id}               -> editar paso
+ *   POST   …/mesa/notas/{id}/mover?arriba= -> reordenar
+ *   DELETE …/mesa/notas/{id}               -> quitar paso
  *
- *   GET    /api/mesa/archivos                 -> la biblioteca entera
- *   POST   /api/mesa/archivos                 -> subir (multipart)
- *   GET    /api/mesa/archivos/{id}/contenido  -> los bytes
- *   PUT    /api/mesa/archivos/{id}            -> renombrar / mover de misión
- *   DELETE /api/mesa/archivos/{id}            -> borrar
+ *   GET    …/mesa/archivos                 -> la biblioteca entera
+ *   POST   …/mesa/archivos                 -> subir (multipart)
+ *   GET    …/mesa/archivos/{id}/contenido  -> los bytes
+ *   PUT    …/mesa/archivos/{id}            -> renombrar / mover de misión
+ *   DELETE …/mesa/archivos/{id}            -> borrar
+ *
+ * El permiso ya no es {@code hasRole('DM')} —eso hacía máster a alguien en
+ * todas las mesas a la vez—, sino dirigir ESTA campaña: cada método empieza
+ * por {@link #dm}, que resuelve la campaña y comprueba la membresía.
  *
  * Las operaciones sobre una misión devuelven el detalle entero ya actualizado,
  * como hace el bloc de notas: el frontend solo repinta.
  */
 @RestController
-@RequestMapping("/api/mesa")
-@PreAuthorize("hasRole('DM')")
+@RequestMapping("/api/campanas/{campanaId}/mesa")
 @RequiredArgsConstructor
 public class MesaController {
 
     private final MesaService mesa;
+    private final CampaignAccess access;
 
     // -------------------------------------------------------------- misiones
 
     @GetMapping("/misiones")
-    public MesaView listar(@AuthenticationPrincipal AuthPrincipal p) {
-        return mesa.listar(user(p));
+    public MesaView listar(@AuthenticationPrincipal AuthPrincipal p,
+                           @PathVariable UUID campanaId) {
+        return mesa.listar(dm(p, campanaId));
     }
 
     @PostMapping("/misiones")
     public MissionDetail crear(@AuthenticationPrincipal AuthPrincipal p,
+                               @PathVariable UUID campanaId,
                                @RequestBody MissionRequest req) {
-        return mesa.crear(user(p), req);
+        return mesa.crear(user(p), dm(p, campanaId), req);
     }
 
     @GetMapping("/misiones/{misionId}")
     public MissionDetail abrir(@AuthenticationPrincipal AuthPrincipal p,
+                               @PathVariable UUID campanaId,
                                @PathVariable UUID misionId) {
-        return mesa.abrir(user(p), misionId);
+        return mesa.abrir(dm(p, campanaId), misionId);
     }
 
     @PutMapping("/misiones/{misionId}")
     public MissionDetail editar(@AuthenticationPrincipal AuthPrincipal p,
+                                @PathVariable UUID campanaId,
                                 @PathVariable UUID misionId,
                                 @RequestBody MissionRequest req) {
-        return mesa.editar(user(p), misionId, req);
+        return mesa.editar(dm(p, campanaId), misionId, req);
     }
 
     @DeleteMapping("/misiones/{misionId}")
     public MesaView eliminar(@AuthenticationPrincipal AuthPrincipal p,
+                             @PathVariable UUID campanaId,
                              @PathVariable UUID misionId) {
-        return mesa.eliminar(user(p), misionId);
+        return mesa.eliminar(dm(p, campanaId), misionId);
     }
 
     // ----------------------------------------------------------------- guion
 
     @PostMapping("/misiones/{misionId}/notas")
     public MissionDetail anadirNota(@AuthenticationPrincipal AuthPrincipal p,
+                                    @PathVariable UUID campanaId,
                                     @PathVariable UUID misionId,
                                     @RequestBody NoteRequest req) {
-        return mesa.anadirNota(user(p), misionId, req);
+        return mesa.anadirNota(dm(p, campanaId), misionId, req);
     }
 
     @PutMapping("/notas/{notaId}")
     public MissionDetail editarNota(@AuthenticationPrincipal AuthPrincipal p,
+                                    @PathVariable UUID campanaId,
                                     @PathVariable UUID notaId,
                                     @RequestBody NoteRequest req) {
-        return mesa.editarNota(user(p), notaId, req);
+        return mesa.editarNota(dm(p, campanaId), notaId, req);
     }
 
     @PostMapping("/notas/{notaId}/mover")
     public MissionDetail moverNota(@AuthenticationPrincipal AuthPrincipal p,
+                                   @PathVariable UUID campanaId,
                                    @PathVariable UUID notaId,
                                    @RequestParam(defaultValue = "true") boolean arriba) {
-        return mesa.moverNota(user(p), notaId, arriba);
+        return mesa.moverNota(dm(p, campanaId), notaId, arriba);
     }
 
     @DeleteMapping("/notas/{notaId}")
     public MissionDetail quitarNota(@AuthenticationPrincipal AuthPrincipal p,
+                                    @PathVariable UUID campanaId,
                                     @PathVariable UUID notaId) {
-        return mesa.quitarNota(user(p), notaId);
+        return mesa.quitarNota(dm(p, campanaId), notaId);
     }
 
     // -------------------------------------------------------------- material
 
     @GetMapping("/archivos")
-    public List<AssetView> biblioteca(@AuthenticationPrincipal AuthPrincipal p) {
-        return mesa.biblioteca(user(p));
+    public List<AssetView> biblioteca(@AuthenticationPrincipal AuthPrincipal p,
+                                      @PathVariable UUID campanaId) {
+        return mesa.biblioteca(dm(p, campanaId));
     }
 
     /** Buscar dentro del texto de los PDF, no solo por el título. */
     @GetMapping("/buscar")
     public List<AssetHit> buscar(@AuthenticationPrincipal AuthPrincipal p,
+                                 @PathVariable UUID campanaId,
                                  @RequestParam(defaultValue = "") String q) {
-        return mesa.buscar(user(p), q);
+        return mesa.buscar(dm(p, campanaId), q);
     }
 
     /** Indexar los PDF viejos que se subieron antes de la búsqueda por contenido. */
     @PostMapping("/archivos/reindexar")
-    public int reindexar(@AuthenticationPrincipal AuthPrincipal p) {
-        return mesa.reindexar(user(p));
+    public int reindexar(@AuthenticationPrincipal AuthPrincipal p,
+                         @PathVariable UUID campanaId) {
+        return mesa.reindexar(dm(p, campanaId));
     }
 
     @PostMapping(value = "/archivos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public AssetView subir(@AuthenticationPrincipal AuthPrincipal p,
+                           @PathVariable UUID campanaId,
                            @RequestPart("archivo") MultipartFile archivo,
                            @RequestParam(required = false) String misionId,
                            @RequestParam(required = false) String titulo) {
-        return mesa.subir(user(p), archivo, misionId, titulo);
+        return mesa.subir(user(p), dm(p, campanaId), archivo, misionId, titulo);
     }
 
     /**
@@ -146,8 +165,9 @@ public class MesaController {
      */
     @GetMapping("/archivos/{assetId}/contenido")
     public ResponseEntity<Resource> contenido(@AuthenticationPrincipal AuthPrincipal p,
+                                              @PathVariable UUID campanaId,
                                               @PathVariable UUID assetId) {
-        var d = mesa.descargar(user(p), assetId);
+        var d = mesa.descargar(dm(p, campanaId), assetId);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(d.mime()))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
@@ -158,20 +178,27 @@ public class MesaController {
 
     @PutMapping("/archivos/{assetId}")
     public AssetView editarArchivo(@AuthenticationPrincipal AuthPrincipal p,
+                                   @PathVariable UUID campanaId,
                                    @PathVariable UUID assetId,
                                    @RequestBody AssetRequest req) {
-        return mesa.editarArchivo(user(p), assetId, req);
+        return mesa.editarArchivo(dm(p, campanaId), assetId, req);
     }
 
     @DeleteMapping("/archivos/{assetId}")
     public ResponseEntity<Void> borrarArchivo(@AuthenticationPrincipal AuthPrincipal p,
+                                              @PathVariable UUID campanaId,
                                               @PathVariable UUID assetId) {
-        mesa.borrarArchivo(user(p), assetId);
+        mesa.borrarArchivo(dm(p, campanaId), assetId);
         return ResponseEntity.noContent().build();
     }
 
     private UUID user(AuthPrincipal p) {
         if (p == null) throw ApiException.sessionExpired();
         return p.userId();
+    }
+
+    /** La campaña, tras comprobar que quien pregunta la dirige. */
+    private UUID dm(AuthPrincipal p, UUID campanaId) {
+        return access.exigeDm(user(p), campanaId).getId();
     }
 }

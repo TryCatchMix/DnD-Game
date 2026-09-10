@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MesaEnemyRepository extends JpaRepository<MesaEnemy, UUID> {
-    List<MesaEnemy> findByUserIdOrderByNameAsc(UUID userId);
+    List<MesaEnemy> findByCampaignIdOrderByNameAsc(UUID campaignId);
     List<MesaEnemy> findByMisionIdOrderByNameAsc(UUID misionId);
 }
