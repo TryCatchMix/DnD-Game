@@ -154,27 +154,28 @@ export class JuegoService {
   }
 
   // --- Bloc de notas ---
-  // Cuelgan de /api/notas, no del personaje: son del jugador. Todas devuelven
-  // el bloc entero ya actualizado.
+  // Cuelgan de la campaña, no del personaje: el bloc sigue siendo tuyo y el
+  // máster no lo lee, pero cada partida tiene el suyo. Todas devuelven el bloc
+  // entero ya actualizado.
 
-  notas(): Observable<Notes> {
-    return this.http.get<Notes>('/api/notas');
+  notas(campanaId: string): Observable<Notes> {
+    return this.http.get<Notes>(`/api/campanas/${campanaId}/notas`);
   }
 
-  crearNota(nota: NoteRequest): Observable<Notes> {
-    return this.http.post<Notes>('/api/notas', nota);
+  crearNota(campanaId: string, nota: NoteRequest): Observable<Notes> {
+    return this.http.post<Notes>(`/api/campanas/${campanaId}/notas`, nota);
   }
 
-  editarNota(noteId: string, nota: NoteRequest): Observable<Notes> {
-    return this.http.put<Notes>(`/api/notas/${noteId}`, nota);
+  editarNota(campanaId: string, noteId: string, nota: NoteRequest): Observable<Notes> {
+    return this.http.put<Notes>(`/api/campanas/${campanaId}/notas/${noteId}`, nota);
   }
 
-  fijarNota(noteId: string): Observable<Notes> {
-    return this.http.post<Notes>(`/api/notas/${noteId}/fijar`, {});
+  fijarNota(campanaId: string, noteId: string): Observable<Notes> {
+    return this.http.post<Notes>(`/api/campanas/${campanaId}/notas/${noteId}/fijar`, {});
   }
 
-  eliminarNota(noteId: string): Observable<Notes> {
-    return this.http.delete<Notes>(`/api/notas/${noteId}`);
+  eliminarNota(campanaId: string, noteId: string): Observable<Notes> {
+    return this.http.delete<Notes>(`/api/campanas/${campanaId}/notas/${noteId}`);
   }
 
   // --- Trasfondo (la historia del personaje) ---

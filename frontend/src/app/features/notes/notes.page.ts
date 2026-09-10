@@ -1,7 +1,10 @@
 import { Component, ElementRef, computed, inject, input, signal, viewChild, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { RouterLink } from '@angular/router';
+
 import { JuegoService } from '../../core/game.service';
+import { CampanasService } from '../../core/campaign.service';
 import { Note } from '../../core/api.types';
 import { NavBar } from '../../shared/nav';
 
@@ -18,7 +21,7 @@ interface Edicion { id: string; category: string; title: string; body: string; }
  */
 @Component({
   selector: 'arc-notas',
-  imports: [NavBar, FormsModule],
+  imports: [NavBar, FormsModule, RouterLink],
   template: `
     <arc-nav [personajeId]="personajeId()" />
 
@@ -27,8 +30,21 @@ interface Edicion { id: string; category: string; title: string; body: string; }
         <p class="rotulo">Cuaderno de campo · Los Archivos</p>
         <h1>Bloc de notas</h1>
         <p class="intro">Apunta nombres, lugares y lo que no quieras olvidar.
-          Es tuyo: no cambia al cambiar de personaje.</p>
+          Es tuyo y de esta campaña: lo comparten todos tus personajes de la mesa,
+          y el máster no lo lee.</p>
       </header>
+
+      @if (sinCampana()) {
+        <div class="hoja alta">
+          <p class="estado">
+            Este personaje no está en ninguna campaña, así que no tiene cuaderno:
+            las notas son de una mesa concreta.
+          </p>
+          <div class="alta-acc">
+            <a class="boton boton--lacre" routerLink="/campanas">Unirse a una campaña</a>
+          </div>
+        </div>
+      } @else {
 
       <!-- ---------- añadir ---------- -->
       <div class="hoja alta">
@@ -123,6 +139,8 @@ interface Edicion { id: string; category: string; title: string; body: string; }
           </ul>
         }
       }
+
+      }
     </div>
   `,
   styles: `
@@ -196,6 +214,12 @@ export class NotasPage implements OnInit {
   readonly personajeId = input.required<string>();
 
   private readonly juego = inject(JuegoService);
+  private readonly campanas = inject(CampanasService);
+
+  /** La campaña del personaje que hay en la URL. El bloc es tuyo, pero cada
+   *  mesa tiene el suyo, así que sin campaña no hay cuaderno que abrir. */
+  private readonly campanaId = signal<string | null>(null);
+  readonly sinCampana = signal(false);
 
   readonly notas = signal<Note[]>([]);
   readonly categorias = signal<string[]>([]);
@@ -230,10 +254,26 @@ export class NotasPage implements OnInit {
       .filter(n => q === '' || norm(n.title).includes(q) || norm(n.body).includes(q));
   });
 
-  ngOnInit(): void { this.cargar(); }
+  ngOnInit(): void {
+    // Primero hay que saber en qué mesa juega este personaje: la URL lleva el
+    // personaje, pero el bloc cuelga de la campaña.
+    this.campanas.contextoDe(this.personajeId()).subscribe({
+      next: c => {
+        if (!c.campaignId) { this.cargando.set(false); this.sinCampana.set(true); return; }
+        this.campanaId.set(c.campaignId);
+        this.cargar();
+      },
+      error: () => {
+        this.cargando.set(false);
+        this.error.set('No se ha podido saber en qué campaña juega este personaje.');
+      },
+    });
+  }
 
   private cargar(): void {
-    this.juego.notas().subscribe({
+    const campana = this.campanaId();
+    if (!campana) return;
+    this.juego.notas(campana).subscribe({
       next: r => {
         this.notas.set(r.notes);
         this.categorias.set(r.categories);
@@ -254,7 +294,8 @@ export class NotasPage implements OnInit {
     if (!title || this.guardando()) return;
     this.guardando.set(true);
     this.error.set(null);
-    this.juego.crearNota({ title, category: this.nuevaCat(), body: this.nuevoCuerpo().trim() })
+    this.juego.crearNota(this.campana(),
+        { title, category: this.nuevaCat(), body: this.nuevoCuerpo().trim() })
       .subscribe({
         next: r => {
           this.aplicar(r);
@@ -283,7 +324,8 @@ export class NotasPage implements OnInit {
     const e = this.edicion();
     if (!e || !e.title.trim()) return;
     this.error.set(null);
-    this.juego.editarNota(e.id, { title: e.title.trim(), category: e.category, body: e.body })
+    this.juego.editarNota(this.campana(), e.id,
+        { title: e.title.trim(), category: e.category, body: e.body })
       .subscribe({
         next: r => { this.aplicar(r); this.edicion.set(null); },
         error: err => this.error.set(err?.error?.message ?? 'No se han podido guardar los cambios.'),
@@ -293,18 +335,22 @@ export class NotasPage implements OnInit {
   cancelar(): void { this.edicion.set(null); }
 
   fijar(n: Note): void {
-    this.juego.fijarNota(n.id).subscribe({
+    this.juego.fijarNota(this.campana(), n.id).subscribe({
       next: r => this.aplicar(r),
       error: () => this.error.set('No se ha podido fijar la nota.'),
     });
   }
 
   eliminar(n: Note): void {
-    this.juego.eliminarNota(n.id).subscribe({
+    this.juego.eliminarNota(this.campana(), n.id).subscribe({
       next: r => this.aplicar(r),
       error: () => this.error.set('No se ha podido borrar la nota.'),
     });
   }
+
+  /** La campaña ya resuelta. Los botones no existen hasta que hay bloc, así
+   *  que aquí siempre la hay; el '' es solo para no arrastrar un null. */
+  private campana(): string { return this.campanaId() ?? ''; }
 
   /** "6 ago 2026" a partir del ISO que manda el backend. */
   fecha(iso: string): string {

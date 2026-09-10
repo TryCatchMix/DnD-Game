@@ -27,17 +27,18 @@ public class NoteService {
             List.of("Persona", "Lugar", "Facción", "Objeto", "Suceso", "Otro");
 
     @Transactional(readOnly = true)
-    public NotesView listar(UUID userId) {
-        return build(userId);
+    public NotesView listar(UUID campaignId, UUID userId) {
+        return build(campaignId, userId);
     }
 
     @Transactional
-    public NotesView crear(UUID userId, NoteRequest r) {
+    public NotesView crear(UUID campaignId, UUID userId, NoteRequest r) {
         String titulo = r == null || r.title() == null ? "" : r.title().trim();
         if (titulo.isEmpty()) throw ApiException.conflict("La nota necesita un nombre.");
 
         Note n = new Note();
         n.setUserId(userId);
+        n.setCampaignId(campaignId);
         n.setTitle(titulo);
         n.setCategory(categoriaDe(r.category()));
         n.setBody(r.body() == null ? "" : r.body().trim());
@@ -45,13 +46,13 @@ public class NoteService {
         n.setCreatedAt(Instant.now());
         n.setUpdatedAt(Instant.now());
         notes.save(n);
-        return build(userId);
+        return build(campaignId, userId);
     }
 
     /** Editar. Lo que llegue a null se deja como estaba. */
     @Transactional
-    public NotesView editar(UUID userId, UUID noteId, NoteRequest r) {
-        Note n = propia(userId, noteId);
+    public NotesView editar(UUID campaignId, UUID userId, UUID noteId, NoteRequest r) {
+        Note n = propia(campaignId, userId, noteId);
         if (r != null) {
             if (r.title() != null && !r.title().isBlank()) n.setTitle(r.title().trim());
             if (r.category() != null) n.setCategory(categoriaDe(r.category()));
@@ -59,28 +60,28 @@ public class NoteService {
             if (r.pinned() != null) n.setPinned(r.pinned());
             n.setUpdatedAt(Instant.now());
         }
-        return build(userId);
+        return build(campaignId, userId);
     }
 
     /** Fijar o soltar, sin tener que mandar el resto de la nota. */
     @Transactional
-    public NotesView fijar(UUID userId, UUID noteId) {
-        Note n = propia(userId, noteId);
+    public NotesView fijar(UUID campaignId, UUID userId, UUID noteId) {
+        Note n = propia(campaignId, userId, noteId);
         n.setPinned(!n.isPinned());
         n.setUpdatedAt(Instant.now());
-        return build(userId);
+        return build(campaignId, userId);
     }
 
     @Transactional
-    public NotesView eliminar(UUID userId, UUID noteId) {
-        notes.delete(propia(userId, noteId));
-        return build(userId);
+    public NotesView eliminar(UUID campaignId, UUID userId, UUID noteId) {
+        notes.delete(propia(campaignId, userId, noteId));
+        return build(campaignId, userId);
     }
 
     // ------------------------------------------------------------------------
 
-    private NotesView build(UUID userId) {
-        List<NoteView> vistas = notes.findByUserIdOrderByPinnedDescTitleAsc(userId).stream()
+    private NotesView build(UUID campaignId, UUID userId) {
+        List<NoteView> vistas = notes.findByCampaignIdAndUserIdOrderByPinnedDescTitleAsc(campaignId, userId).stream()
                 .map(n -> new NoteView(
                         n.getId().toString(), n.getCategory(), n.getTitle(),
                         n.getBody(), n.isPinned(),
@@ -93,10 +94,10 @@ public class NoteService {
         return c == null || c.isBlank() ? "Otro" : c.trim();
     }
 
-    private Note propia(UUID userId, UUID noteId) {
+    private Note propia(UUID campaignId, UUID userId, UUID noteId) {
         Note n = notes.findById(noteId)
                 .orElseThrow(() -> ApiException.notFound("No existe esa nota."));
-        if (!n.getUserId().equals(userId))
+        if (!n.getUserId().equals(userId) || !campaignId.equals(n.getCampaignId()))
             throw ApiException.forbidden("Esa nota no es tuya.");
         return n;
     }
