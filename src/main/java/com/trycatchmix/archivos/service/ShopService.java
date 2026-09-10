@@ -19,39 +19,44 @@ import java.util.UUID;
 /**
  * La tienda: ver lo que hay a la venta, comprar y vender.
  *
- * DOS DECISIONES QUE CONVIENE TENER PRESENTES:
+ * TRES DECISIONES QUE CONVIENE TENER PRESENTES:
  *
- * 1. El mostrador es ÚNICO. Antes las ofertas se filtraban por la ciudad del
- *    personaje (`shop_offers.location`), y bastaba con que la ubicación de su
- *    ficha dijera "Llanuras de Dorakan" en vez de "Dorakan" para quedarse sin
- *    tienda sin saber por qué. Hoy se ven todas las ofertas vengan de donde
- *    vengan; la columna `location` sigue ahí por si algún día vuelven las
- *    tiendas por ciudad.
+ * 1. CADA CAMPAÃ‘A TIENE SU MOSTRADOR. Las ofertas cuelgan de la campaÃ±a del
+ *    personaje, asÃ­ que lo que un mÃ¡ster pone a la venta se ve en su mesa y en
+ *    ninguna otra. Una campaÃ±a reciÃ©n creada nace con el surtido base copiado
+ *    (ver CampaignService), para que haya algo que comprar el primer dÃ­a.
  *
- * 2. El DM entra en la tienda de CUALQUIER personaje, como ya entraba en su
- *    ficha. No es un privilegio nuevo: el máster ya puede editar a mano el
- *    monedero y la bolsa desde la ficha, así que impedirle comprar solo añadía
- *    fricción, y era lo que hacía que al máster le saltara «no se ha podido
- *    abrir la tienda» en los personajes de sus jugadores.
+ * 2. DENTRO DE UNA CAMPAÃ‘A EL MOSTRADOR ES ÃšNICO. Antes las ofertas se
+ *    filtraban ademÃ¡s por la ciudad del personaje (`shop_offers.location`), y
+ *    bastaba con que la ficha dijera "Llanuras de Dorakan" en vez de "Dorakan"
+ *    para quedarse sin tienda sin saber por quÃ©. La columna `location` sigue
+ *    ahÃ­ por si algÃºn dÃ­a vuelven las tiendas por ciudad, pero no se filtra.
+ *
+ * 3. UN PERSONAJE SIN CAMPAÃ‘A NO TIENE TIENDA. No hay mostrador que enseÃ±arle
+ *    porque no hay mesa: el error lo da CampaignAccess y dice que se una a una.
+ *
+ * El catÃ¡logo de objetos (`items`) sÃ­ es comÃºn a todo el mundo: es la lista de
+ * quÃ© existe, no de quÃ© se vende. Y el mÃ¡ster entra en la tienda de cualquier
+ * personaje de SU campaÃ±a, como ya entraba en su ficha.
  */
 @Service
 @RequiredArgsConstructor
 public class ShopService {
 
-    private final GameCharacterRepository characters;
     private final ItemRepository items;
     private final ShopOfferRepository offers;
     private final InventoryRepository inventory;
+    private final CampaignAccess access;
 
     @Transactional(readOnly = true)
-    public ShopView tienda(UUID userId, UUID charId, boolean admin) {
-        return build(accessibleCharacter(userId, charId, admin));
+    public ShopView tienda(UUID userId, UUID charId) {
+        return build(access.exigePersonaje(userId, charId));
     }
 
     @Transactional
-    public ShopView comprar(UUID userId, UUID charId, boolean admin, String itemCode) {
-        GameCharacter c = accessibleCharacter(userId, charId, admin);
-        ShopOffer offer = ofertaDe(itemCode)
+    public ShopView comprar(UUID userId, UUID charId, String itemCode) {
+        GameCharacter c = access.exigePersonaje(userId, charId);
+        ShopOffer offer = ofertaDe(access.exigeCampanaDe(c), itemCode)
                 .orElseThrow(() -> ApiException.notFound("Ese objeto no está a la venta."));
 
         if (offer.getStock() == 0)
@@ -82,8 +87,9 @@ public class ShopService {
     }
 
     @Transactional
-    public ShopView vender(UUID userId, UUID charId, boolean admin, String itemCode) {
-        GameCharacter c = accessibleCharacter(userId, charId, admin);
+    public ShopView vender(UUID userId, UUID charId, String itemCode) {
+        GameCharacter c = access.exigePersonaje(userId, charId);
+        access.exigeCampanaDe(c);
         InventoryEntry entry = inventory.findByCharacterIdAndItemCode(charId, itemCode)
                 .filter(e -> e.getQuantity() > 0)
                 .orElseThrow(() -> ApiException.conflict("No llevas ese objeto."));
@@ -107,8 +113,9 @@ public class ShopService {
      *  existe en el catálogo, se crea; si ya había una oferta para ese objeto
      *  en la ciudad, se actualiza (precio y stock). Devuelve la tienda repintada. */
     @Transactional
-    public ShopView crearOferta(UUID charId, ShopOfferCreateRequest req) {
-        GameCharacter c = characterById(charId);
+    public ShopView crearOferta(UUID userId, UUID charId, ShopOfferCreateRequest req) {
+        GameCharacter c = maestroDe(userId, charId);
+        UUID campaignId = c.getCampaignId();
         if (req == null || req.name() == null || req.name().isBlank())
             throw ApiException.conflict("Ponle un nombre al objeto.");
 
@@ -133,7 +140,8 @@ public class ShopService {
 
         // Una oferta por objeto, no una por ciudad: si ya estaba puesta se
         // actualiza (precio y stock) en vez de aparecer dos veces en la vitrina.
-        ShopOffer offer = ofertaDe(code).orElseGet(ShopOffer::new);
+        ShopOffer offer = ofertaDe(campaignId, code).orElseGet(ShopOffer::new);
+        offer.setCampaignId(campaignId);
         if (offer.getLocation() == null) offer.setLocation(c.getCity());
         offer.setItemCode(code);
         offer.setPriceCp(priceCp);
@@ -146,9 +154,9 @@ public class ShopService {
     /** El DM retira una oferta del mostrador. El objeto sigue en el catálogo
      *  (por si alguien ya lo compró): solo desaparece de la vitrina. */
     @Transactional
-    public ShopView quitarOferta(UUID charId, String itemCode) {
-        GameCharacter c = characterById(charId);
-        offers.deleteAll(offers.findByItemCode(itemCode));
+    public ShopView quitarOferta(UUID userId, UUID charId, String itemCode) {
+        GameCharacter c = maestroDe(userId, charId);
+        offers.deleteAll(offers.findByCampaignIdAndItemCode(c.getCampaignId(), itemCode));
         return build(c);
     }
 
@@ -165,7 +173,7 @@ public class ShopService {
 
     private ShopView build(GameCharacter c) {
         List<ShopOfferView> offerViews = new ArrayList<>();
-        for (ShopOffer o : offers.findAllByOrderByPriceCpAsc()) {
+        for (ShopOffer o : offers.findByCampaignIdOrderByPriceCpAsc(access.exigeCampanaDe(c))) {
             items.findById(o.getItemCode()).ifPresent(item -> offerViews.add(new ShopOfferView(
                     item.getCode(), item.getName(), item.getDescription(), item.getCategory(),
                     o.getPriceCp(), Money.format(o.getPriceCp()),
@@ -192,22 +200,17 @@ public class ShopService {
 
     /** La oferta de un objeto. Si quedaran restos de la época de tiendas por
      *  ciudad (el mismo objeto puesto en dos sitios), vale la primera. */
-    private Optional<ShopOffer> ofertaDe(String itemCode) {
-        return offers.findByItemCode(itemCode).stream().findFirst();
+    private Optional<ShopOffer> ofertaDe(UUID campaignId, String itemCode) {
+        return offers.findByCampaignIdAndItemCode(campaignId, itemCode).stream().findFirst();
     }
 
-    /** Solo por id (sin comprobar dueño): las rutas que lo usan son del DM. */
-    private GameCharacter characterById(UUID charId) {
-        return characters.findById(charId)
-                .orElseThrow(() -> ApiException.notFound("No existe ese personaje."));
-    }
-
-    /** El dueño, o el DM sobre cualquiera (mismo criterio que la ficha). */
-    private GameCharacter accessibleCharacter(UUID userId, UUID charId, boolean admin) {
-        GameCharacter c = characters.findById(charId)
-                .orElseThrow(() -> ApiException.notFound("No existe ese personaje."));
-        if (!admin && !c.getUserId().equals(userId))
-            throw ApiException.forbidden("Ese personaje no es tuyo.");
+    /**
+     * El personaje visto por el mÃ¡ster de SU campaÃ±a. Poner precios y retirar
+     * gÃ©nero es cosa del DM de esa mesa; el rol de la cuenta ya no basta.
+     */
+    private GameCharacter maestroDe(UUID userId, UUID charId) {
+        GameCharacter c = access.personaje(charId);
+        access.exigeDm(userId, access.exigeCampanaDe(c));
         return c;
     }
 }

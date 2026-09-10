@@ -9,20 +9,20 @@ import java.util.UUID;
 public interface ShopOfferRepository extends JpaRepository<ShopOffer, UUID> {
 
     /**
-     * El mostrador entero. Por ahora la tienda es ÚNICA: da igual dónde esté el
-     * personaje, ve lo mismo. La columna `location` sigue en la tabla (y en las
-     * ofertas sembradas pone 'Dorakan') para poder volver a tiendas por ciudad
-     * el día que haga falta, pero hoy no se filtra por ella.
+     * El mostrador de una campaña. Dentro de ella la tienda sigue siendo ÚNICA:
+     * da igual en qué ciudad esté el personaje, ve lo mismo. La columna
+     * `location` sigue en la tabla por si algún día vuelven las tiendas por
+     * ciudad, pero hoy no se filtra por ella.
      */
-    List<ShopOffer> findAllByOrderByPriceCpAsc();
+    List<ShopOffer> findByCampaignIdOrderByPriceCpAsc(UUID campaignId);
 
-    /** Todas las ofertas de un objeto, sea cual sea la ciudad donde se pusiera. */
-    List<ShopOffer> findByItemCode(String itemCode);
+    /** La oferta de un objeto en esa campaña. */
+    List<ShopOffer> findByCampaignIdAndItemCode(UUID campaignId, String itemCode);
 
     /**
      * El SURTIDO BASE: las filas sin campaña que dejó la migración V28. No se
      * enseña en ninguna tienda; es de donde se copia el mostrador de una
-     * campaña recién creada, para que no nazca con la vitrina vacía.
+     * campaña recién creada.
      */
     List<ShopOffer> findByCampaignIdIsNull();
 }

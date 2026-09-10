@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, computed, inject, input, signal } from '@angular/core';
 import { InventoryItem, Shop, ShopOffer } from '../../core/api.types';
 
-import { AuthService } from '../../core/auth.service';
+import { CampanasService } from '../../core/campaign.service';
 import { FormsModule } from '@angular/forms';
 import { JuegoService } from '../../core/game.service';
 import { KgPipe } from '../../shared/weight.pipe';
@@ -832,7 +832,7 @@ export class ShopPage implements OnInit, OnDestroy {
   readonly personajeId = input.required<string>();
 
   private readonly juego = inject(JuegoService);
-  private readonly auth = inject(AuthService);
+  private readonly campanas = inject(CampanasService);
   private readonly router = inject(Router);
 
   readonly tienda = signal<Shop | null>(null);
@@ -841,8 +841,13 @@ export class ShopPage implements OnInit, OnDestroy {
   /** itemCode de la compra/venta en curso, para desactivar su botón. */
   readonly ocupado = signal<string | null>(null);
 
-  /** Solo el DM ve la trastienda y los botones de quitar. */
-  readonly esDM = computed(() => this.auth.rol() === 'DM');
+  /**
+   * Solo el máster ve la trastienda y los botones de quitar. Y máster es serlo
+   * DE ESTA CAMPAÑA: el mostrador que se está tocando es el de la mesa en la
+   * que juega este personaje, no el de todas.
+   */
+  readonly esDM = computed(
+    () => this.campanas.contexto(this.personajeId())()?.dm ?? false);
 
   // --- la escena del tendero ---
 
@@ -972,9 +977,12 @@ export class ShopPage implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.juego.tienda(this.personajeId()).subscribe({
       next: t => { this.tienda.set(t); this.cargando.set(false); },
-      error: () => {
+      // El backend explica el motivo cuando lo sabe: lo más común es que el
+      // personaje no esté en ninguna campaña, y entonces no hay tienda que
+      // abrirle. Ese mensaje dice qué hacer; el genérico, no.
+      error: err => {
         this.cargando.set(false);
-        this.error.set('No se ha podido abrir la tienda.');
+        this.error.set(err?.error?.message ?? 'No se ha podido abrir la tienda.');
       },
     });
 
