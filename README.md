@@ -73,7 +73,7 @@ cd frontend && npm run check   # compila y valida plantillas (strictTemplates)
 |---|---|
 | **Campañas** | Crear una mesa, repartir su código y unir personajes (`/campanas`, `/api/campanas/**`) |
 | **Personajes** | Elegir, crear (`/personajes/nuevo`), borrar (con confirmación) y ficha D&D 3.5 completa y editable |
-| **Tienda** | Un mostrador **por campaña** (dentro de ella no depende de la ciudad); panel del máster para poner cosas a la venta |
+| **Tienda** | Un mostrador **por campaña** (dentro de ella no depende de la ciudad); catálogo del SRD 3.5 con precios de manual (equipo, armas y armaduras, pociones, pergaminos, varitas y objetos maravillosos); panel del máster para poner cosas a la venta |
 | **Crónica del clan** | Memoria compartida del mundo, común a todas las campañas; quien dirija alguna anota y revela verdades selladas |
 | **Habilidades** | Conjuros (7 clases, stat block completo) + invocaciones de warlock + aptitudes de clase (Bárbaro/Guerrero/Monje); paginado en servidor (25 por defecto) |
 | **Bloc de notas** | Notas del jugador **en cada campaña** (PNJ, ciudades…) con categorías, fijado y búsqueda |
