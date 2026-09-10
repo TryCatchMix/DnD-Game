@@ -24,8 +24,13 @@ public class MesaMission {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    /** Quién la escribió. Se conserva por historia; el permiso ya no sale de
+     *  aquí, sino de dirigir la campaña (ver CampaignAccess). */
     @Column(name = "user_id", nullable = false)
     private UUID userId;
+
+    @Column(name = "campaign_id", nullable = false)
+    private UUID campaignId;
 
     @Column(nullable = false)
     private String title;

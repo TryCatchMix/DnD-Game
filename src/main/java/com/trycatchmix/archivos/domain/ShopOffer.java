@@ -16,6 +16,13 @@ public class ShopOffer {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    /** De qué campaña es este mostrador. Null solo en el SURTIDO BASE: la
+     *  plantilla que la migración dejó y de la que se copia la tienda de cada
+     *  campaña nueva, para que no nazca con la vitrina vacía. Ninguna tienda
+     *  enseña las filas con null. */
+    @Column(name = "campaign_id")
+    private UUID campaignId;
+
     /** Casa con GameCharacter.city y Quest.location. */
     @Column(nullable = false)
     private String location;

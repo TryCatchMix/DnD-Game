@@ -18,4 +18,11 @@ public interface ShopOfferRepository extends JpaRepository<ShopOffer, UUID> {
 
     /** Todas las ofertas de un objeto, sea cual sea la ciudad donde se pusiera. */
     List<ShopOffer> findByItemCode(String itemCode);
+
+    /**
+     * El SURTIDO BASE: las filas sin campaña que dejó la migración V28. No se
+     * enseña en ninguna tienda; es de donde se copia el mostrador de una
+     * campaña recién creada, para que no nazca con la vitrina vacía.
+     */
+    List<ShopOffer> findByCampaignIdIsNull();
 }

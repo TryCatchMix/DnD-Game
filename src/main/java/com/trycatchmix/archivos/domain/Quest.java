@@ -17,7 +17,17 @@ public class Quest {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
+    /**
+     * De qué campaña es el encargo. Null = COMÚN: los que venían sembrados y
+     * los que ya existían antes de que hubiera campañas. Se ven desde cualquier
+     * tablón —así una mesa nueva no nace vacía— y nadie los reescribe; lo que
+     * escribe un DM a partir de ahora nace dentro de su campaña.
+     */
+    @Column(name = "campaign_id")
+    private UUID campaignId;
+
+    /** Único dentro de la campaña, no en toda la base (ver V28). */
+    @Column(nullable = false)
     private String code;
 
     @Column(nullable = false)

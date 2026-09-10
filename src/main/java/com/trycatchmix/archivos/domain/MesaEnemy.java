@@ -29,8 +29,13 @@ public class MesaEnemy {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    /** Quién lo preparó. El permiso lo da la campaña, no esta columna. */
     @Column(name = "user_id", nullable = false)
     private UUID userId;
+
+    /** La campaña en cuyo bestiario del máster vive. */
+    @Column(name = "campaign_id", nullable = false)
+    private UUID campaignId;
 
     /** Opcional: prepararlo dentro de una misión concreta. */
     @Column(name = "mision_id")

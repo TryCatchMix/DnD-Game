@@ -10,6 +10,10 @@ public interface MesaAssetRepository extends JpaRepository<MesaAsset, UUID> {
 
     List<MesaAsset> findByUserIdOrderByCreatedAtDesc(UUID userId);
 
+    /** Todo el material de una campaña. Hace falta para borrarla: los bytes
+     *  están en disco y hay que barrerlos a mano. */
+    List<MesaAsset> findByCampaignIdOrderByCreatedAtDesc(UUID campaignId);
+
     List<MesaAsset> findByMissionIdOrderByCreatedAtAsc(UUID missionId);
 
     long countByMissionIdAndKind(UUID missionId, String kind);

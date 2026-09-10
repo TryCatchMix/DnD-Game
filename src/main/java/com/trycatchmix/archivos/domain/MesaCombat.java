@@ -17,8 +17,12 @@ public class MesaCombat {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    /** Quién lo montó. El permiso lo da la campaña, no esta columna. */
     @Column(name = "user_id", nullable = false)
     private UUID userId;
+
+    @Column(name = "campaign_id", nullable = false)
+    private UUID campaignId;
 
     @Column(name = "mision_id")
     private UUID misionId;

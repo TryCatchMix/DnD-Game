@@ -10,4 +10,7 @@ import java.util.UUID;
 public interface QuestRepository extends JpaRepository<Quest, UUID> {
     List<Quest> findByLocationAndPublishedTrueOrderByTitleAsc(String location);
     Optional<Quest> findByCode(String code);
+
+    /** Los encargos de una campaña. Hace falta para borrarla entera. */
+    List<Quest> findByCampaignIdOrderByTitleAsc(UUID campaignId);
 }

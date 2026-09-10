@@ -21,6 +21,12 @@ public class GameCharacter {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
+    /** La campaña a la que se ha unido. Null mientras no esté en ninguna: el
+     *  personaje existe y se le puede rellenar la ficha, pero no tiene mesa, así
+     *  que no hay tablón, ni tienda, ni bloc que enseñarle. */
+    @Column(name = "campaign_id")
+    private UUID campaignId;
+
     @Column(nullable = false)
     private String name;
 

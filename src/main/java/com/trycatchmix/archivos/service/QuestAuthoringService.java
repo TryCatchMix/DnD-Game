@@ -192,6 +192,22 @@ public class QuestAuthoringService {
         q.setSkillTags(d.skills() == null ? "" : String.join(",", d.skills()));
     }
 
+    /**
+     * Borra los encargos de una campaña con sus escenas y sus partidas. Se llama
+     * al borrar la campaña entera: la base no tiene cascada de quests a scenes ni
+     * a quest_runs, así que el DELETE del encargo fallaría con lo suyo colgando.
+     */
+    @Transactional
+    public void borrarEncargosDe(UUID campaignId) {
+        for (Quest q : quests.findByCampaignIdOrderByTitleAsc(campaignId)) {
+            runs.deleteAll(runs.findByQuestId(q.getId()));
+            runs.flush();
+            borrarEscenas(q.getId());
+            quests.delete(q);
+        }
+        quests.flush();
+    }
+
     private void borrarEscenas(UUID questId) {
         for (Scene sc : scenes.findByQuestIdOrderByOrdinalAsc(questId)) {
             for (SceneOption op : options.findBySceneId(sc.getId())) {

@@ -17,4 +17,8 @@ public interface QuestRunRepository extends JpaRepository<QuestRun, UUID> {
     List<QuestRun> findByCharacterId(UUID characterId);
 
     long countByQuestIdAndStatus(UUID questId, RunStatus status);
+
+    /** Las partidas de un encargo. Hacen falta al borrarlo: la tabla no tiene
+     *  cascada y la base rechazaría el DELETE del encargo. */
+    List<QuestRun> findByQuestId(UUID questId);
 }

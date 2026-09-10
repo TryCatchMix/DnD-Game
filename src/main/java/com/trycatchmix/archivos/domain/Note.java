@@ -26,6 +26,12 @@ public class Note {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
+    /** En qué campaña se apuntó. El bloc sigue siendo del jugador —el DM no lo
+     *  lee—, pero cada partida tiene el suyo: los nombres de una mesa no pintan
+     *  nada en la otra. */
+    @Column(name = "campaign_id", nullable = false)
+    private UUID campaignId;
+
     /** Persona | Lugar | Facción | Objeto | Suceso | Otro. */
     @Column(nullable = false)
     private String category = "Otro";

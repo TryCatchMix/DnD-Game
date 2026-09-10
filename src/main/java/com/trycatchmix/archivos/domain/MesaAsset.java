@@ -23,8 +23,13 @@ public class MesaAsset {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    /** Quién lo subió. El permiso lo da la campaña, no esta columna. */
     @Column(name = "user_id", nullable = false)
     private UUID userId;
+
+    /** La campaña cuya biblioteca lo guarda. */
+    @Column(name = "campaign_id", nullable = false)
+    private UUID campaignId;
 
     /** null = está en la biblioteca general, sin misión asignada. */
     @Column(name = "mision_id")
