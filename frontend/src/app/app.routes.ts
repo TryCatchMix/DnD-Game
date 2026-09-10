@@ -29,6 +29,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/characters/characters.page').then(m => m.CharactersPage),
   },
+  // Las campañas no cuelgan de un personaje: son el sitio donde se decide en
+  // qué mesa juega cada uno, así que van sueltas y a la altura de /personajes.
+  {
+    path: 'campanas',
+    loadComponent: () =>
+      import('./features/campaigns/campaigns.page').then(m => m.CampanasPage),
+  },
   {
     path: 'personajes/nuevo',
     loadComponent: () =>
