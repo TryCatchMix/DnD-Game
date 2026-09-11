@@ -30,6 +30,8 @@ import { CampanasService } from '../core/campaign.service';
            routerLinkActive="activa">Habilidades</a>
         <a class="tab tab--bestia" [routerLink]="['/personajes', personajeId(), 'bestiario']"
            routerLinkActive="activa">Bestiario</a>
+        <a class="tab tab--elenco" [routerLink]="['/personajes', personajeId(), 'elenco']"
+           routerLinkActive="activa">Elenco</a>
         <a class="tab tab--nota" [routerLink]="['/personajes', personajeId(), 'notas']"
            routerLinkActive="activa">Notas</a>
         <a class="tab tab--trasfondo" [routerLink]="['/personajes', personajeId(), 'trasfondo']"
@@ -95,6 +97,8 @@ import { CampanasService } from '../core/campaign.service';
     .tab--arcano.activa { color: #a294c9; border-color: rgba(138, 123, 176, .5); }
     .tab--bestia { color: var(--vino); }
     .tab--bestia.activa { color: #c4614f; border-color: rgba(143, 46, 34, .55); }
+    .tab--elenco { color: #b48ea8; }
+    .tab--elenco.activa { color: #c9a6bd; border-color: rgba(180, 142, 168, .5); }
     .tab--nota { color: var(--oro); }
     .tab--nota.activa { color: #c69a3d; border-color: rgba(157, 122, 47, .5); }
     .tab--trasfondo { color: #b0846a; }

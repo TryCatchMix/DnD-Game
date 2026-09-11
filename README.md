@@ -76,6 +76,7 @@ cd frontend && npm run check   # compila y valida plantillas (strictTemplates)
 | **Tienda** | Un mostrador **por campaña** (dentro de ella no depende de la ciudad); catálogo del SRD 3.5 con precios de manual (equipo, armas y armaduras, pociones, pergaminos, varitas y objetos maravillosos); panel del máster para poner cosas a la venta |
 | **Crónica del clan** | Memoria compartida del mundo, común a todas las campañas; quien dirija alguna anota y revela verdades selladas |
 | **Habilidades** | Conjuros (7 clases, stat block completo) + invocaciones de warlock + aptitudes de clase (Bárbaro/Guerrero/Monje); paginado en servidor (25 por defecto) |
+| **Elenco** | La gente **de cada campaña** con su retrato vertical; el máster escribe la ficha entera y va destapando campos según los descubren (`/personajes/:id/elenco`) |
 | **Bloc de notas** | Notas del jugador **en cada campaña** (PNJ, ciudades…) con categorías, fijado y búsqueda |
 | **Propiedades** | Comprar negocios (taberna, mina, puerto…), recaudar renta, mejorar y vender |
 | **Tablón / Escena** | Encargos con los bloqueados a la vista; escena con la tirada lacrada |
@@ -88,9 +89,9 @@ cd frontend && npm run check   # compila y valida plantillas (strictTemplates)
 Una **campaña** es la mesa: quien la crea la dirige, reparte un código de seis
 letras y los demás entran con él. Cada campaña tiene lo suyo y no ve lo de las
 otras: su tienda, su tablón de encargos, su estado del mundo, las misiones y el
-material del máster, sus enemigos y combates, y el bloc de notas de cada
-jugador. El catálogo de objetos, el bestiario, el grimorio y la crónica del clan
-siguen siendo comunes: son el manual, no la partida.
+material del máster, sus enemigos y combates, su elenco de personajes y el bloc
+de notas de cada jugador. El catálogo de objetos, el bestiario, el grimorio y la
+crónica del clan siguen siendo comunes: son el manual, no la partida.
 
 Un personaje está **en una campaña o en ninguna**. Sin campaña se le puede
 rellenar la ficha, pero no tiene tablón, ni tienda, ni bloc; la pantalla
@@ -170,6 +171,42 @@ volumen `mesa` en `docker-compose.prod.yml` — sin ese volumen, cada
 `up --build` se llevaría por delante todo el material subido. El nombre en disco
 lo genera el servidor (uuid + extensión del MIME); nada de lo que manda el
 navegador toca la ruta.
+
+## El elenco (quién ha salido en la campaña)
+
+Pestaña **Elenco** (`/personajes/:id/elenco`, endpoints
+`/api/campanas/{id}/elenco/**`, migración `V31`). Una galería de retratos
+verticales: el tabernero que sabía demasiado, la capitana que os debe un favor,
+el encapuchado del callejón. Cada campaña tiene el suyo.
+
+La idea entera es que **un personaje se descubre a trozos**. El máster escribe
+la ficha completa —retrato, nombre, título, ubicación, raza, descripción,
+curiosidades, alineamiento y con quién es amistoso, neutral, enemigo o
+familia— y cada campo lleva su propio sello. Lo que la mesa aún no sabe no se
+enseña; lo que ya sabe, sí.
+
+- **Mientras el nombre está sellado, manda el alias.** Un PNJ sin nombre no
+  deja la tarjeta muda: se le llama "El encapuchado" hasta que se presente.
+  Por eso el nombre se puede ocultar como cualquier otro campo.
+- **Lo sellado no viaja.** Al jugador le llega `null` en cada campo que no ha
+  descubierto, no el dato con una marca de "oculto": lo que llega al navegador
+  se lee abriendo las herramientas del desarrollador. El retrato va igual —su
+  ruta comprueba el mismo permiso antes de leer el fichero, así que adivinarla
+  no sirve de nada.
+- **El contador es parte del juego.** Cada tarjeta enseña en lacre cuántas
+  cosas quedan por saber. Solo cuentan los campos que el máster ha rellenado:
+  prometer misterio donde no hay nada se nota a la segunda ficha.
+- **Una ficha que aún no ha salido solo la ve el máster.** Se prepara con
+  antelación y aparece en el elenco de la mesa el día que el PNJ se cruza con
+  el grupo.
+- **Los tratos se descubren de uno en uno.** Que sepas que odia al Gremio no te
+  cuenta que sea hermano de la capitana. El otro extremo puede ser otro del
+  elenco, un personaje jugador de la mesa o un nombre suelto; si es un PNJ cuyo
+  nombre sigue sellado, en esta ficha también sale por su alias.
+
+Los retratos van al mismo armario que el material de La Mesa (tabla
+`mesa_archivos`, disco en `archivos.mesa.dir`), así que también se pueden
+enseñar a pantalla completa desde el modo mesa sin volver a subirlos.
 
 ## App móvil (Android)
 

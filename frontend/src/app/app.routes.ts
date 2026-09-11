@@ -72,6 +72,11 @@ export const routes: Routes = [
       import('./features/bestiary/bestiary.page').then(m => m.BestiarioPage),
   },
   {
+    path: 'personajes/:personajeId/elenco',
+    loadComponent: () =>
+      import('./features/cast/cast.page').then(m => m.ElencoPage),
+  },
+  {
     path: 'personajes/:personajeId/notas',
     loadComponent: () =>
       import('./features/notes/notes.page').then(m => m.NotasPage),
