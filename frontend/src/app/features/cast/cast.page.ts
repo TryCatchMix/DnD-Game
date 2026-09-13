@@ -4,8 +4,9 @@ import { RouterLink } from '@angular/router';
 
 import { CampanasService } from '../../core/campaign.service';
 import { ElencoService } from '../../core/cast.service';
-import { Elenco, Pnj, Trato } from '../../core/cast.types';
+import { Elenco, Pnj, PnjSuelto, Trato } from '../../core/cast.types';
 import { NavBar } from '../../shared/nav';
+import { ElencoSueltoPanel } from './loose-cast';
 import { PnjEditor } from './npc-editor';
 import { PnjFicha } from './npc-sheet';
 import { Retrato } from './portrait';
@@ -34,7 +35,7 @@ type Vista =
  */
 @Component({
   selector: 'arc-elenco',
-  imports: [NavBar, FormsModule, RouterLink, Retrato, PnjFicha, PnjEditor],
+  imports: [NavBar, FormsModule, RouterLink, Retrato, PnjFicha, PnjEditor, ElencoSueltoPanel],
   template: `
     <arc-nav [personajeId]="personajeId()" [ancho]="true" />
 
@@ -52,6 +53,13 @@ type Vista =
         <div class="hoja aviso">
           <p>Este personaje no está en ninguna campaña, y el elenco es de una
              mesa concreta: la gente de una partida no sale en la de al lado.</p>
+          <!-- El caso típico de quien acaba de borrar su campaña: lo primero
+               que se pregunta es si se ha llevado el elenco por delante. -->
+          @if (sueltos().length > 0) {
+            <p>Tienes <strong>{{ sueltos().length }} ficha(s) de elenco sin mesa</strong>,
+               guardadas de campañas anteriores. En cuanto este personaje entre en
+               una, podrás traerlas a su elenco.</p>
+          }
           <a class="boton boton--lacre" routerLink="/campanas">Unirse a una campaña</a>
         </div>
 
@@ -90,6 +98,13 @@ type Vista =
             <button class="boton boton--lacre" (click)="vista.set({ modo: 'editar', id: null })">
               + Personaje nuevo
             </button>
+            <!-- Solo si hay algo en el cajón: un botón que abre un sitio vacío
+                 es una pregunta sin respuesta. -->
+            @if (sueltos().length > 0) {
+              <button class="boton" (click)="cajon.set(true)">
+                Elenco suelto ({{ sueltos().length }})
+              </button>
+            }
           }
         </div>
 
@@ -157,6 +172,15 @@ type Vista =
             }
           </ul>
         }
+      }
+
+      <!-- El cajón de las fichas que se quedaron sin mesa. Va fuera de las
+           tres vistas: se abre desde la rejilla y se cierra a la rejilla. -->
+      @if (cajon()) {
+        <arc-elenco-suelto [sueltos]="sueltos()"
+                           (traidos)="trasTraer($event)"
+                           (cambiados)="sueltos.set($event)"
+                           (cerrar)="cajon.set(false)" />
       }
     </div>
   `,
@@ -264,6 +288,10 @@ export class ElencoPage implements OnInit {
   readonly busqueda = signal('');
   readonly vista = signal<Vista>({ modo: 'rejilla' });
 
+  /** Las fichas que se quedaron sin mesa al borrarse su campaña. */
+  readonly sueltos = signal<PnjSuelto[]>([]);
+  readonly cajon = signal(false);
+
   readonly dm = computed(() => this.elenco()?.dm ?? false);
   readonly pnjs = computed(() => this.elenco()?.npcs ?? []);
   readonly tratos = computed<Trato[]>(() => this.elenco()?.kinds ?? []);
@@ -294,6 +322,11 @@ export class ElencoPage implements OnInit {
   });
 
   ngOnInit(): void {
+    // El cajón de sueltos es de la cuenta, no de la mesa: se pide siempre, y
+    // también cuando el personaje no está en ninguna campaña —es justo el caso
+    // de quien acaba de borrar la suya y quiere saber si perdió el elenco—.
+    this.cargarSueltos();
+
     // La URL lleva el personaje, pero el elenco cuelga de la campaña.
     this.campanas.contextoDe(this.personajeId()).subscribe({
       next: c => {
@@ -313,6 +346,32 @@ export class ElencoPage implements OnInit {
       next: r => { this.elenco.set(r); this.cargando.set(false); },
       error: () => { this.cargando.set(false); this.error.set('No se ha podido abrir el elenco.'); },
     });
+  }
+
+  /**
+   * El cajón de sueltos. Que falle no es motivo para teñir de rojo el elenco:
+   * lo peor que pasa es que no salga el botón de traerlas, y siguen guardadas.
+   */
+  private cargarSueltos(): void {
+    this.api.sueltos().subscribe({
+      next: r => this.sueltos.set(r.npcs),
+      error: () => this.sueltos.set([]),
+    });
+  }
+
+  /**
+   * Vuelven fichas al elenco. Se cierra el cajón y se dice cuántas, porque
+   * llegan selladas y sin salir: en la rejilla aparecen apagadas y con su
+   * cuenta de secretos, y sin este aviso parecería que han entrado a medias.
+   */
+  trasTraer(r: Elenco): void {
+    const antes = this.pnjs().length;
+    this.aplicar(r);
+    this.cajon.set(false);
+    const cuantas = r.npcs.length - antes;
+    this.decir(cuantas === 1
+      ? 'Ficha traída al elenco, sellada de nuevo: destápala cuando salga en la mesa.'
+      : `${cuantas} fichas traídas al elenco, selladas de nuevo.`);
   }
 
   /** Todas las operaciones devuelven el elenco entero: solo hay que repintar. */

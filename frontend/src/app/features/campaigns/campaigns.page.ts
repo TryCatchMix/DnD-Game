@@ -213,8 +213,16 @@ import {
             <p class="letra-pequena">
               Se van con ella su tienda, sus misiones, su material, sus enemigos,
               sus encargos y el bloc de notas de cada jugador.
-              Los personajes NO se borran: salen de la mesa y siguen siendo suyos.
               <strong>Esto no se puede deshacer.</strong>
+            </p>
+            <!-- Las dos cosas que NO se pierden, dichas aparte: son la mitad de
+                 la decisión y leerlas en medio del párrafo de lo que se borra
+                 no tranquiliza a nadie. -->
+            <p class="letra-pequena se-quedan">
+              Se quedan los personajes, que salen de la mesa y siguen siendo de
+              su jugador con ficha y dinero; y el elenco, cuyas fichas —con sus
+              retratos y sus tratos— pasan a tu <em>elenco suelto</em> y podrás
+              traer a otra campaña.
             </p>
             <div class="acciones dialogo-acc">
               <button class="boton boton--lacre" [disabled]="ocupado()"
@@ -336,6 +344,10 @@ import {
 
     .letra-pequena { color: var(--sepia-hondo); font-size: 15px; margin: 6px 0 0; }
     .letra-pequena strong { color: var(--vino); font-weight: 400; }
+    /* Lo que se salva, en el verde de la casa: es la otra mitad de la decisión
+       y no puede leerse con el mismo color que la advertencia. */
+    .se-quedan { border-left: 2px solid var(--musgo); padding-left: 10px; margin-top: 12px; }
+    .se-quedan em { color: var(--musgo); font-style: normal; }
 
     .estado { font-style: italic; color: var(--sepia-claro); padding: 18px 0; }
     .estado--mal { color: #d98a7c; font-style: normal; }

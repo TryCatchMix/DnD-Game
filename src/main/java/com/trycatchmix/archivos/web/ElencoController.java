@@ -7,6 +7,7 @@ import com.trycatchmix.archivos.service.ElencoService;
 import com.trycatchmix.archivos.web.dto.ElencoDtos.ElencoView;
 import com.trycatchmix.archivos.web.dto.ElencoDtos.NpcRequest;
 import com.trycatchmix.archivos.web.dto.ElencoDtos.RelationRequest;
+import com.trycatchmix.archivos.web.dto.ElencoDtos.TraerRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -31,6 +32,7 @@ import java.util.UUID;
  *   POST   …/elenco/{id}/revelar?campo=      -> destapar o sellar UN campo
  *   POST   …/elenco/{id}/revelar-todo?valor= -> destaparlo o sellarlo entero
  *   POST   …/elenco/sacar-todos              -> sacar al elenco a los que no habían salido
+ *   POST   …/elenco/traer                    -> traer fichas del elenco suelto
  *   POST   …/elenco/{id}/retrato             -> subir la foto (multipart)
  *   DELETE …/elenco/{id}/retrato             -> quitarla
  *   GET    …/elenco/{id}/retrato             -> los bytes de la foto
@@ -86,6 +88,18 @@ public class ElencoController {
                                @PathVariable UUID campanaId,
                                @PathVariable UUID npcId) {
         return elenco.eliminar(dm(p, campanaId), npcId);
+    }
+
+    /**
+     * Traer a esta mesa fichas del elenco suelto (las que se quedaron sin
+     * campaña al borrarse la suya). Llegan reselladas: ver
+     * {@link ElencoService#traer}.
+     */
+    @PostMapping("/traer")
+    public ElencoView traer(@AuthenticationPrincipal AuthPrincipal p,
+                            @PathVariable UUID campanaId,
+                            @RequestBody TraerRequest req) {
+        return elenco.traer(user(p), dm(p, campanaId), req == null ? null : req.ids());
     }
 
     @PostMapping("/{npcId}/mover")

@@ -2,7 +2,7 @@ import { Injectable, Signal, WritableSignal, inject, signal } from '@angular/cor
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
-import { CampoPnj, Elenco, PnjRequest, RelacionRequest } from './cast.types';
+import { CampoPnj, Elenco, ElencoSuelto, PnjRequest, RelacionRequest } from './cast.types';
 
 /**
  * Todo lo que el elenco le pide al backend.
@@ -26,6 +26,10 @@ export class ElencoService {
 
   /** pnjId → señal con su object URL ('' si no se pudo, null mientras baja). */
   private readonly caras = new Map<string, WritableSignal<string | null>>();
+
+  /** Lo mismo para los sueltos. Aparte porque su ruta no cuelga de la mesa y
+   *  no hay que soltarlas al cambiar de campaña: no son de ninguna. */
+  private readonly carasSueltas = new Map<string, WritableSignal<string | null>>();
 
   private readonly campana = signal<string | null>(null);
 
@@ -120,6 +124,55 @@ export class ElencoService {
     const url = s?.();
     if (url) URL.revokeObjectURL(url);
     this.caras.delete(npcId);
+  }
+
+  // ---------------------------------------------------------- elenco suelto
+
+  /**
+   * Las fichas que se quedaron sin mesa al borrarse su campaña.
+   *
+   * Esta ruta NO cuelga de la campaña, y es a propósito: lo que define a estas
+   * fichas es justamente no tener ninguna. Son de la cuenta hasta que se traen
+   * a una partida.
+   */
+  sueltos(): Observable<ElencoSuelto> {
+    return this.http.get<ElencoSuelto>('/api/elenco-suelto');
+  }
+
+  /** Traerlas a la mesa actual. Llegan reselladas: las destapa el máster. */
+  traer(ids: string[]): Observable<Elenco> {
+    return this.http.post<Elenco>(`${this.base()}/traer`, { ids })
+      // Sus caras pasan a servirse por la ruta de la mesa: la copia que hay
+      // cacheada es de la otra ruta y ya no manda.
+      .pipe(tap(() => ids.forEach(id => this.olvidarSuelto(id))));
+  }
+
+  /** Tirar una suelta para siempre. Es la papelera del cajón. */
+  descartar(npcId: string): Observable<ElencoSuelto> {
+    return this.http.delete<ElencoSuelto>(`/api/elenco-suelto/${npcId}`)
+      .pipe(tap(() => this.olvidarSuelto(npcId)));
+  }
+
+  /** La cara de una suelta. Igual que `retrato`, por su propia ruta. */
+  retratoSuelto(npcId: string): Signal<string | null> {
+    const guardada = this.carasSueltas.get(npcId);
+    if (guardada) return guardada.asReadonly();
+
+    const url = signal<string | null>(null);
+    this.carasSueltas.set(npcId, url);
+    this.http.get(`/api/elenco-suelto/${npcId}/retrato`, { responseType: 'blob' })
+      .subscribe({
+        next: b => url.set(URL.createObjectURL(b)),
+        error: () => url.set(''),
+      });
+    return url.asReadonly();
+  }
+
+  private olvidarSuelto(npcId: string): void {
+    const s = this.carasSueltas.get(npcId);
+    const url = s?.();
+    if (url) URL.revokeObjectURL(url);
+    this.carasSueltas.delete(npcId);
   }
 
   // ------------------------------------------------------------- relaciones

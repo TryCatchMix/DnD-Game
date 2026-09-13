@@ -75,9 +75,20 @@ export class Retrato {
   /** Para el texto alternativo y para la inicial del hueco. */
   readonly nombre = input('');
 
+  /**
+   * De dónde se bajan los bytes. Un PNJ suelto no tiene mesa, así que su cara
+   * tampoco se pide por la ruta de una: se sirve por /api/elenco-suelto.
+   */
+  readonly fuente = input<'mesa' | 'suelto'>('mesa');
+
   private readonly elenco = inject(ElencoService);
 
-  readonly url = computed(() => (this.hay() ? this.elenco.retrato(this.npcId())() : ''));
+  readonly url = computed(() => {
+    if (!this.hay()) return '';
+    return this.fuente() === 'suelto'
+      ? this.elenco.retratoSuelto(this.npcId())()
+      : this.elenco.retrato(this.npcId())();
+  });
 
   readonly inicial = computed(() => {
     const n = this.nombre().trim();

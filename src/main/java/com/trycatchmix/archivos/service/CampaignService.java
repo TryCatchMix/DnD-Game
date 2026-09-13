@@ -26,6 +26,12 @@ import java.util.*;
  *    antorchas, la cuerda, la poción— para que el primer día haya algo que
  *    comprar. A partir de ahí el mostrador es suyo: el DM pone y quita lo que
  *    quiera sin que se entere nadie más.
+ *
+ * 3. BORRARLA NO BORRA NI LOS PERSONAJES NI EL ELENCO. Los dos salen de la
+ *    mesa y siguen siendo de quien son: el personaje de su jugador, la ficha
+ *    del PNJ de quien la escribió, que la podrá traer a otra partida (ver
+ *    {@link #eliminar} y V32). Todo lo demás —tienda, misiones, material,
+ *    enemigos, combates, encargos y notas— se va con ella.
  */
 @Service
 @RequiredArgsConstructor
@@ -45,6 +51,7 @@ public class CampaignService {
     private final MesaAssetRepository assets;
     private final MesaStorage armario;
     private final QuestAuthoringService authoring;
+    private final ElencoService elenco;
     private final CampaignAccess access;
 
     // ------------------------------------------------------------- consultar ---
@@ -192,12 +199,17 @@ public class CampaignService {
      * Borrar la campaña entera. No hay papelera.
      *
      * La base se lleva por cascada las notas, la tienda, las misiones, el
-     * material, los enemigos y los combates (ver V28). Tres cosas hay que hacer
-     * a mano porque la cascada no llega o no basta:
+     * material, los enemigos y los combates (ver V28). Cuatro cosas hay que
+     * hacer a mano porque la cascada no llega, no basta, o no es lo que se
+     * quiere:
      *   · los encargos, que arrastran escenas y partidas sin cascada;
+     *   · EL ELENCO, que NO se borra: las fichas se quedan sueltas y su autor
+     *     las puede traer a otra mesa (ver V32). Se hace lo primero, porque de
+     *     ahí sale la lista de retratos que el barrido de ficheros no debe
+     *     tocar;
      *   · los ficheros del material, que están en disco, no en la base;
-     *   · los personajes, que NO se borran: salen de la mesa y siguen siendo de
-     *     su jugador, con su ficha y su dinero.
+     *   · los personajes, que tampoco se borran: salen de la mesa y siguen
+     *     siendo de su jugador, con su ficha y su dinero.
      */
     @Transactional
     public CampaignsView eliminar(UUID userId, UUID campaignId) {
@@ -205,8 +217,16 @@ public class CampaignService {
 
         authoring.borrarEncargosDe(campaignId);
 
+        // Las caras del elenco salen del material de la mesa y se quedan con
+        // sus fichas: sus ficheros sobreviven al barrido de aquí abajo.
+        var retratosQueSeQuedan = new HashSet<>(elenco.soltarElencoDe(campaignId, c.getName()));
+
+        // Desenganchados como quedan, los retratos ya no salen en esta consulta;
+        // el `continue` es para que siga siendo verdad si algún día se cambia
+        // el orden de estas dos cosas. Un fichero borrado no se recupera.
         var material = assets.findByCampaignIdOrderByCreatedAtDesc(campaignId);
         for (MesaAsset a : material) {
+            if (retratosQueSeQuedan.contains(a.getStorageName())) continue;
             try {
                 armario.borrar(a.getStorageName());
             } catch (RuntimeException e) {

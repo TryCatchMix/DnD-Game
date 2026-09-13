@@ -79,6 +79,33 @@ export interface Elenco {
   personajes: Quien[];
 }
 
+/**
+ * Una ficha SIN MESA: se quedó sin campaña al borrarse la suya y espera a que
+ * su autor la traiga a otra.
+ *
+ * Aquí no hay nada sellado —quien mira es quien la escribió—, así que los
+ * `| null` de este tipo son huecos de verdad y no secretos.
+ */
+export interface PnjSuelto {
+  id: string;
+  name: string;
+  alias: string;
+  title: string | null;
+  location: string | null;
+  race: string | null;
+  alignment: string | null;
+  /** Tiene retrato guardado. Los bytes se piden aparte. */
+  portrait: boolean;
+  /** Cuántos tratos se guardaron con ella. */
+  relaciones: number;
+  /** De qué mesa viene, si se sabe. */
+  campanaPerdida: string | null;
+}
+
+export interface ElencoSuelto {
+  npcs: PnjSuelto[];
+}
+
 /** Alta y edición: lo que vaya a undefined se deja como estaba. */
 export interface PnjRequest {
   name?: string;

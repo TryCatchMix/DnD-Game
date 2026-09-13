@@ -110,4 +110,36 @@ public final class ElencoDtos {
 
     /** Alguien a quien apuntar en una relación: un PJ o un PNJ del elenco. */
     public record Quien(String id, String name) {}
+
+    // -------------------------------------------------------- elenco suelto
+
+    /**
+     * Una ficha SIN MESA: se quedó sin campaña al borrarse la suya y espera a
+     * que su autor la traiga a otra.
+     *
+     * Aquí no hay nada sellado y va todo en claro: quien mira esta lista es
+     * quien escribió la ficha, y lo que se revela o no se revela es cosa de la
+     * mesa a la que entre, no de este cajón.
+     *
+     * @param portrait      tiene retrato guardado (los bytes van aparte)
+     * @param relaciones    cuántos tratos se guardaron con ella
+     * @param campanaPerdida el nombre de la mesa de la que viene, si se sabe
+     */
+    public record SueltoView(
+            String id,
+            String name,
+            String alias,
+            String title,
+            String location,
+            String race,
+            String alignment,
+            boolean portrait,
+            int relaciones,
+            String campanaPerdida) {}
+
+    /** Los sueltos, y de paso cuántos hay para no contarlos en el frontend. */
+    public record SueltosView(List<SueltoView> npcs) {}
+
+    /** Qué fichas sueltas se traen a la mesa. */
+    public record TraerRequest(List<String> ids) {}
 }

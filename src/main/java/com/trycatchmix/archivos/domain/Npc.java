@@ -25,8 +25,14 @@ public class Npc {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    /** La mesa a la que pertenece. Un elenco no se ve desde otra campaña. */
-    @Column(name = "campaign_id", nullable = false)
+    /**
+     * La mesa a la que pertenece. Un elenco no se ve desde otra campaña.
+     *
+     * null = SUELTO: la campaña en la que salió se borró y la ficha se quedó,
+     * como los personajes de V28. Sigue siendo de su autor ({@link #userId}) y
+     * se puede traer a cualquier mesa que dirija (ver V32).
+     */
+    @Column(name = "campaign_id")
     private UUID campaignId;
 
     /** Quién lo escribió. El permiso lo da dirigir la campaña, no esta columna. */
@@ -77,6 +83,14 @@ public class Npc {
     @Column(name = "reveal_description", nullable = false) private boolean revealDescription = false;
     @Column(name = "reveal_trivia", nullable = false)      private boolean revealTrivia = false;
     @Column(name = "reveal_alignment", nullable = false)   private boolean revealAlignment = false;
+
+    /**
+     * El nombre de la mesa en la que salió, guardado al quedarse suelto. Es
+     * solo para enseñar («viene de Dorakan»): la campaña ya no existe, así que
+     * un id no apuntaría a nada. Vacío mientras tenga mesa.
+     */
+    @Column(name = "former_campaign_name", nullable = false)
+    private String formerCampaignName = "";
 
     @Column(nullable = false)
     private int ordinal = 0;

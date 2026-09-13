@@ -76,7 +76,7 @@ cd frontend && npm run check   # compila y valida plantillas (strictTemplates)
 | **Tienda** | Un mostrador **por campaña** (dentro de ella no depende de la ciudad); catálogo del SRD 3.5 con precios de manual (equipo, armas y armaduras, pociones, pergaminos, varitas y objetos maravillosos); panel del máster para poner cosas a la venta |
 | **Crónica del clan** | Memoria compartida del mundo, común a todas las campañas; quien dirija alguna anota y revela verdades selladas |
 | **Habilidades** | Conjuros (7 clases, stat block completo) + invocaciones de warlock + aptitudes de clase (Bárbaro/Guerrero/Monje); paginado en servidor (25 por defecto) |
-| **Elenco** | La gente **de cada campaña** con su retrato vertical; el máster escribe la ficha entera y va destapando campos según los descubren (`/personajes/:id/elenco`) |
+| **Elenco** | La gente **de cada campaña** con su retrato vertical; el máster escribe la ficha entera y va destapando campos según los descubren (`/personajes/:id/elenco`). Borrar la campaña no lo borra: las fichas quedan sueltas y se traen a otra mesa |
 | **Bloc de notas** | Notas del jugador **en cada campaña** (PNJ, ciudades…) con categorías, fijado y búsqueda |
 | **Propiedades** | Comprar negocios (taberna, mina, puerto…), recaudar renta, mejorar y vender |
 | **Tablón / Escena** | Encargos con los bloqueados a la vista; escena con la tirada lacrada |
@@ -214,6 +214,38 @@ enseña; lo que ya sabe, sí.
 Los retratos van al mismo armario que el material de La Mesa (tabla
 `mesa_archivos`, disco en `archivos.mesa.dir`), así que también se pueden
 enseñar a pantalla completa desde el modo mesa sin volver a subirlos.
+
+### El elenco suelto (borrar la campaña no borra su gente)
+
+Migración `V32`, endpoints `/api/elenco-suelto/**` y
+`POST /api/campanas/{id}/elenco/traer`. **Cerrar una mesa ya no se lleva su
+elenco**: las fichas se quedan *sueltas* (`npcs.campaign_id` a null, igual que
+un personaje sin campaña) en el cajón de quien las escribió, y desde la rejilla
+del elenco de cualquier campaña que dirija se pueden traer. Es lo más caro de
+escribir de una campaña y lo más reutilizable: el tabernero que sabía demasiado
+vale igual en la partida siguiente.
+
+- **Entran reselladas.** Una ficha traída llega entera pero con todos los
+  sellos puestos y sin salir al elenco, aunque en su mesa anterior estuviera
+  destapada de arriba abajo: los jugadores de esta partida no han conocido a
+  nadie todavía. El texto está intacto; lo que se reinicia es lo que se sabe.
+- **El retrato va con ella.** Su archivo se desengancha de la biblioteca de la
+  campaña que se borra en vez de caer con la cascada, y se vuelve a enganchar a
+  la de la mesa que la recibe. El fichero no se toca.
+- **Los tratos también.** Al quedarse sin mesa se les congela el nombre del
+  otro extremo en `other_name` sin soltar el id, así que un trato con un PJ
+  sigue diciendo "hermano de Brann" fuera de su campaña, y si los dos PNJ
+  acaban juntos en otra mesa el trato vuelve a resolverse solo.
+- **El cajón es de cada autor** (`npcs.user_id`), no del dueño de la campaña:
+  lo que escribió un co-máster aparece en el suyo.
+- **Tiene papelera.** `DELETE /api/elenco-suelto/{id}` tira una ficha suelta
+  para siempre, con sus tratos y su retrato. Sin esto no habría manera de
+  quitarse de encima lo que no se piensa reutilizar.
+
+Lo demás de la campaña sigue yéndose como antes: la tienda, las misiones, el
+material, los enemigos, los combates, los encargos y el bloc de notas de cada
+jugador. Los personajes tampoco se borran (salen de la mesa con su ficha y su
+dinero), y el diálogo de borrado dice las dos cosas por separado.
 
 ## App móvil (Android)
 

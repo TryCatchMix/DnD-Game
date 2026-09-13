@@ -27,8 +27,14 @@ public class MesaAsset {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    /** La campaña cuya biblioteca lo guarda. */
-    @Column(name = "campaign_id", nullable = false)
+    /**
+     * La campaña cuya biblioteca lo guarda.
+     *
+     * null = desenganchado: es el retrato de un PNJ que se quedó sin mesa al
+     * borrarse su campaña. No sale en ninguna biblioteca, pero el fichero
+     * sigue en el armario y vuelve a una cuando el PNJ entre en ella (ver V32).
+     */
+    @Column(name = "campaign_id")
     private UUID campaignId;
 
     /** null = está en la biblioteca general, sin misión asignada. */

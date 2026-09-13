@@ -72,6 +72,168 @@ public class ElencoService {
         return build(campaignId, dm);
     }
 
+    // -------------------------------------------------------- elenco suelto
+
+    /**
+     * EL CAJÓN DE LOS QUE SE QUEDARON SIN MESA.
+     *
+     * Borrar una campaña ya no borra su elenco: las fichas se quedan sueltas
+     * (campaign_id a null) y aparecen aquí, en el cajón de quien las escribió.
+     * Es lo más caro de escribir de una campaña y lo más reutilizable, así que
+     * cerrar la mesa no es motivo para perderlo.
+     *
+     * Va todo en claro: quien mira es su autor. Lo que se sabe y lo que no es
+     * cosa de la mesa donde entren, y por eso se resella al traerlas.
+     */
+    @Transactional(readOnly = true)
+    public SueltosView sueltos(UUID userId) {
+        List<Npc> lista = npcs.findByUserIdAndCampaignIdIsNullOrderByNameAsc(userId);
+
+        Map<UUID, Integer> tratos = new HashMap<>();
+        List<UUID> ids = lista.stream().map(Npc::getId).toList();
+        if (!ids.isEmpty()) {
+            for (NpcRelation r : relaciones.findByNpcIdInOrderByOrdinalAscCreatedAtAsc(ids))
+                tratos.merge(r.getNpcId(), 1, Integer::sum);
+        }
+
+        return new SueltosView(lista.stream()
+                .map(n -> new SueltoView(
+                        n.getId().toString(),
+                        n.getName(),
+                        n.getAlias(),
+                        vacioANull(n.getTitle()),
+                        vacioANull(n.getLocation()),
+                        vacioANull(n.getRace()),
+                        vacioANull(n.getAlignment()),
+                        n.getPortraitId() != null,
+                        tratos.getOrDefault(n.getId(), 0),
+                        vacioANull(n.getFormerCampaignName())))
+                .toList());
+    }
+
+    /**
+     * Traer fichas sueltas a una mesa. Y traerlas RESELLADAS.
+     *
+     * Esto es lo único que no es obvio de la operación: la ficha llega con
+     * todos los sellos puestos y sin salir al elenco, aunque en su mesa
+     * anterior estuviera destapada de arriba abajo. Los jugadores de esta mesa
+     * no han conocido a nadie todavía; si el encapuchado entrara con el nombre
+     * puesto, la sección se habría saltado ella sola su única regla. El máster
+     * lo vuelve a destapar al ritmo de esta partida, y el texto —que es el
+     * trabajo— está intacto.
+     *
+     * El retrato entra con él: su archivo se vuelve a enganchar a la
+     * biblioteca de esta campaña, de donde lo desenganchó el borrado.
+     */
+    @Transactional
+    public ElencoView traer(UUID userId, UUID campaignId, List<String> ids) {
+        if (ids == null || ids.isEmpty())
+            throw ApiException.badRequest("Di a quién traes del elenco suelto.");
+
+        int ordinal = siguienteOrdinal(campaignId);
+        for (String crudo : ids) {
+            Npc n = suelto(userId, uuid(texto(crudo), "personaje del elenco"));
+
+            n.setCampaignId(campaignId);
+            n.setFormerCampaignName("");
+            n.setOrdinal(ordinal++);
+            n.setUpdatedAt(Instant.now());
+            resellar(n);
+
+            // Los tratos se guardaron con la ficha, pero lo que se sabía de
+            // ellos era de la otra mesa: se sellan igual que los campos.
+            for (NpcRelation r : relaciones.findByNpcIdOrderByOrdinalAscCreatedAtAsc(n.getId()))
+                r.setRevealed(false);
+
+            // El retrato vuelve a la biblioteca de la mesa que lo recibe.
+            if (n.getPortraitId() != null)
+                archivos.findById(n.getPortraitId()).ifPresent(a -> a.setCampaignId(campaignId));
+        }
+        npcs.flush();
+        return build(campaignId, true);
+    }
+
+    /**
+     * Tirar una ficha suelta para siempre. El cajón necesita su papelera: si
+     * borrar la campaña ya no borra el elenco, sin esto no habría manera de
+     * quitarse de encima lo que no se piensa reutilizar.
+     */
+    @Transactional
+    public SueltosView descartar(UUID userId, UUID npcId) {
+        Npc n = suelto(userId, npcId);
+        borrarFicha(n);
+        return sueltos(userId);
+    }
+
+    /**
+     * Los bytes del retrato de una ficha suelta. Sin la comprobación de sellos
+     * que hace {@link #retrato}: aquí no hay mesa que descubra nada y quien
+     * pide la cara es quien la subió.
+     */
+    @Transactional(readOnly = true)
+    public MesaService.Descarga retratoSuelto(UUID userId, UUID npcId) {
+        Npc n = suelto(userId, npcId);
+        if (n.getPortraitId() == null) throw ApiException.notFound("Ese personaje no tiene retrato.");
+
+        MesaAsset a = archivos.findById(n.getPortraitId())
+                .orElseThrow(() -> ApiException.notFound("El retrato ya no está en el armario."));
+        return new MesaService.Descarga(armario.leer(a.getStorageName()), a.getMime(), a.getFilename());
+    }
+
+    /**
+     * SACAR EL ELENCO DE UNA CAMPAÑA QUE SE VA A BORRAR.
+     *
+     * Lo llama {@link CampaignService#eliminar} justo antes de tirar la mesa.
+     * Devuelve los nombres en disco de los retratos que hay que DEJAR quietos:
+     * el borrado de la campaña barre los ficheros de su material, y estos ya no
+     * son material de la mesa, son la cara de un PNJ que sigue vivo.
+     *
+     * Aparte congela los nombres de los tratos. Una relación apuntaba a un PJ
+     * o a otro PNJ por id; fuera de su mesa esos ids no se resuelven y el trato
+     * se leería «enemigo de Desconocido». Se copia el nombre en `other_name`
+     * SIN soltar el id, así que si los dos PNJ acaban juntos en otra mesa el
+     * trato vuelve a resolverse solo y no se pierde nada.
+     */
+    @Transactional
+    public List<String> soltarElencoDe(UUID campaignId, String nombreCampana) {
+        List<Npc> lista = npcs.findByCampaignIdOrderByOrdinalAscNameAsc(campaignId);
+        if (lista.isEmpty()) return List.of();
+
+        Map<UUID, String> comoSeLlaman = new HashMap<>();
+        for (Npc n : lista) comoSeLlaman.put(n.getId(), n.getName());
+
+        Map<UUID, String> pjs = new HashMap<>();
+        for (GameCharacter c : personajes.findByCampaignIdOrderByNameAsc(campaignId))
+            pjs.put(c.getId(), c.getName());
+
+        List<String> retratos = new ArrayList<>();
+        for (Npc n : lista) {
+            for (NpcRelation r : relaciones.findByNpcIdOrderByOrdinalAscCreatedAtAsc(n.getId())) {
+                if (!r.getOtherName().isBlank()) continue;
+                String nombre = r.getOtherNpcId() != null ? comoSeLlaman.get(r.getOtherNpcId())
+                              : r.getCharacterId() != null ? pjs.get(r.getCharacterId())
+                              : null;
+                if (nombre != null) r.setOtherName(nombre);
+            }
+
+            if (n.getPortraitId() != null) {
+                archivos.findById(n.getPortraitId()).ifPresent(a -> {
+                    a.setCampaignId(null);
+                    retratos.add(a.getStorageName());
+                });
+            }
+
+            n.setCampaignId(null);
+            n.setFormerCampaignName(nombreCampana == null ? "" : nombreCampana.trim());
+            n.setOrdinal(0);
+            n.setUpdatedAt(Instant.now());
+        }
+        relaciones.flush();
+        npcs.flush();
+        archivos.flush();
+        return retratos;
+    }
+
     // ------------------------------------------------------------------ alta
 
     @Transactional
@@ -118,24 +280,7 @@ public class ElencoService {
 
     @Transactional
     public ElencoView eliminar(UUID campaignId, UUID npcId) {
-        Npc n = propio(campaignId, npcId);
-        // Lo que apuntaba a él deja de tener sentido: "enemigo de nadie".
-        relaciones.deleteByOtherNpcId(n.getId());
-        relaciones.deleteAll(relaciones.findByNpcIdOrderByOrdinalAscCreatedAtAsc(n.getId()));
-        // Las relaciones se van AHORA, antes de tocar el PNJ. Si se dejan para
-        // el flush final, el ON DELETE CASCADE de la base se las lleva al
-        // borrar la fila del PNJ y el borrado que Hibernate manda después no
-        // encuentra nada que borrar: sale un error de fila perdida por una
-        // operación que en realidad fue bien.
-        relaciones.flush();
-
-        UUID retrato = n.getPortraitId();
-        npcs.delete(n);
-        // El retrato se va con él, pero solo si no lo usa nadie más.
-        if (retrato != null) {
-            npcs.flush();
-            borrarRetratoSiSobra(retrato);
-        }
+        borrarFicha(propio(campaignId, npcId));
         return build(campaignId, true);
     }
 
@@ -524,6 +669,54 @@ public class ElencoService {
         return TRATOS.contains(v) ? v : "neutral";
     }
 
+    /**
+     * Borrar una ficha de verdad, con sus tratos y su retrato. Lo mismo vale
+     * para una que está en una mesa y para una suelta, así que vive aquí.
+     */
+    private void borrarFicha(Npc n) {
+        // Lo que apuntaba a él deja de tener sentido: "enemigo de nadie".
+        relaciones.deleteByOtherNpcId(n.getId());
+        relaciones.deleteAll(relaciones.findByNpcIdOrderByOrdinalAscCreatedAtAsc(n.getId()));
+        // Las relaciones se van AHORA, antes de tocar el PNJ. Si se dejan para
+        // el flush final, el ON DELETE CASCADE de la base se las lleva al
+        // borrar la fila del PNJ y el borrado que Hibernate manda después no
+        // encuentra nada que borrar: sale un error de fila perdida por una
+        // operación que en realidad fue bien.
+        relaciones.flush();
+
+        UUID retrato = n.getPortraitId();
+        npcs.delete(n);
+        // El retrato se va con él, pero solo si no lo usa nadie más.
+        if (retrato != null) {
+            npcs.flush();
+            borrarRetratoSiSobra(retrato);
+        }
+    }
+
+    /** Todos los sellos puestos y fuera del elenco del jugador. */
+    private void resellar(Npc n) {
+        n.setListed(false);
+        n.setRevealName(false);
+        n.setRevealPortrait(false);
+        n.setRevealTitle(false);
+        n.setRevealLocation(false);
+        n.setRevealRace(false);
+        n.setRevealDescription(false);
+        n.setRevealTrivia(false);
+        n.setRevealAlignment(false);
+    }
+
+    /** Una ficha suelta MÍA. Sin mesa que dé el permiso, lo da el autor. */
+    private Npc suelto(UUID userId, UUID npcId) {
+        Npc n = npcs.findById(npcId)
+                .orElseThrow(() -> ApiException.notFound("No existe ese personaje del elenco."));
+        if (n.getCampaignId() != null)
+            throw ApiException.conflict("Ese personaje ya está en una campaña.");
+        if (!n.getUserId().equals(userId))
+            throw ApiException.forbidden("Ese personaje del elenco no lo escribiste tú.");
+        return n;
+    }
+
     /** La ficha, comprobando que es de ESTA mesa. El permiso sobre la campaña
      *  ya lo miró el controlador; esto impide colarse con el id de otra. */
     private Npc propio(UUID campaignId, UUID npcId) {
@@ -566,6 +759,12 @@ public class ElencoService {
     }
 
     private String texto(String s) { return s == null ? "" : s.trim(); }
+
+    /** Un hueco es null y no cadena vacía: el frontend pinta `@if` con esto. */
+    private String vacioANull(String s) {
+        String v = texto(s);
+        return v.isEmpty() ? null : v;
+    }
 
     private String alias(String s) {
         String a = texto(s);
