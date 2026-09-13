@@ -162,6 +162,12 @@ public class ElencoService {
      * Es la operación que de verdad se usa en mesa: alguien pregunta el nombre,
      * el máster decide contarlo y toca un botón. Mandar el formulario entero
      * para eso sería pedirle que no se equivoque en los otros ocho campos.
+     *
+     * DESTAPAR ALGO SACA LA FICHA AL ELENCO. Mientras `listed` esté en false el
+     * jugador no ve al PNJ en absoluto, así que contarle la raza de alguien que
+     * para él no existe no cuenta nada —y el máster se queda creyendo que sí—.
+     * Por eso el primer sello que se abre enciende también `listed`. Volver a
+     * sellar no lo apaga: para esconder la ficha entera está su propio botón.
      */
     @Transactional
     public ElencoView revelar(UUID campaignId, UUID npcId, String campo, Boolean valor) {
@@ -180,24 +186,50 @@ public class ElencoService {
             case "alignment"   -> n.setRevealAlignment(v);
             default -> throw ApiException.badRequest("Ese campo no existe: " + campo);
         }
+        if (v && !"listed".equals(c)) n.setListed(true);
         n.setUpdatedAt(Instant.now());
         return build(campaignId, true);
     }
 
-    /** Destapar la ficha entera de golpe: el PNJ se ha presentado y ya está. */
+    /**
+     * La ficha entera de golpe, en un sentido o en el otro.
+     *
+     * Con {@code valor} a true el PNJ se ha presentado y ya está. Con false se
+     * vuelve a sellar entera —vuelve a ser el encapuchado y desaparece del
+     * elenco del jugador—: es el botón de arrepentirse cuando se enseñó de más,
+     * o de guardar una ficha que se escribió destapada y aún no ha salido.
+     */
     @Transactional
-    public ElencoView revelarTodo(UUID campaignId, UUID npcId) {
+    public ElencoView revelarTodo(UUID campaignId, UUID npcId, boolean valor) {
         Npc n = propio(campaignId, npcId);
-        n.setListed(true);
-        n.setRevealName(true);
-        n.setRevealPortrait(true);
-        n.setRevealTitle(true);
-        n.setRevealLocation(true);
-        n.setRevealRace(true);
-        n.setRevealDescription(true);
-        n.setRevealTrivia(true);
-        n.setRevealAlignment(true);
+        n.setListed(valor);
+        n.setRevealName(valor);
+        n.setRevealPortrait(valor);
+        n.setRevealTitle(valor);
+        n.setRevealLocation(valor);
+        n.setRevealRace(valor);
+        n.setRevealDescription(valor);
+        n.setRevealTrivia(valor);
+        n.setRevealAlignment(valor);
         n.setUpdatedAt(Instant.now());
+        return build(campaignId, true);
+    }
+
+    /**
+     * Sacar al elenco TODAS las fichas que aún no han salido.
+     *
+     * Endereza un tropiezo que se da solo: el máster va destapando campos ficha
+     * a ficha, nadie le dice que además hay que marcar «ya ha salido», y la mesa
+     * ve el elenco vacío. No destapa nada más —cada campo se queda como estaba—,
+     * solo pone las fichas donde el jugador pueda verlas.
+     */
+    @Transactional
+    public ElencoView sacarTodos(UUID campaignId) {
+        for (Npc n : npcs.findByCampaignIdOrderByOrdinalAscNameAsc(campaignId)) {
+            if (n.isListed()) continue;
+            n.setListed(true);
+            n.setUpdatedAt(Instant.now());
+        }
         return build(campaignId, true);
     }
 

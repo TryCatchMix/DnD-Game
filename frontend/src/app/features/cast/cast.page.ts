@@ -40,6 +40,10 @@ type Vista =
 
     <div class="contenedor contenedor--ancho">
 
+      <!-- Va fuera de las tres vistas a propósito: se guarda desde el editor y
+           se lee ya en el expediente, que es a donde se vuelve. -->
+      @if (aviso(); as a) { <p class="bien" role="status">{{ a }}</p> }
+
       @if (sinCampana()) {
         <header class="cabecera">
           <p class="rotulo">Dramatis personae · Los Archivos</p>
@@ -65,6 +69,7 @@ type Vista =
                         [elencoOtros]="pnjs()"
                         (cambiado)="aplicar($event)"
                         (creado)="trasCrear($event)"
+                        (guardado)="trasGuardar($event)"
                         (cerrar)="volver()" />
 
       } @else {
@@ -88,9 +93,18 @@ type Vista =
           }
         </div>
 
+        <!-- El tropiezo clásico del máster: tiene el elenco lleno y la mesa lo
+             ve vacío, porque escribir una ficha no es lo mismo que sacarla. Se
+             dice claro y se arregla de una vez, no ficha a ficha. -->
         @if (dm() && ocultos() > 0) {
           <p class="apunte">
-            {{ ocultos() }} ficha(s) todavía no han salido en la mesa: solo las ves tú.
+            <span>
+              {{ ocultos() }} ficha(s) todavía no han salido en la mesa: solo las ves tú,
+              tus jugadores no las tienen en su elenco.
+            </span>
+            <button class="mini" [disabled]="sacando()" (click)="sacarTodos()">
+              {{ sacando() ? 'Sacándolas…' : 'Sacarlas todas al elenco' }}
+            </button>
           </p>
         }
 
@@ -158,6 +172,21 @@ type Vista =
     .apunte {
       font-family: var(--dato); font-size: 10px; letter-spacing: .12em;
       text-transform: uppercase; color: var(--sepia); margin: 0 0 14px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .apunte span { max-width: 70ch; line-height: 1.6; }
+    .mini {
+      font-family: var(--dato); font-size: 10px; letter-spacing: .12em;
+      text-transform: uppercase; padding: 4px 8px; cursor: pointer;
+      background: transparent; color: var(--sepia-claro);
+      border: 1px solid var(--linea-noche); border-radius: var(--radio);
+    }
+    .mini:hover:not(:disabled) { background: rgba(239,228,205,.08); color: var(--pergamino); }
+    .mini:disabled { opacity: .45; cursor: default; }
+
+    .bien {
+      color: var(--musgo); border-left: 2px solid var(--musgo);
+      padding: 6px 10px; margin: 0 0 12px;
     }
 
     /* ------------------------------------------------------------ galería */
@@ -229,6 +258,9 @@ export class ElencoPage implements OnInit {
   readonly cargando = signal(true);
   readonly sinCampana = signal(false);
   readonly error = signal<string | null>(null);
+  /** El «hecho» de turno. Se borra solo: es un acuse de recibo, no un cartel. */
+  readonly aviso = signal<string | null>(null);
+  readonly sacando = signal(false);
   readonly busqueda = signal('');
   readonly vista = signal<Vista>({ modo: 'rejilla' });
 
@@ -287,6 +319,42 @@ export class ElencoPage implements OnInit {
   aplicar(r: Elenco): void {
     this.elenco.set(r);
     this.error.set(null);
+  }
+
+  /**
+   * Guardar una ficha que ya existía cierra el editor y vuelve a su expediente.
+   * Quedarse en el formulario no dice si se guardó, y la pregunta siguiente
+   * siempre es «¿cómo ha quedado?».
+   */
+  trasGuardar(r: Elenco): void {
+    const v = this.vista();
+    this.aplicar(r);
+    if (v.modo === 'editar' && v.id) this.vista.set({ modo: 'ficha', id: v.id });
+    this.decir('Ficha guardada.');
+  }
+
+  /** Saca al elenco de golpe las fichas escritas pero nunca marcadas. */
+  sacarTodos(): void {
+    if (this.sacando()) return;
+    const cuantas = this.ocultos();
+    this.sacando.set(true);
+    this.api.sacarTodos().subscribe({
+      next: r => {
+        this.sacando.set(false);
+        this.aplicar(r);
+        this.decir(`${cuantas} ficha(s) ya salen en el elenco de tus jugadores.`);
+      },
+      error: () => {
+        this.sacando.set(false);
+        this.error.set('No se han podido sacar las fichas al elenco.');
+      },
+    });
+  }
+
+  /** Un acuse de recibo que se va solo a los cuatro segundos. */
+  private decir(texto: string): void {
+    this.aviso.set(texto);
+    setTimeout(() => { if (this.aviso() === texto) this.aviso.set(null); }, 4000);
   }
 
   /**

@@ -53,6 +53,11 @@ const NOMBRES: Record<Trato, string> = {
  * se cuenta son la misma tarea —al inventarte a alguien ya sabes qué es su
  * secreto—, así que van juntas y no en dos pantallas.
  *
+ * Guardar una ficha que ya existía CIERRA el editor y devuelve a su expediente.
+ * Un formulario que se queda igual después de pulsar «Guardar cambios» no dice
+ * si guardó o no, y lo siguiente que se hace siempre es mirar cómo ha quedado.
+ * Al crear no: ahí el editor se queda abierto, que es donde se explica.
+ *
  * Lo que no está aquí es lo que solo tiene sentido con la ficha ya creada: el
  * retrato y los tratos necesitan un id al que colgarse, así que aparecen en
  * cuanto se guarda. La página se encarga de dejar el editor abierto sobre la
@@ -145,7 +150,7 @@ const NOMBRES: Record<Trato, string> = {
           <div class="acciones">
             <button type="submit" class="boton boton--lacre"
                     [disabled]="!b().name.trim() || ocupado()">
-              {{ b().id ? 'Guardar cambios' : 'Crear personaje' }}
+              {{ ocupado() ? 'Guardando…' : (b().id ? 'Guardar cambios' : 'Crear personaje') }}
             </button>
             <button type="button" class="boton" (click)="cerrar.emit()">Cancelar</button>
             @if (b().id) {
@@ -364,6 +369,9 @@ export class PnjEditor {
   readonly cambiado = output<Elenco>();
   /** Como `cambiado`, pero además dice cuál es la ficha recién creada. */
   readonly creado = output<Elenco>();
+  /** El formulario se ha guardado sobre una ficha que ya existía: se acabó la
+   *  edición, y quien mira tiene que enterarse de que se guardó. */
+  readonly guardado = output<Elenco>();
   readonly cerrar = output<void>();
 
   private readonly api = inject(ElencoService);
@@ -472,7 +480,7 @@ export class PnjEditor {
       next: r => {
         this.ocupado.set(false);
         this.tocado.set({});
-        if (nueva) this.creado.emit(r); else this.cambiado.emit(r);
+        if (nueva) this.creado.emit(r); else this.guardado.emit(r);
       },
       error: err => {
         this.ocupado.set(false);

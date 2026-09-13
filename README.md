@@ -198,7 +198,14 @@ enseña; lo que ya sabe, sí.
   prometer misterio donde no hay nada se nota a la segunda ficha.
 - **Una ficha que aún no ha salido solo la ve el máster.** Se prepara con
   antelación y aparece en el elenco de la mesa el día que el PNJ se cruza con
-  el grupo.
+  el grupo. Destapar cualquier campo la saca sola: contarle la raza de alguien
+  que para el jugador no existe no cuenta nada. Si el elenco se quedó lleno de
+  fichas sin salir, la rejilla lo avisa y las saca todas de una
+  (`POST …/elenco/sacar-todos`).
+- **Revelarlo todo tiene su contrario.** El expediente lleva los dos botones:
+  destapar la ficha entera cuando el PNJ se presenta, y volver a sellarla
+  (`POST …/elenco/{id}/revelar-todo?valor=false`) cuando se enseñó de más o
+  cuando se escribió destapada y todavía no toca.
 - **Los tratos se descubren de uno en uno.** Que sepas que odia al Gremio no te
   cuenta que sea hermano de la capitana. El otro extremo puede ser otro del
   elenco, un personaje jugador de la mesa o un nombre suelto; si es un PNJ cuyo

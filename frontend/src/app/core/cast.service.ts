@@ -72,8 +72,14 @@ export class ElencoService {
     return this.http.post<Elenco>(`${this.base()}/${npcId}/revelar?campo=${campo}${q}`, {});
   }
 
-  revelarTodo(npcId: string): Observable<Elenco> {
-    return this.http.post<Elenco>(`${this.base()}/${npcId}/revelar-todo`, {});
+  /** La ficha entera de golpe: destapada, o sellada con `valor` a false. */
+  revelarTodo(npcId: string, valor = true): Observable<Elenco> {
+    return this.http.post<Elenco>(`${this.base()}/${npcId}/revelar-todo?valor=${valor}`, {});
+  }
+
+  /** Saca al elenco a los que el máster escribió pero nunca marcó como salidos. */
+  sacarTodos(): Observable<Elenco> {
+    return this.http.post<Elenco>(`${this.base()}/sacar-todos`, {});
   }
 
   // ---------------------------------------------------------------- retrato

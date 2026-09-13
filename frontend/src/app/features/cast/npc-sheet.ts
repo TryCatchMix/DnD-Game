@@ -35,11 +35,26 @@ const TRATOS: Record<Trato, string> = {
       <button class="boton" (click)="cerrar.emit()">← Volver al elenco</button>
       @if (dm()) {
         <span class="acc-dm">
-          <button class="boton" (click)="editar.emit()">Editar ficha</button>
-          @if (pnj().porDescubrir > 0) {
-            <button class="boton" [disabled]="ocupado()" (click)="revelarTodo()">
-              Revelarlo todo
+          @if (sellando()) {
+            <!-- Sellar de golpe se lleva por delante lo que ya se había ido
+                 contando, y eso no se puede deshacer campo a campo: se pregunta. -->
+            <span class="confirmar">¿Sellar la ficha entera?</span>
+            <button class="boton" [disabled]="ocupado()" (click)="sellarTodo()">
+              Sí, esconderlo
             </button>
+            <button class="boton" (click)="sellando.set(false)">No</button>
+          } @else {
+            <button class="boton" (click)="editar.emit()">Editar ficha</button>
+            @if (pnj().porDescubrir > 0) {
+              <button class="boton" [disabled]="ocupado()" (click)="revelarTodo()">
+                Revelarlo todo
+              </button>
+            }
+            @if (algoSabido()) {
+              <button class="boton" [disabled]="ocupado()" (click)="sellando.set(true)">
+                Sellarlo todo
+              </button>
+            }
           }
         </span>
       }
@@ -178,7 +193,11 @@ const TRATOS: Record<Trato, string> = {
   `,
   styles: `
     .volver { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-    .acc-dm { display: flex; gap: 8px; margin-left: auto; }
+    .acc-dm { display: flex; gap: 8px; margin-left: auto; align-items: center; flex-wrap: wrap; }
+    .confirmar {
+      font-family: var(--dato); font-size: 10px; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--sepia-claro);
+    }
     .volver .boton { color: var(--pergamino); border-color: var(--linea-noche); }
     .volver .boton:hover:not(:disabled) { background: rgba(239,228,205,.08); }
 
@@ -288,9 +307,17 @@ export class PnjFicha {
 
   readonly ocupado = signal(false);
   readonly error = signal<string | null>(null);
+  /** Esperando el «sí» para sellar la ficha entera. */
+  readonly sellando = signal(false);
 
   /** Los sellos del máster; null cuando mira un jugador. */
   readonly r = computed(() => this.pnj().reveal);
+
+  /** Hay algo contado: entonces se puede volver a sellar todo. */
+  readonly algoSabido = computed(() => {
+    const rev = this.r();
+    return !!rev && Object.values(rev).some(Boolean);
+  });
 
   /** El nombre que se enseña no es el suyo todavía. */
   readonly anonimo = computed(() => {
@@ -323,6 +350,13 @@ export class PnjFicha {
 
   revelarTodo(): void {
     this.pedir(this.elenco.revelarTodo(this.pnj().id));
+  }
+
+  /** El botón contrario: la ficha vuelve a estar entera por descubrir y sale
+   *  del elenco del jugador, como cuando se acababa de escribir. */
+  sellarTodo(): void {
+    this.sellando.set(false);
+    this.pedir(this.elenco.revelarTodo(this.pnj().id, false));
   }
 
   revelarTrato(t: RelacionPnj): void {

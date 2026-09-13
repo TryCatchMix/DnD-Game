@@ -29,7 +29,8 @@ import java.util.UUID;
  *   DELETE …/elenco/{id}                     -> borrarla
  *   POST   …/elenco/{id}/mover?arriba=       -> reordenar
  *   POST   …/elenco/{id}/revelar?campo=      -> destapar o sellar UN campo
- *   POST   …/elenco/{id}/revelar-todo        -> destaparlo entero
+ *   POST   …/elenco/{id}/revelar-todo?valor= -> destaparlo o sellarlo entero
+ *   POST   …/elenco/sacar-todos              -> sacar al elenco a los que no habían salido
  *   POST   …/elenco/{id}/retrato             -> subir la foto (multipart)
  *   DELETE …/elenco/{id}/retrato             -> quitarla
  *   GET    …/elenco/{id}/retrato             -> los bytes de la foto
@@ -110,11 +111,21 @@ public class ElencoController {
         return elenco.revelar(dm(p, campanaId), npcId, campo, valor);
     }
 
+    /** Toda la ficha de una vez: destapada con {@code valor} a true (lo normal)
+     *  o sellada entera con false, que es el botón de volver a esconderla. */
     @PostMapping("/{npcId}/revelar-todo")
     public ElencoView revelarTodo(@AuthenticationPrincipal AuthPrincipal p,
                                   @PathVariable UUID campanaId,
-                                  @PathVariable UUID npcId) {
-        return elenco.revelarTodo(dm(p, campanaId), npcId);
+                                  @PathVariable UUID npcId,
+                                  @RequestParam(defaultValue = "true") boolean valor) {
+        return elenco.revelarTodo(dm(p, campanaId), npcId, valor);
+    }
+
+    /** Sacar al elenco todas las fichas que aún no habían salido. */
+    @PostMapping("/sacar-todos")
+    public ElencoView sacarTodos(@AuthenticationPrincipal AuthPrincipal p,
+                                 @PathVariable UUID campanaId) {
+        return elenco.sacarTodos(dm(p, campanaId));
     }
 
     // --------------------------------------------------------------- retrato
