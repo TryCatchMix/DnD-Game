@@ -108,6 +108,27 @@ type Vista =
           }
         </div>
 
+        @if (dm()) {
+          <div class="filtros">
+            <label>
+              <span>Mostrar</span>
+              <select [(ngModel)]="filtro" aria-label="Filtrar el elenco">
+                <option value="todos">Todos</option>
+                <option value="aparecidos">Ya aparecidos</option>
+                <option value="sin-salir">Sin salir</option>
+              </select>
+            </label>
+            <label>
+              <span>Orden</span>
+              <select [(ngModel)]="orden" aria-label="Ordenar el elenco">
+                <option value="aparecidos">Aparecidos primero</option>
+                <option value="nombre">Nombre (A–Z)</option>
+                <option value="secretos">Más por descubrir</option>
+              </select>
+            </label>
+          </div>
+        }
+
         <!-- El tropiezo clásico del máster: tiene el elenco lleno y la mesa lo
              ve vacío, porque escribir una ficha no es lo mismo que sacarla. Se
              dice claro y se arregla de una vez, no ficha a ficha. -->
@@ -193,6 +214,13 @@ type Vista =
     .mando { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
     .buscar { flex: 1; min-width: 220px; }
 
+    .filtros { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+    .filtros label { display: flex; align-items: center; gap: 6px; }
+    .filtros span {
+      font-family: var(--dato); font-size: 10px; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--sepia-claro);
+    }
+
     .apunte {
       font-family: var(--dato); font-size: 10px; letter-spacing: .12em;
       text-transform: uppercase; color: var(--sepia); margin: 0 0 14px;
@@ -218,6 +246,16 @@ type Vista =
       list-style: none; margin: 14px 0 32px; padding: 0;
       display: grid; gap: 16px;
       grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+    }
+    /* En el móvil, tres por fila: se busca una cara, no se lee una ficha. */
+    @media (max-width: 600px) {
+      .galeria { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .cuerpo { padding: 6px 7px 8px; }
+      .titulo { font-size: 13px; overflow-wrap: anywhere; }
+      .cargo { font-size: 11px; }
+      .pie { display: none; }
+      .lacre { top: 4px; right: 4px; min-width: 18px; height: 18px; font-size: 10px; padding: 0 4px; }
+      .marca { font-size: 8px; padding: 2px 5px; letter-spacing: .06em; }
     }
     .carta { display: flex; flex-direction: column; overflow: hidden; }
     /* Lo que aún no ha salido en la mesa se ve apagado: está, pero no cuenta. */
@@ -286,6 +324,9 @@ export class ElencoPage implements OnInit {
   readonly aviso = signal<string | null>(null);
   readonly sacando = signal(false);
   readonly busqueda = signal('');
+  /** Filtros del máster: al jugador solo le llegan los ya aparecidos. */
+  readonly filtro = signal<'todos' | 'aparecidos' | 'sin-salir'>('todos');
+  readonly orden = signal<'aparecidos' | 'nombre' | 'secretos'>('aparecidos');
   readonly vista = signal<Vista>({ modo: 'rejilla' });
 
   /** Las fichas que se quedaron sin mesa al borrarse su campaña. */
@@ -314,11 +355,22 @@ export class ElencoPage implements OnInit {
 
   readonly visibles = computed(() => {
     const q = norm(this.busqueda().trim());
-    if (!q) return this.pnjs();
-    return this.pnjs().filter(p => norm([
-      p.name, p.alias ?? '', p.title ?? '', p.location ?? '', p.race ?? '',
-      p.alignment ?? '', p.description ?? '',
-    ].join(' ')).includes(q));
+    const f = this.filtro();
+    let lista = this.pnjs().filter(p =>
+      f === 'todos' || (f === 'aparecidos' ? !this.borrador(p) : this.borrador(p)));
+    if (q) {
+      lista = lista.filter(p => norm([
+        p.name, p.alias ?? '', p.title ?? '', p.location ?? '', p.race ?? '',
+        p.alignment ?? '', p.description ?? '',
+      ].join(' ')).includes(q));
+    }
+    // sort es estable: dentro de cada grupo se respeta el orden del servidor.
+    const orden = this.orden();
+    return [...lista].sort((a, b) => {
+      if (orden === 'nombre') return a.name.localeCompare(b.name, 'es');
+      if (orden === 'secretos') return b.porDescubrir - a.porDescubrir;
+      return Number(this.borrador(a)) - Number(this.borrador(b));
+    });
   });
 
   ngOnInit(): void {
