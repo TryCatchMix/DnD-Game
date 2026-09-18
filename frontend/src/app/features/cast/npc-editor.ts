@@ -77,7 +77,8 @@ const NOMBRES: Record<Trato, string> = {
         <!-- ------------------------------------------------- la cara ---- -->
         <div class="cara">
           @if (pnj(); as p) {
-            <arc-retrato-panel [pnj]="p" [dm]="true" (cambiado)="cambiado.emit($event)" />
+            <arc-retrato-panel [pnj]="p" [dm]="true" [jugadores]="jugadores()"
+                               (cambiado)="cambiado.emit($event)" />
           } @else {
             <div class="cara-vacia">
               <p class="rotulo">Retrato</p>
@@ -363,6 +364,8 @@ export class PnjEditor {
   readonly tratos = input<Trato[]>([]);
   /** Los personajes jugadores de la mesa. */
   readonly personajes = input<{ id: string; name: string }[]>([]);
+  /** Los jugadores de la mesa, para marcar quién ha visto el retrato. */
+  readonly jugadores = input<{ id: string; name: string }[]>([]);
   /** El resto del elenco, para apuntar tratos entre ellos. */
   readonly elencoOtros = input<Pnj[]>([]);
 

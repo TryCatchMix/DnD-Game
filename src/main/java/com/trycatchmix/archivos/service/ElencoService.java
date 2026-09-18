@@ -1,10 +1,14 @@
 package com.trycatchmix.archivos.service;
 
+import com.trycatchmix.archivos.domain.AppUser;
+import com.trycatchmix.archivos.domain.CampaignMember;
 import com.trycatchmix.archivos.domain.GameCharacter;
 import com.trycatchmix.archivos.domain.MesaAsset;
 import com.trycatchmix.archivos.domain.Npc;
 import com.trycatchmix.archivos.domain.NpcRelation;
 import com.trycatchmix.archivos.error.ApiException;
+import com.trycatchmix.archivos.repo.AppUserRepository;
+import com.trycatchmix.archivos.repo.CampaignMemberRepository;
 import com.trycatchmix.archivos.repo.GameCharacterRepository;
 import com.trycatchmix.archivos.repo.MesaAssetRepository;
 import com.trycatchmix.archivos.repo.NpcRelationRepository;
@@ -20,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -64,12 +69,16 @@ public class ElencoService {
     private final GameCharacterRepository personajes;
     private final MesaAssetRepository archivos;
     private final MesaStorage armario;
+    private final CampaignMemberRepository miembros;
+    private final AppUserRepository usuarios;
 
     // ------------------------------------------------------------- consultar
 
+    /** El elenco para quien mira: el jugador necesita su id porque la cara de
+     *  un PNJ puede haberla visto él y no el de al lado. */
     @Transactional(readOnly = true)
-    public ElencoView listar(UUID campaignId, boolean dm) {
-        return build(campaignId, dm);
+    public ElencoView listar(UUID campaignId, UUID userId, boolean dm) {
+        return build(campaignId, dm, userId);
     }
 
     // -------------------------------------------------------- elenco suelto
@@ -223,6 +232,8 @@ public class ElencoService {
                 });
             }
 
+            // Quién le vio la cara es cosa de aquella mesa, no de la ficha.
+            n.getPortraitViewers().clear();
             n.setCampaignId(null);
             n.setFormerCampaignName(nombreCampana == null ? "" : nombreCampana.trim());
             n.setOrdinal(0);
@@ -322,7 +333,13 @@ public class ElencoService {
         switch (c) {
             case "listed"      -> n.setListed(v);
             case "name"        -> n.setRevealName(v);
-            case "portrait"    -> n.setRevealPortrait(v);
+            case "portrait"    -> {
+                n.setRevealPortrait(v);
+                // Sellar la cara es sellarla para todos, también para quien
+                // la hubiera visto a solas: si no, el botón diría «sellada»
+                // mientras alguien la sigue viendo.
+                if (!v) n.getPortraitViewers().clear();
+            }
             case "title"       -> n.setRevealTitle(v);
             case "location"    -> n.setRevealLocation(v);
             case "race"        -> n.setRevealRace(v);
@@ -356,6 +373,46 @@ public class ElencoService {
         n.setRevealDescription(valor);
         n.setRevealTrivia(valor);
         n.setRevealAlignment(valor);
+        if (!valor) n.getPortraitViewers().clear();
+        n.setUpdatedAt(Instant.now());
+        return build(campaignId, true);
+    }
+
+    /**
+     * QUIÉN HA VISTO LA CARA, jugador a jugador.
+     *
+     * Para cuando no la ha visto toda la mesa: la exploradora se asomó al
+     * callejón y los demás estaban en la taberna. Se manda la lista entera
+     * de quién la ha visto (no un cambio), y la cara deja de estar
+     * revelada «para todos»: a partir de aquí manda la lista. Una lista
+     * vacía es lo mismo que sellarla.
+     *
+     * Como {@link #revelar}, enseñar la cara a alguien saca la ficha al
+     * elenco: ver una cara de alguien que para ti no existe no es ver nada.
+     *
+     * Solo se aceptan jugadores de ESTA mesa; el resto de ids se ignoran en
+     * silencio (alguien a quien acaban de echar, un id de otra campaña).
+     */
+    @Transactional
+    public ElencoView vistos(UUID campaignId, UUID npcId, List<String> userIds) {
+        Npc n = propio(campaignId, npcId);
+        if (n.getPortraitId() == null)
+            throw ApiException.conflict("Ese personaje no tiene retrato que enseñar.");
+
+        var deLaMesa = new HashSet<UUID>();
+        for (CampaignMember m : miembros.findByCampaignIdOrderByJoinedAtAsc(campaignId))
+            if (!m.esDm()) deLaMesa.add(m.getUserId());
+
+        var elegidos = new HashSet<UUID>();
+        for (String crudo : userIds == null ? List.<String>of() : userIds) {
+            UUID id = uuid(texto(crudo), "jugador");
+            if (deLaMesa.contains(id)) elegidos.add(id);
+        }
+
+        n.setRevealPortrait(false);
+        n.getPortraitViewers().clear();
+        n.getPortraitViewers().addAll(elegidos);
+        if (!elegidos.isEmpty()) n.setListed(true);
         n.setUpdatedAt(Instant.now());
         return build(campaignId, true);
     }
@@ -461,10 +518,10 @@ public class ElencoService {
      * puesta la puerta de atrás.
      */
     @Transactional(readOnly = true)
-    public MesaService.Descarga retrato(UUID campaignId, UUID npcId, boolean dm) {
+    public MesaService.Descarga retrato(UUID campaignId, UUID npcId, UUID userId, boolean dm) {
         Npc n = propio(campaignId, npcId);
         if (n.getPortraitId() == null) throw ApiException.notFound("Ese personaje no tiene retrato.");
-        if (!dm && !(n.isListed() && n.isRevealPortrait()))
+        if (!dm && !(n.isListed() && veCara(n, userId)))
             throw ApiException.forbidden("Todavía no le habéis visto la cara.");
 
         MesaAsset a = archivos.findById(n.getPortraitId())
@@ -474,7 +531,13 @@ public class ElencoService {
 
     // ========================================================== la vista ====
 
+    /** La vista del máster: todas las escrituras la devuelven. */
     private ElencoView build(UUID campaignId, boolean dm) {
+        return build(campaignId, dm, null);
+    }
+
+    /** @param viewer quien mira; solo hace falta para el jugador (la cara). */
+    private ElencoView build(UUID campaignId, boolean dm, UUID viewer) {
         List<Npc> todos = npcs.findByCampaignIdOrderByOrdinalAscNameAsc(campaignId);
 
         // Cómo se llama cada PNJ PARA QUIEN MIRA. Hace falta antes de pintar
@@ -485,9 +548,24 @@ public class ElencoService {
 
         Map<UUID, String> pjs = new HashMap<>();
         List<Quien> grupo = new ArrayList<>();
+        Map<UUID, List<String>> pjsDe = new HashMap<>();
         for (GameCharacter c : personajes.findByCampaignIdOrderByNameAsc(campaignId)) {
             pjs.put(c.getId(), c.getName());
             grupo.add(new Quien(c.getId().toString(), c.getName()));
+            pjsDe.computeIfAbsent(c.getUserId(), k -> new ArrayList<>()).add(c.getName());
+        }
+
+        // Para marcar quién ha visto una cara. Solo al máster: al jugador no
+        // le hace falta la lista de la mesa para nada de esta pantalla.
+        List<Quien> jugadores = new ArrayList<>();
+        if (dm) {
+            for (CampaignMember m : miembros.findByCampaignIdOrderByJoinedAtAsc(campaignId)) {
+                if (m.esDm()) continue;
+                String nombre = usuarios.findById(m.getUserId()).map(AppUser::getDisplayName).orElse("—");
+                List<String> suyos = pjsDe.getOrDefault(m.getUserId(), List.of());
+                jugadores.add(new Quien(m.getUserId().toString(),
+                        suyos.isEmpty() ? nombre : nombre + " · " + String.join(", ", suyos)));
+            }
         }
 
         List<UUID> ids = todos.stream().map(Npc::getId).toList();
@@ -500,14 +578,17 @@ public class ElencoService {
         List<NpcView> vistas = todos.stream()
                 // El borrador del máster no existe para el jugador.
                 .filter(n -> dm || n.isListed())
-                .map(n -> vista(n, dm, porNpc.getOrDefault(n.getId(), List.of()), comoSeLlaman, pjs))
+                .map(n -> vista(n, dm, viewer, porNpc.getOrDefault(n.getId(), List.of()), comoSeLlaman, pjs))
                 .toList();
 
-        return new ElencoView(vistas, dm, ALINEAMIENTOS, TRATOS, grupo);
+        return new ElencoView(vistas, dm, ALINEAMIENTOS, TRATOS, grupo, jugadores);
     }
 
-    private NpcView vista(Npc n, boolean dm, List<NpcRelation> rels,
+    private NpcView vista(Npc n, boolean dm, UUID viewer, List<NpcRelation> rels,
                           Map<UUID, String> comoSeLlaman, Map<UUID, String> pjs) {
+        // El máster cuenta la cara como secreto mientras no la conozca toda
+        // la mesa; el jugador, mientras no la haya visto él.
+        boolean caraVista = dm ? n.isRevealPortrait() : veCara(n, viewer);
 
         List<RelationView> tratos = rels.stream()
                 .filter(r -> dm || r.isRevealed())
@@ -529,13 +610,19 @@ public class ElencoService {
                 visible(n.getDescription(), dm || n.isRevealDescription()),
                 curiosidades(n, dm),
                 visible(n.getAlignment(),   dm || n.isRevealAlignment()),
-                n.getPortraitId() != null && (dm || n.isRevealPortrait()),
+                n.getPortraitId() != null && (dm || caraVista),
                 tratos,
-                porDescubrir(n, rels),
+                porDescubrir(n, rels, caraVista),
                 dm ? new Reveal(n.isListed(), n.isRevealName(), n.isRevealPortrait(),
                         n.isRevealTitle(), n.isRevealLocation(), n.isRevealRace(),
                         n.isRevealDescription(), n.isRevealTrivia(), n.isRevealAlignment())
-                   : null);
+                   : null,
+                dm ? n.getPortraitViewers().stream().map(UUID::toString).sorted().toList() : null);
+    }
+
+    /** Si este jugador puede ver la cara: la ve toda la mesa, o se la enseñaron a él. */
+    private boolean veCara(Npc n, UUID userId) {
+        return n.isRevealPortrait() || (userId != null && n.getPortraitViewers().contains(userId));
     }
 
     /** El nombre de verdad, o el alias mientras siga sellado. */
@@ -569,10 +656,10 @@ public class ElencoService {
      * es un hueco, y prometer misterio donde no hay nada se nota a la segunda
      * ficha.
      */
-    private int porDescubrir(Npc n, List<NpcRelation> rels) {
+    private int porDescubrir(Npc n, List<NpcRelation> rels, boolean caraVista) {
         int c = 0;
         if (!n.isRevealName())                                        c++;
-        if (n.getPortraitId() != null && !n.isRevealPortrait())       c++;
+        if (n.getPortraitId() != null && !caraVista)                  c++;
         if (!n.getTitle().isBlank()       && !n.isRevealTitle())       c++;
         if (!n.getLocation().isBlank()    && !n.isRevealLocation())    c++;
         if (!n.getRace().isBlank()        && !n.isRevealRace())        c++;
@@ -704,6 +791,7 @@ public class ElencoService {
         n.setRevealDescription(false);
         n.setRevealTrivia(false);
         n.setRevealAlignment(false);
+        n.getPortraitViewers().clear();
     }
 
     /** Una ficha suelta MÍA. Sin mesa que dé el permiso, lo da el autor. */

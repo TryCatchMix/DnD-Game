@@ -36,6 +36,20 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/campaigns/campaigns.page').then(m => m.CampanasPage),
   },
+  // Las pantallas del máster, colgadas de la campaña y no de un personaje:
+  // quien dirige una mesa no suele jugar en ella, y si dirige varias elige
+  // aquí cuál está tocando. Son las mismas páginas que las del personaje; el
+  // parámetro que llega (personajeId o campanaId) decide el modo.
+  {
+    path: 'campanas/:campanaId/tienda',
+    loadComponent: () =>
+      import('./features/shop/shop.page').then(m => m.ShopPage),
+  },
+  {
+    path: 'campanas/:campanaId/elenco',
+    loadComponent: () =>
+      import('./features/cast/cast.page').then(m => m.ElencoPage),
+  },
   {
     path: 'personajes/nuevo',
     loadComponent: () =>

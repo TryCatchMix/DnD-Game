@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -83,6 +85,16 @@ public class Npc {
     @Column(name = "reveal_description", nullable = false) private boolean revealDescription = false;
     @Column(name = "reveal_trivia", nullable = false)      private boolean revealTrivia = false;
     @Column(name = "reveal_alignment", nullable = false)   private boolean revealAlignment = false;
+
+    /**
+     * Quién ha visto el retrato aunque la cara siga sellada para el resto
+     * (ids de usuario). Con {@link #revealPortrait} a true no hace falta: la
+     * ve toda la mesa. Ver V33.
+     */
+    @ElementCollection
+    @CollectionTable(name = "npc_portrait_viewers", joinColumns = @JoinColumn(name = "npc_id"))
+    @Column(name = "user_id")
+    private Set<UUID> portraitViewers = new HashSet<>();
 
     /**
      * El nombre de la mesa en la que salió, guardado al quedarse suelto. Es

@@ -115,7 +115,54 @@ public class ShopService {
     @Transactional
     public ShopView crearOferta(UUID userId, UUID charId, ShopOfferCreateRequest req) {
         GameCharacter c = maestroDe(userId, charId);
-        UUID campaignId = c.getCampaignId();
+        ponerALaVenta(c.getCampaignId(), c.getCity(), req);
+        return build(c);
+    }
+
+    /** El DM retira una oferta del mostrador. El objeto sigue en el catálogo
+     *  (por si alguien ya lo compró): solo desaparece de la vitrina. */
+    @Transactional
+    public ShopView quitarOferta(UUID userId, UUID charId, String itemCode) {
+        GameCharacter c = maestroDe(userId, charId);
+        offers.deleteAll(offers.findByCampaignIdAndItemCode(c.getCampaignId(), itemCode));
+        return build(c);
+    }
+
+    // ------------------------------------ la trastienda, sin personaje (DM) ---
+
+    /*
+     * EL MOSTRADOR VISTO DESDE LA CAMPAÑA.
+     *
+     * Lo de arriba cuelga de un personaje porque el monedero y la bolsa son
+     * suyos. Pero quien dirige una mesa casi nunca tiene personaje en ella, y
+     * aun así es quien pone los precios; y si dirige tres mesas tiene que
+     * poder elegir qué mostrador está surtiendo. Estas tres entran por la
+     * campaña: sin monedero ni bolsa, solo la vitrina.
+     */
+
+    @Transactional(readOnly = true)
+    public ShopView mostrador(UUID userId, UUID campaignId) {
+        access.exigeDm(userId, campaignId);
+        return buildMostrador(campaignId);
+    }
+
+    @Transactional
+    public ShopView crearOfertaEnCampana(UUID userId, UUID campaignId, ShopOfferCreateRequest req) {
+        access.exigeDm(userId, campaignId);
+        ponerALaVenta(campaignId, ciudadDe(campaignId), req);
+        return buildMostrador(campaignId);
+    }
+
+    @Transactional
+    public ShopView quitarOfertaEnCampana(UUID userId, UUID campaignId, String itemCode) {
+        access.exigeDm(userId, campaignId);
+        offers.deleteAll(offers.findByCampaignIdAndItemCode(campaignId, itemCode));
+        return buildMostrador(campaignId);
+    }
+
+    /** Si el objeto no existe en el catálogo, se crea; si ya había una oferta
+     *  para ese objeto en el mostrador, se actualiza (precio y stock). */
+    private void ponerALaVenta(UUID campaignId, String ciudad, ShopOfferCreateRequest req) {
         if (req == null || req.name() == null || req.name().isBlank())
             throw ApiException.conflict("Ponle un nombre al objeto.");
 
@@ -142,22 +189,32 @@ public class ShopService {
         // actualiza (precio y stock) en vez de aparecer dos veces en la vitrina.
         ShopOffer offer = ofertaDe(campaignId, code).orElseGet(ShopOffer::new);
         offer.setCampaignId(campaignId);
-        if (offer.getLocation() == null) offer.setLocation(c.getCity());
+        if (offer.getLocation() == null) offer.setLocation(ciudad == null ? "" : ciudad);
         offer.setItemCode(code);
         offer.setPriceCp(priceCp);
         offer.setStock(stock);
         offers.save(offer);
-
-        return build(c);
     }
 
-    /** El DM retira una oferta del mostrador. El objeto sigue en el catálogo
-     *  (por si alguien ya lo compró): solo desaparece de la vitrina. */
-    @Transactional
-    public ShopView quitarOferta(UUID userId, UUID charId, String itemCode) {
-        GameCharacter c = maestroDe(userId, charId);
-        offers.deleteAll(offers.findByCampaignIdAndItemCode(c.getCampaignId(), itemCode));
-        return build(c);
+    /** La ciudad que ya tiene el mostrador. `location` no se filtra (ver
+     *  arriba), pero es NOT NULL y mejor no mezclar dos en una vitrina. */
+    private String ciudadDe(UUID campaignId) {
+        return offers.findByCampaignIdOrderByPriceCpAsc(campaignId).stream()
+                .map(ShopOffer::getLocation)
+                .findFirst()
+                .orElse("Dorakan");
+    }
+
+    /** La vitrina sin cliente: todo "asequible", monedero y bolsa vacíos. */
+    private ShopView buildMostrador(UUID campaignId) {
+        List<ShopOfferView> offerViews = new ArrayList<>();
+        for (ShopOffer o : offers.findByCampaignIdOrderByPriceCpAsc(campaignId)) {
+            items.findById(o.getItemCode()).ifPresent(item -> offerViews.add(new ShopOfferView(
+                    item.getCode(), item.getName(), item.getDescription(), item.getCategory(),
+                    o.getPriceCp(), Money.format(o.getPriceCp()), true, o.getStock(),
+                    item.getEquipmentGroup(), item.getWeightLb(), Gear.stats(item))));
+        }
+        return new ShopView(0, Money.format(0), ciudadDe(campaignId), offerViews, List.of());
     }
 
     /** Código en minúsculas y sin espacios ni acentos para la clave del catálogo. */

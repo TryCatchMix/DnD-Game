@@ -2,7 +2,7 @@ import { Component, computed, inject, input, output, signal } from '@angular/cor
 import { Observable } from 'rxjs';
 
 import { ElencoService } from '../../core/cast.service';
-import { CampoPnj, Elenco, Pnj, RelacionPnj, Trato } from '../../core/cast.types';
+import { CampoPnj, Elenco, Pnj, Quien, RelacionPnj, Trato } from '../../core/cast.types';
 import { RetratoPanel } from './portrait-panel';
 
 /** El nombre de cada trato, para no repetirlo en cuatro sitios. */
@@ -64,7 +64,8 @@ const TRATOS: Record<Trato, string> = {
 
       <!-- ---------------------------------------------------- el retrato -->
       <div class="cara">
-        <arc-retrato-panel [pnj]="pnj()" [dm]="dm()" (cambiado)="cambiado.emit($event)" />
+        <arc-retrato-panel [pnj]="pnj()" [dm]="dm()" [jugadores]="jugadores()"
+                           (cambiado)="cambiado.emit($event)" />
       </div>
 
       <!-- ------------------------------------------------------ los datos -->
@@ -297,6 +298,8 @@ export class PnjFicha {
 
   readonly pnj = input.required<Pnj>();
   readonly dm = input(false);
+  /** Los jugadores de la mesa, para marcar quién ha visto el retrato. */
+  readonly jugadores = input<Quien[]>([]);
 
   /** Cualquier cambio devuelve el elenco entero: la página solo repinta. */
   readonly cambiado = output<Elenco>();

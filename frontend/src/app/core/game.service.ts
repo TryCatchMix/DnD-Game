@@ -79,6 +79,21 @@ export class JuegoService {
     return this.http.delete<Shop>(`/api/personajes/${personajeId}/tienda/ofertas/${itemCode}`);
   }
 
+  // La trastienda de una campaña, sin personaje: para el máster, que no suele
+  // tener uno en su propia mesa y puede dirigir varias. Sin monedero ni bolsa.
+
+  tiendaCampana(campanaId: string): Observable<Shop> {
+    return this.http.get<Shop>(`/api/campanas/${campanaId}/tienda`);
+  }
+
+  crearOfertaCampana(campanaId: string, oferta: ShopOfferCreate): Observable<Shop> {
+    return this.http.post<Shop>(`/api/campanas/${campanaId}/tienda/ofertas`, oferta);
+  }
+
+  quitarOfertaCampana(campanaId: string, itemCode: string): Observable<Shop> {
+    return this.http.delete<Shop>(`/api/campanas/${campanaId}/tienda/ofertas/${itemCode}`);
+  }
+
   /** Firmar un encargo: el backend devuelve directamente la primera escena. */
   firmar(personajeId: string, questId: string): Observable<SceneView> {
     return this.http.post<SceneView>(`/api/personajes/${personajeId}/encargos/${questId}`, {});

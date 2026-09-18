@@ -60,6 +60,12 @@ export interface Pnj {
   /** Cuántas cosas quedan por descubrir. Es el gancho de la tarjeta. */
   porDescubrir: number;
   reveal: Descubierto | null;
+  /**
+   * Solo para el máster: los usuarios que han visto el retrato aunque siga
+   * sellado para el resto. Con `reveal.portrait` a true no hace falta, lo ve
+   * toda la mesa.
+   */
+  vistoPor: string[] | null;
 }
 
 /** Alguien a quien apuntar en una relación. */
@@ -77,6 +83,11 @@ export interface Elenco {
   kinds: Trato[];
   /** Los personajes jugadores de la mesa, para las relaciones. */
   personajes: Quien[];
+  /**
+   * Los jugadores de la mesa (usuarios, con sus personajes en el nombre), para
+   * marcar quién ha visto un retrato. Solo le llega relleno al máster.
+   */
+  jugadores: Quien[];
 }
 
 /**

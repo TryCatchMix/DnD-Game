@@ -120,9 +120,29 @@ export class CampanasService {
     return this.http.get<ContextoCampana>(`/api/personajes/${personajeId}/campana`);
   }
 
+  /**
+   * Las campañas que dirijo, como señal (null mientras se pregunta). Es la
+   * lista del selector de mesa del máster: la tienda y el elenco de cuál está
+   * tocando. Va con caché por lo mismo que los contextos.
+   */
+  queDirijo(): Signal<Campana[] | null> {
+    if (!this.dirigidas) {
+      const s = signal<Campana[] | null>(null);
+      this.dirigidas = s;
+      this.mias().subscribe({
+        next: v => s.set(v.campaigns.filter(c => c.role === 'DM')),
+        error: () => s.set([]),
+      });
+    }
+    return this.dirigidas.asReadonly();
+  }
+
+  private dirigidas: WritableSignal<Campana[] | null> | null = null;
+
   /** Tira la caché: algo ha cambiado a qué campaña pertenece qué. */
   olvidar(): void {
     this.contextos.clear();
+    this.dirigidas = null;
   }
 
   /** El nombre para enseñar, sin repetir el «(sin campaña)» por ahí. */

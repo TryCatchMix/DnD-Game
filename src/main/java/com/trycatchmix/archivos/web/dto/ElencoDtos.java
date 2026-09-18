@@ -63,6 +63,9 @@ public final class ElencoDtos {
      *                    convierte una ficha a medias en un gancho en vez de en
      *                    un formulario incompleto.
      * @param reveal      null para el jugador
+     * @param vistoPor    solo para el máster: los usuarios que han visto el
+     *                    retrato aunque siga sellado para el resto. null para
+     *                    el jugador, que no tiene por qué saber quién más lo vio.
      */
     public record NpcView(
             String id,
@@ -77,7 +80,11 @@ public final class ElencoDtos {
             boolean portrait,
             List<RelationView> relations,
             int porDescubrir,
-            Reveal reveal) {}
+            Reveal reveal,
+            List<String> vistoPor) {}
+
+    /** Quién ha visto el retrato: ids de usuario. La lista entera, no un cambio. */
+    public record VistosRequest(List<String> userIds) {}
 
     /** Alta y edición: lo que llegue a null se deja como estaba. */
     public record NpcRequest(
@@ -100,13 +107,17 @@ public final class ElencoDtos {
      * @param kinds       amistoso | neutral | enemigo | familiar
      * @param personajes  los personajes jugadores de la mesa, para poder decir
      *                    "es enemigo de Brann" sin escribir el nombre a mano
+     * @param jugadores   los jugadores de la mesa (usuarios, no personajes),
+     *                    para marcar quién ha visto un retrato. Vacía para el
+     *                    jugador.
      */
     public record ElencoView(
             List<NpcView> npcs,
             boolean dm,
             List<String> alignments,
             List<String> kinds,
-            List<Quien> personajes) {}
+            List<Quien> personajes,
+            List<Quien> jugadores) {}
 
     /** Alguien a quien apuntar en una relación: un PJ o un PNJ del elenco. */
     public record Quien(String id, String name) {}

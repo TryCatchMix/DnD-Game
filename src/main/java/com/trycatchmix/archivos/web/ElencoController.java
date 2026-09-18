@@ -8,6 +8,7 @@ import com.trycatchmix.archivos.web.dto.ElencoDtos.ElencoView;
 import com.trycatchmix.archivos.web.dto.ElencoDtos.NpcRequest;
 import com.trycatchmix.archivos.web.dto.ElencoDtos.RelationRequest;
 import com.trycatchmix.archivos.web.dto.ElencoDtos.TraerRequest;
+import com.trycatchmix.archivos.web.dto.ElencoDtos.VistosRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -36,6 +37,7 @@ import java.util.UUID;
  *   POST   …/elenco/{id}/retrato             -> subir la foto (multipart)
  *   DELETE …/elenco/{id}/retrato             -> quitarla
  *   GET    …/elenco/{id}/retrato             -> los bytes de la foto
+ *   PUT    …/elenco/{id}/retrato/vistos      -> qué jugadores le han visto la cara
  *   POST   …/elenco/{id}/tratos              -> añadir una relación
  *   PUT    …/elenco/tratos/{id}              -> editarla
  *   DELETE …/elenco/tratos/{id}              -> quitarla
@@ -63,7 +65,7 @@ public class ElencoController {
     public ElencoView listar(@AuthenticationPrincipal AuthPrincipal p,
                              @PathVariable UUID campanaId) {
         UUID campana = miembro(p, campanaId);
-        return elenco.listar(campana, access.esDm(user(p), campana));
+        return elenco.listar(campana, user(p), access.esDm(user(p), campana));
     }
 
     // ---------------------------------------------------------------- fichas
@@ -159,6 +161,15 @@ public class ElencoController {
         return elenco.quitarRetrato(dm(p, campanaId), npcId);
     }
 
+    /** Qué jugadores han visto la cara, cuando no la ha visto toda la mesa. */
+    @PutMapping("/{npcId}/retrato/vistos")
+    public ElencoView vistos(@AuthenticationPrincipal AuthPrincipal p,
+                             @PathVariable UUID campanaId,
+                             @PathVariable UUID npcId,
+                             @RequestBody VistosRequest req) {
+        return elenco.vistos(dm(p, campanaId), npcId, req == null ? null : req.userIds());
+    }
+
     /**
      * Los bytes del retrato. Entra cualquier miembro, pero el servicio devuelve
      * 403 si esa cara todavía no se ha descubierto: la comprobación va aquí
@@ -172,7 +183,7 @@ public class ElencoController {
                                             @PathVariable UUID campanaId,
                                             @PathVariable UUID npcId) {
         UUID campana = miembro(p, campanaId);
-        var d = elenco.retrato(campana, npcId, access.esDm(user(p), campana));
+        var d = elenco.retrato(campana, npcId, user(p), access.esDm(user(p), campana));
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(d.mime()))
                 .header(HttpHeaders.CONTENT_DISPOSITION,

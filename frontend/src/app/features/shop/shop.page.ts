@@ -1,11 +1,15 @@
-import { Component, OnDestroy, OnInit, computed, inject, input, signal } from '@angular/core';
-import { InventoryItem, Shop, ShopOffer } from '../../core/api.types';
+import {
+  Component, OnDestroy, OnInit, computed, effect, inject, input, signal, untracked,
+} from '@angular/core';
+import { InventoryItem, Shop, ShopOffer, ShopOfferCreate } from '../../core/api.types';
 
 import { CampanasService } from '../../core/campaign.service';
 import { FormsModule } from '@angular/forms';
 import { JuegoService } from '../../core/game.service';
 import { KgPipe } from '../../shared/weight.pipe';
 import { NavBar } from '../../shared/nav';
+import { NavMaster } from '../../shared/master-nav';
+import { SelectorMesa } from '../../shared/campaign-picker';
 import { Router } from '@angular/router';
 
 /**
@@ -130,9 +134,13 @@ const FRASES_TENDERO = [
  */
 @Component({
   selector: 'arc-shop',
-  imports: [NavBar, FormsModule, KgPipe],
+  imports: [NavBar, NavMaster, SelectorMesa, FormsModule, KgPipe],
   template: `
-    <arc-nav [personajeId]="personajeId()" />
+    @if (personajeId(); as pid) {
+      <arc-nav [personajeId]="pid" />
+    } @else if (campanaId(); as cid) {
+      <arc-nav-master [campanaId]="cid" seccion="tienda" />
+    }
 
     <div class="contenedor contenedor--tienda">
 
@@ -334,9 +342,12 @@ const FRASES_TENDERO = [
             <p class="bazar-nombre">El Bazar de Retán</p>
             <!-- El mostrador es el mismo se esté donde se esté: no ponemos la
                  ciudad del personaje para no dar a entender que cambia con ella. -->
-            <p class="bazar-ciudad">Mercado del clan</p>
+            <p class="bazar-ciudad">
+              {{ modoMaster() ? 'Trastienda de ' + (nombreCampana() ?? 'tu campaña') : 'Mercado del clan' }}
+            </p>
           </div>
           @if (tienda(); as t) {
+            @if (!modoMaster()) {
             <div class="monedero" title="Tu monedero">
               <svg class="ico ico--monedero" viewBox="0 0 24 24" aria-hidden="true">
                 @for (d of iconoClave('moneda'); track $index) { <path [attr.d]="d" /> }
@@ -344,6 +355,7 @@ const FRASES_TENDERO = [
               <span class="monedero-cifra">{{ t.purse }}</span>
               <span class="monedero-rotulo">en la bolsa</span>
             </div>
+            }
           }
         </div>
       </header>
@@ -363,6 +375,13 @@ const FRASES_TENDERO = [
                 {{ abrirDm() ? 'Cerrar' : 'Poner algo a la venta' }}
               </button>
             </div>
+            <!-- Quien dirige varias mesas elige aquí qué mostrador surte. En el
+                 modo campaña ya va en la barra de arriba. -->
+            @if (!modoMaster()) {
+              <arc-selector-mesa class="cambiar-mesa" seccion="tienda"
+                                 [actual]="campanaDelPersonaje()"
+                                 rotulo="Editar la tienda de" />
+            }
 
             @if (abrirDm()) {
               <div class="hoja panel-dm">
@@ -428,8 +447,10 @@ const FRASES_TENDERO = [
               <button type="button" class="filtro" [class.activo]="categoria() === c"
                       (click)="categoria.set(c)">{{ c === '' ? 'Todo' : c }}</button>
             }
-            <button type="button" class="filtro filtro--bolsa" [class.activo]="soloAsequible()"
-                    (click)="soloAsequible.set(!soloAsequible())">Lo que puedo pagar</button>
+            @if (!modoMaster()) {
+              <button type="button" class="filtro filtro--bolsa" [class.activo]="soloAsequible()"
+                      (click)="soloAsequible.set(!soloAsequible())">Lo que puedo pagar</button>
+            }
           </div>
 
           @if (t.offers.length === 0) {
@@ -472,13 +493,16 @@ const FRASES_TENDERO = [
                   </p>
 
                   <div class="art-pie">
-                    <button class="boton boton--lacre"
-                            [disabled]="!o.affordable || o.stock === 0 || ocupado() === o.itemCode"
-                            (click)="comprar(o)">
-                      {{ ocupado() === o.itemCode ? 'Contando…' : 'Comprar' }}
-                    </button>
-                    @if (!o.affordable && o.stock !== 0) {
-                      <span class="falta">Te faltan {{ falta(o) }}</span>
+                    <!-- Sin personaje no hay monedero: el máster solo surte. -->
+                    @if (!modoMaster()) {
+                      <button class="boton boton--lacre"
+                              [disabled]="!o.affordable || o.stock === 0 || ocupado() === o.itemCode"
+                              (click)="comprar(o)">
+                        {{ ocupado() === o.itemCode ? 'Contando…' : 'Comprar' }}
+                      </button>
+                      @if (!o.affordable && o.stock !== 0) {
+                        <span class="falta">Te faltan {{ falta(o) }}</span>
+                      }
                     }
                     @if (esDM()) {
                       <button class="boton-quitar" title="Retirar del mostrador"
@@ -495,6 +519,7 @@ const FRASES_TENDERO = [
         </section>
 
         <!-- ============ LO QUE LLEVAS ============ -->
+        @if (!modoMaster()) {
         <section class="seccion">
           <div class="franja">
             <p class="rotulo separador">En tu bolsa</p>
@@ -526,9 +551,12 @@ const FRASES_TENDERO = [
             </ul>
           }
         </section>
+        }
 
         <div class="acciones">
-          <button class="boton boton--noche" (click)="alTablon()">Ir al tablón</button>
+          @if (!modoMaster()) {
+            <button class="boton boton--noche" (click)="alTablon()">Ir al tablón</button>
+          }
           <button class="boton boton--noche" (click)="volver()">Volver</button>
         </div>
       }
@@ -817,6 +845,7 @@ const FRASES_TENDERO = [
     .monedas .ud { font-family: var(--dato); font-size: 10px; color: var(--sepia); margin-right: 4px; }
     .dm-acc { display: flex; align-items: center; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
     .dm-previo { font-family: var(--dato); font-size: 12px; color: var(--oro); }
+    .cambiar-mesa { display: block; margin: 0 0 12px; }
 
     /* ---------------- acciones ---------------- */
     .acciones { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
@@ -829,11 +858,41 @@ const FRASES_TENDERO = [
 })
 export class ShopPage implements OnInit, OnDestroy {
 
-  readonly personajeId = input.required<string>();
+  /**
+   * Llega uno de los dos, según la ruta. Con personaje es la tienda de siempre
+   * (monedero, bolsa, comprar); con campaña es la trastienda del máster, que
+   * surte el mostrador de una mesa que dirige sin tener personaje en ella.
+   */
+  readonly personajeId = input<string>();
+  readonly campanaId = input<string>();
+
+  readonly modoMaster = computed(() => !this.personajeId() && !!this.campanaId());
 
   private readonly juego = inject(JuegoService);
   private readonly campanas = inject(CampanasService);
   private readonly router = inject(Router);
+
+  private readonly dirigidas = this.campanas.queDirijo();
+
+  /** El nombre de la mesa que se surte, para el rótulo del modo campaña. */
+  readonly nombreCampana = computed(() =>
+    this.dirigidas()?.find(c => c.id === this.campanaId())?.name ?? null);
+
+  /** La campaña del personaje, para marcarla en el selector de mesa. */
+  readonly campanaDelPersonaje = computed(() => {
+    const pid = this.personajeId();
+    return pid ? this.campanas.contexto(pid)()?.campaignId ?? null : null;
+  });
+
+  constructor() {
+    // Al cambiar de campaña en el selector la ruta es la misma y el componente
+    // se reutiliza: ngOnInit no vuelve a correr, así que se recarga aquí.
+    effect(() => {
+      const pid = this.personajeId();
+      const cid = this.campanaId();
+      untracked(() => this.cargar(pid, cid));
+    });
+  }
 
   readonly tienda = signal<Shop | null>(null);
   readonly cargando = signal(true);
@@ -846,8 +905,11 @@ export class ShopPage implements OnInit, OnDestroy {
    * DE ESTA CAMPAÑA: el mostrador que se está tocando es el de la mesa en la
    * que juega este personaje, no el de todas.
    */
-  readonly esDM = computed(
-    () => this.campanas.contexto(this.personajeId())()?.dm ?? false);
+  readonly esDM = computed(() => {
+    if (this.modoMaster()) return true;   // el backend ya exige dirigirla
+    const pid = this.personajeId();
+    return pid ? this.campanas.contexto(pid)()?.dm ?? false : false;
+  });
 
   // --- la escena del tendero ---
 
@@ -974,8 +1036,17 @@ export class ShopPage implements OnInit, OnDestroy {
 
   // --- carga ---
 
-  ngOnInit(): void {
-    this.juego.tienda(this.personajeId()).subscribe({
+  private cargar(pid: string | undefined, cid: string | undefined): void {
+    const peticion = pid ? this.juego.tienda(pid)
+                   : cid ? this.juego.tiendaCampana(cid)
+                   : null;
+    if (!peticion) return;
+
+    this.cargando.set(true);
+    this.error.set(null);
+    this.errorDm.set(null);
+    this.tienda.set(null);
+    peticion.subscribe({
       next: t => { this.tienda.set(t); this.cargando.set(false); },
       // El backend explica el motivo cuando lo sabe: lo más común es que el
       // personaje no esté en ninguna campaña, y entonces no hay tienda que
@@ -985,7 +1056,22 @@ export class ShopPage implements OnInit, OnDestroy {
         this.error.set(err?.error?.message ?? 'No se ha podido abrir la tienda.');
       },
     });
+  }
 
+  /** La alta y la baja van por el personaje o por la campaña, según el modo. */
+  private ofertaNueva(oferta: ShopOfferCreate) {
+    const pid = this.personajeId();
+    return pid ? this.juego.crearOferta(pid, oferta)
+               : this.juego.crearOfertaCampana(this.campanaId()!, oferta);
+  }
+
+  private retirar(itemCode: string) {
+    const pid = this.personajeId();
+    return pid ? this.juego.quitarOferta(pid, itemCode)
+               : this.juego.quitarOfertaCampana(this.campanaId()!, itemCode);
+  }
+
+  ngOnInit(): void {
     this.rotarFrases = setInterval(
       () => this.fraseIdx.set((this.fraseIdx() + 1) % FRASES_TENDERO.length), 9000);
   }
@@ -998,7 +1084,7 @@ export class ShopPage implements OnInit, OnDestroy {
     if (this.ocupado()) return;
     this.ocupado.set(o.itemCode);
     this.error.set(null);
-    this.juego.comprar(this.personajeId(), o.itemCode).subscribe({
+    this.juego.comprar(this.personajeId()!, o.itemCode).subscribe({
       next: t => {
         this.tienda.set(t);
         this.ocupado.set(null);
@@ -1016,7 +1102,7 @@ export class ShopPage implements OnInit, OnDestroy {
     if (this.ocupado()) return;
     this.ocupado.set(i.itemCode);
     this.error.set(null);
-    this.juego.vender(this.personajeId(), i.itemCode).subscribe({
+    this.juego.vender(this.personajeId()!, i.itemCode).subscribe({
       next: t => { this.tienda.set(t); this.ocupado.set(null); },
       error: err => {
         this.ocupado.set(null);
@@ -1034,7 +1120,7 @@ export class ShopPage implements OnInit, OnDestroy {
     this.errorDm.set(null);
 
     const stock = this.ilimitado() ? -1 : Math.max(0, Math.floor(Number(this.cantidad()) || 0));
-    this.juego.crearOferta(this.personajeId(), {
+    this.ofertaNueva({
       name,
       priceCp: this.precioCp(),
       stock,
@@ -1062,7 +1148,7 @@ export class ShopPage implements OnInit, OnDestroy {
     if (this.ocupado()) return;
     this.ocupado.set(o.itemCode);
     this.errorDm.set(null);
-    this.juego.quitarOferta(this.personajeId(), o.itemCode).subscribe({
+    this.retirar(o.itemCode).subscribe({
       next: t => { this.tienda.set(t); this.ocupado.set(null); },
       error: err => {
         this.ocupado.set(null);
@@ -1076,6 +1162,6 @@ export class ShopPage implements OnInit, OnDestroy {
   }
 
   volver(): void {
-    void this.router.navigate(['/personajes']);
+    void this.router.navigate([this.modoMaster() ? '/campanas' : '/personajes']);
   }
 }

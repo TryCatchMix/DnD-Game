@@ -1,10 +1,12 @@
-import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { CampanasService } from '../../core/campaign.service';
 import { ElencoService } from '../../core/cast.service';
 import { Elenco, Pnj, PnjSuelto, Trato } from '../../core/cast.types';
+import { SelectorMesa } from '../../shared/campaign-picker';
+import { NavMaster } from '../../shared/master-nav';
 import { NavBar } from '../../shared/nav';
 import { ElencoSueltoPanel } from './loose-cast';
 import { PnjEditor } from './npc-editor';
@@ -35,9 +37,14 @@ type Vista =
  */
 @Component({
   selector: 'arc-elenco',
-  imports: [NavBar, FormsModule, RouterLink, Retrato, PnjFicha, PnjEditor, ElencoSueltoPanel],
+  imports: [NavBar, NavMaster, SelectorMesa, FormsModule, RouterLink, Retrato, PnjFicha, PnjEditor,
+            ElencoSueltoPanel],
   template: `
-    <arc-nav [personajeId]="personajeId()" [ancho]="true" />
+    @if (personajeId(); as pid) {
+      <arc-nav [personajeId]="pid" [ancho]="true" />
+    } @else if (campanaId(); as cid) {
+      <arc-nav-master [campanaId]="cid" seccion="elenco" [ancho]="true" />
+    }
 
     <div class="contenedor contenedor--ancho">
 
@@ -64,7 +71,7 @@ type Vista =
         </div>
 
       } @else if (vista().modo === 'ficha' && abierto()) {
-        <arc-pnj-ficha [pnj]="abierto()!" [dm]="dm()"
+        <arc-pnj-ficha [pnj]="abierto()!" [dm]="dm()" [jugadores]="jugadores()"
                        (cambiado)="aplicar($event)"
                        (editar)="vista.set({ modo: 'editar', id: abierto()!.id })"
                        (cerrar)="vista.set({ modo: 'rejilla' })" />
@@ -74,6 +81,7 @@ type Vista =
                         [alineamientos]="elenco()?.alignments ?? []"
                         [tratos]="tratos()"
                         [personajes]="elenco()?.personajes ?? []"
+                        [jugadores]="jugadores()"
                         [elencoOtros]="pnjs()"
                         (cambiado)="aplicar($event)"
                         (creado)="trasCrear($event)"
@@ -89,6 +97,12 @@ type Vista =
               ? 'La gente de tu campaña. Escribe la ficha entera y ve destapando lo que descubran: el nombre, la cara, de quién es hermano.'
               : 'Los que habéis conocido. Cada uno enseña lo que sabéis de él, y no más: lo demás irá saliendo.' }}
           </p>
+          <!-- Quien dirige varias mesas elige aquí qué elenco edita. En el
+               modo campaña ya va en la barra de arriba. -->
+          @if (dm() && personajeId()) {
+            <arc-selector-mesa class="cambiar-mesa" seccion="elenco"
+                               [actual]="campanaActual()" rotulo="Editar el elenco de" />
+          }
         </header>
 
         <div class="mando">
@@ -210,6 +224,7 @@ type Vista =
     .cabecera .rotulo { color: var(--sepia-claro); }
     .cabecera h1 { font-size: 28px; color: var(--pergamino); margin-top: 4px; }
     .intro { color: var(--sepia-claro); font-style: italic; margin: 8px 0 0; max-width: 64ch; }
+    .cambiar-mesa { display: block; margin-top: 12px; }
 
     .mando { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
     .buscar { flex: 1; min-width: 220px; }
@@ -309,9 +324,18 @@ type Vista =
     .mal { color: #d98a7c; border-left: 2px solid var(--vino); padding: 6px 10px; margin: 0 0 12px; }
   `,
 })
-export class ElencoPage implements OnInit {
+export class ElencoPage {
 
-  readonly personajeId = input.required<string>();
+  /**
+   * Llega uno de los dos, según la ruta. Con personaje, el elenco es el de la
+   * mesa en la que juega; con campaña, es el máster entrando directamente al
+   * elenco de una mesa que dirige, tenga o no personaje en ella.
+   */
+  readonly personajeId = input<string>();
+  readonly campanaId = input<string>();
+
+  /** La campaña cuyo elenco se está mirando, se haya llegado como se haya llegado. */
+  readonly campanaActual = signal<string | null>(null);
 
   private readonly campanas = inject(CampanasService);
   private readonly api = inject(ElencoService);
@@ -336,6 +360,7 @@ export class ElencoPage implements OnInit {
   readonly dm = computed(() => this.elenco()?.dm ?? false);
   readonly pnjs = computed(() => this.elenco()?.npcs ?? []);
   readonly tratos = computed<Trato[]>(() => this.elenco()?.kinds ?? []);
+  readonly jugadores = computed(() => this.elenco()?.jugadores ?? []);
 
   /** Cuántas fichas ve solo el máster porque el PNJ no ha salido aún. */
   readonly ocultos = computed(() => this.pnjs().filter(p => p.reveal && !p.reveal.listed).length);
@@ -373,24 +398,52 @@ export class ElencoPage implements OnInit {
     });
   });
 
-  ngOnInit(): void {
+  constructor() {
     // El cajón de sueltos es de la cuenta, no de la mesa: se pide siempre, y
     // también cuando el personaje no está en ninguna campaña —es justo el caso
     // de quien acaba de borrar la suya y quiere saber si perdió el elenco—.
     this.cargarSueltos();
 
+    // Al cambiar de campaña en el selector la ruta es la misma y el componente
+    // se reutiliza: se recarga aquí en vez de en ngOnInit.
+    effect(() => {
+      const pid = this.personajeId();
+      const cid = this.campanaId();
+      untracked(() => this.entrar(pid, cid));
+    });
+  }
+
+  private entrar(pid: string | undefined, cid: string | undefined): void {
+    this.cargando.set(true);
+    this.sinCampana.set(false);
+    this.error.set(null);
+    this.elenco.set(null);
+    this.cajon.set(false);
+    this.vista.set({ modo: 'rejilla' });
+
+    if (!pid) {
+      if (!cid) return;
+      this.usarCampana(cid);
+      return;
+    }
+
     // La URL lleva el personaje, pero el elenco cuelga de la campaña.
-    this.campanas.contextoDe(this.personajeId()).subscribe({
+    this.campanas.contextoDe(pid).subscribe({
       next: c => {
         if (!c.campaignId) { this.cargando.set(false); this.sinCampana.set(true); return; }
-        this.api.usar(c.campaignId);
-        this.cargar();
+        this.usarCampana(c.campaignId);
       },
       error: () => {
         this.cargando.set(false);
         this.error.set('No se ha podido saber en qué campaña juega este personaje.');
       },
     });
+  }
+
+  private usarCampana(id: string): void {
+    this.campanaActual.set(id);
+    this.api.usar(id);
+    this.cargar();
   }
 
   private cargar(): void {

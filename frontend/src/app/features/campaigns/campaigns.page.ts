@@ -45,8 +45,8 @@ import {
         <div class="hoja panel">
           <p class="rotulo">Abrir mesa</p>
           <h2>Crear una campaña</h2>
-          <p class="letra-pequena">La diriges tú. Nace con su tienda surtida y su
-            tablón, y te da un código para repartir.</p>
+          <p class="letra-pequena">La diriges tú: serás su máster, con su tienda,
+            su elenco y su tablón a tu cargo. Te da un código para repartir.</p>
           <input class="campo" placeholder="Nombre de la campaña"
                  [(ngModel)]="nuevoNombre" (keydown.enter)="crear()" />
           <textarea class="campo" rows="2" placeholder="De qué va (opcional)"
@@ -113,6 +113,16 @@ import {
                 <span class="dato">{{ c.characterCount }} personaje(s)</span>
                 @if (!c.open) { <span class="sep">·</span><span class="dato cerrada">Puerta cerrada</span> }
               </div>
+
+              <!-- El escritorio del máster de ESTA mesa. Entra por la campaña y
+                   no por un personaje: quien dirige no suele jugar en ella. -->
+              @if (c.role === 'DM') {
+                <div class="master">
+                  <span class="rotulo">Máster</span>
+                  <button class="mini mini--master" (click)="gestionar(c, 'tienda')">Tienda</button>
+                  <button class="mini mini--master" (click)="gestionar(c, 'elenco')">Elenco</button>
+                </div>
+              }
 
               <!-- El código: solo su máster, grande y copiable. -->
               @if (c.joinCode) {
@@ -295,6 +305,17 @@ import {
       font-family: var(--dato); font-size: 20px; letter-spacing: .28em; color: var(--oro);
       font-weight: 400;
     }
+
+    .master {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      margin-top: 12px; padding: 10px 12px;
+      background: rgba(76,106,55,.07);
+      border: 1px solid rgba(76,106,55,.35);
+      border-radius: var(--radio);
+    }
+    .master .rotulo { color: var(--musgo); margin: 0 6px 0 0; }
+    .mini--master { color: var(--musgo); border-color: rgba(76,106,55,.5); }
+    .mini--master:hover:not(:disabled) { background: rgba(76,106,55,.12); }
 
     .mios { margin-top: 12px; }
     .traer { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
@@ -535,6 +556,11 @@ export class CampanasPage implements OnInit {
     void navigator.clipboard?.writeText(codigo)
       .then(() => this.aviso.set(`Código ${codigo} copiado.`))
       .catch(() => this.aviso.set(`El código es ${codigo}.`));
+  }
+
+  /** Abrir la tienda o el elenco de una mesa que dirijo. */
+  gestionar(c: Campana, seccion: 'tienda' | 'elenco'): void {
+    void this.router.navigate(['/campanas', c.id, seccion]);
   }
 
   jugar(p: PersonajeDeCampana): void {

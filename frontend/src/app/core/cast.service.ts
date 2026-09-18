@@ -101,6 +101,14 @@ export class ElencoService {
   }
 
   /**
+   * Qué jugadores han visto la cara, cuando no la ha visto toda la mesa. Va
+   * la lista entera; la cara deja de estar revelada «para todos».
+   */
+  vistos(npcId: string, userIds: string[]): Observable<Elenco> {
+    return this.http.put<Elenco>(`${this.base()}/${npcId}/retrato/vistos`, { userIds });
+  }
+
+  /**
    * La URL local del retrato: null mientras baja, '' si no se pudo (o si esa
    * cara todavía no se ha descubierto, que el backend contesta 403).
    */
