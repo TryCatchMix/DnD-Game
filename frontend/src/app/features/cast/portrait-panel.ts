@@ -3,6 +3,7 @@ import { Component, computed, inject, input, output, signal } from '@angular/cor
 import { ElencoService } from '../../core/cast.service';
 import { Elenco, Pnj, Quien } from '../../core/cast.types';
 import { Retrato } from './portrait';
+import { RetratoAmpliado } from './retrato-ampliado';
 
 /** Lo que acepta el backend como retrato: el armario de La Mesa, sin el PDF. */
 const ACEPTA = 'image/jpeg,image/png,image/webp,image/gif';
@@ -18,9 +19,16 @@ const ACEPTA = 'image/jpeg,image/png,image/webp,image/gif';
  */
 @Component({
   selector: 'arc-retrato-panel',
-  imports: [Retrato],
+  imports: [Retrato, RetratoAmpliado],
   template: `
-    <arc-retrato [npcId]="pnj().id" [hay]="pnj().portrait" [nombre]="pnj().name" />
+    <arc-retrato [npcId]="pnj().id" [hay]="pnj().portrait" [nombre]="pnj().name"
+                 [ampliable]="ampliable()" (abrir)="ampliada.set($event)" />
+
+    <!-- La cara en grande. Vive aquí y no dentro de <arc-retrato> porque aquel
+         tiene container-type y atraparía el overlay fijo; este :host no. -->
+    @if (ampliada(); as u) {
+      <arc-retrato-ampliado [src]="u" [nombre]="pnj().name" (cerrar)="ampliada.set(null)" />
+    }
 
     @if (dm()) {
       <input #foto type="file" [accept]="ACEPTA" hidden (change)="elegida($event)" />
@@ -102,6 +110,9 @@ export class RetratoPanel {
   readonly dm = input(false);
   /** Los jugadores de la mesa (usuarios). Solo le llegan al máster. */
   readonly jugadores = input<Quien[]>([]);
+  /** Si al pinchar la cara se abre a pantalla completa. Lo enciende el
+   *  expediente; en el editor no hace falta. */
+  readonly ampliable = input(false);
 
   /** Subir, quitar o revelar devuelve el elenco entero ya actualizado. */
   readonly cambiado = output<Elenco>();
@@ -113,6 +124,9 @@ export class RetratoPanel {
   readonly subiendo = signal(false);
   readonly sellando = signal(false);
   readonly error = signal<string | null>(null);
+
+  /** La URL de la cara mientras está abierta en grande; null si está cerrada. */
+  readonly ampliada = signal<string | null>(null);
 
   readonly ocupado = computed(() => this.subiendo() || this.sellando());
 

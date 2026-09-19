@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 
 import { ElencoService } from '../../core/cast.service';
 
@@ -16,7 +16,14 @@ import { ElencoService } from '../../core/cast.service';
   selector: 'arc-retrato',
   template: `
     @if (url(); as u) {
-      <img [src]="u" [alt]="'Retrato de ' + nombre()" loading="lazy" />
+      <img [src]="u" [alt]="'Retrato de ' + nombre()" loading="lazy"
+           [class.ampliable]="ampliable()"
+           [attr.role]="ampliable() ? 'button' : null"
+           [attr.tabindex]="ampliable() ? 0 : null"
+           [attr.aria-label]="ampliable() ? 'Ver el retrato de ' + nombre() + ' en grande' : null"
+           (click)="ampliable() && abrir.emit(u)"
+           (keydown.enter)="ampliable() && abrir.emit(u)"
+           (keydown.space)="ampliable() && abrir.emit(u); ampliable() && $event.preventDefault()" />
     } @else if (hay() && url() === null) {
       <span class="cargando" aria-hidden="true"></span>
     } @else {
@@ -43,6 +50,9 @@ import { ElencoService } from '../../core/cast.service';
       border-bottom: 1px solid var(--linea);
     }
     img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* Cuando la cara se puede abrir en grande, la lupa lo anuncia. */
+    img.ampliable { cursor: zoom-in; }
+    img.ampliable:focus-visible { outline: 2px solid var(--oro); outline-offset: -2px; }
 
     .cargando {
       position: absolute; inset: 0;
@@ -74,6 +84,15 @@ export class Retrato {
 
   /** Para el texto alternativo y para la inicial del hueco. */
   readonly nombre = input('');
+
+  /** Si la cara se puede pinchar para verla a pantalla completa. Por defecto
+   *  no: en la rejilla del elenco pinchar la cara abre el expediente, no la
+   *  amplía. Solo el expediente la enciende. */
+  readonly ampliable = input(false);
+
+  /** Al pinchar (si es ampliable), la URL ya cargada del retrato, para que
+   *  quien la muestra abra el lightbox sin volver a bajar el blob. */
+  readonly abrir = output<string>();
 
   /**
    * De dónde se bajan los bytes. Un PNJ suelto no tiene mesa, así que su cara

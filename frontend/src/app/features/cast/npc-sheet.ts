@@ -65,7 +65,7 @@ const TRATOS: Record<Trato, string> = {
       <!-- ---------------------------------------------------- el retrato -->
       <div class="cara">
         <arc-retrato-panel [pnj]="pnj()" [dm]="dm()" [jugadores]="jugadores()"
-                           (cambiado)="cambiado.emit($event)" />
+                           [ampliable]="true" (cambiado)="cambiado.emit($event)" />
       </div>
 
       <!-- ------------------------------------------------------ los datos -->
