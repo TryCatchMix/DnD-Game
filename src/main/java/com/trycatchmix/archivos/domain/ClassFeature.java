@@ -36,7 +36,9 @@ public class ClassFeature {
     @Column(nullable = false)
     private String kind = "";
 
-    @Column(nullable = false, length = 2000)
+    /** Ampliado a text en V34: algunas aptitudes del compendio (Aura del
+     *  clérigo, etc.) pasan de 2000 caracteres. */
+    @Column(nullable = false, columnDefinition = "text")
     private String description = "";
 
     @Column(nullable = false)

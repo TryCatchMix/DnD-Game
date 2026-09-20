@@ -1,0 +1,226 @@
+[
+  {
+    "id": 1,
+    "name": "Apresado",
+    "nameEn": "",
+    "description": "enzarzado en una lucha o algún otro tipo de forcejeo con uno o más atacantes. Un personaje apresado sólo puede llevar a cabo una serie limitada de acciones, no amenaza ninguna área y pierde su bonificador de Destreza a la CA contra los oponentes que no estén participando en la presa. En el caso de las criaturas, la presa puede indicar que el monstruo atrapa a su oponente de alguna forma (con sus fauces, bajo una enorme pata, etc.).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 2,
+    "name": "Asustado",
+    "nameEn": "",
+    "description": "temeroso de una criatura, situación u objeto. Las criaturas asustadas huyen, en la medida de lo posible, de lo que origina su miedo. Podrán luchar cuando resulte imposible huir, pero sufrirán un penalizador -2 de moral en todas sus tiradas de ataque, pruebas de habilidad, pruebas de característica y TS. Una criatura asustada puede utilizar aptitudes especiales, incluyendo conjuros, para huir; es más, la criatura debe utilizar estos medios si son la única vía de escape.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 3,
+    "name": "Aterrado",
+    "nameEn": "",
+    "description": "paralizado de miedo e incapaz de llevar a cabo acciones. Una criatura aterrada sufre un penalizador -2 a la CA y pierde sus bonificadores de Destreza (en caso de tenerlos).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 4,
+    "name": "Atontado",
+    "nameEn": "",
+    "description": "incapaz de actuar de fórma normal. Un personaje atontado no puede realizar acciones, pero no sufre ningún penalizador a la CA.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 5,
+    "name": "Aturdido",
+    "nameEn": "",
+    "description": "una criatura aturdida deja caer cualquier cosa que esté sosteniendo, no puede llevar a cabo acción alguna, sufre un penalizador -2 a la CA y pierde su bonificador de Destreza a la CA (en caso de tener).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 6,
+    "name": "Comatoso",
+    "nameEn": "",
+    "description": "a todos los efectos, en un estado de animación suspendida. Una criatura comatosa está indefensa.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 7,
+    "name": "Confuso",
+    "nameEn": "",
+    "description": "desconcertado e incapaz de decidirse a actuar por culpa de un conjuro o efecto mágico. Las acciones de un personaje confuso se determinan lanzando d% al principio de su turno: 01-10, ataca al lanzador con armas de cuerpo a cuerpo o a distancia (o se acerca a este, si no le es posible atacarlo); 11-20, actúa de forma normal; 21-50, no hace nada más que balbucear de manera incoherente; 51-70, se aleja del lanzador a la mayor velocidad posible; 71-100, ataca a la criatura más cercana (en este caso, un familiar cuenta como parte del propio individuo). Un personaje confuso que no pueda llevar a cabo la acción indicada permanecerá sin hacer nada salvo balbucear de manera incoherente. Los atacantes no obtienen ninguna ventaja especial al atacar a un personaje confuso. Cualquier personaje confuso que sea atacado atacará automáticamente a sus atacantes cuando llegue su turno. Un personaje confuso no realiza ataques de oportunidad contra criaturas a las que no esté ya dedicándose a atacar (por ser esta su acción más reciente o porque acaba de ser atacado por ellas).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 8,
+    "name": "Deslumbrado",
+    "nameEn": "",
+    "description": "incapaz de ver bien por haber sido sus ojos estimulados en exceso. Una criatura deslumbrada sufre un -1 en las tiradas de ataque y en las pruebas de Avistar y Buscar.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 9,
+    "name": "Despavorido",
+    "nameEn": "",
+    "description": "una criatura despavorida dejará caer lo que lleve en las manos y huirá a toda velocidad del origen de su miedo y de cualquier peligro con que se tope en su camino, elegido al azar. No puede llevar a cabo ninguna otra acción. Además, la criatura sufrirá un penalizador -2 de moral en sus TS, pruebas de habilidad y pruebas de característica. Si es acorralada, una criatura despavorida pasará a estar aterrada, pero en lugar de atacar, se limitará a llevar a cabo acciones de defensa total. Una criatura despavorida puede utilizar aptitudes especiales, incluidos conjuros, para escapar; de hecho, la criatura debe utilizar estos medios si son la única vía de escape.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 10,
+    "name": "Desprevenido",
+    "nameEn": "",
+    "description": "especialmente vulnerable a los ataques al comienzo de un combate. Los personajes se consideran desprevenidos hasta que llega su primer turno en el ciclo de iniciativa. Las criaturas desprevenidas no pueden usar su bonif. de Des a la CA ni efectuar ataques de oportunidad.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 11,
+    "name": "Enmarañado",
+    "nameEn": "",
+    "description": "enredado. Estar enmarañado impide el movimiento, pero no lo hace por completo a no ser que las ligaduras estén atadas a un objeto inmóvil o retenidas por una fuerza que se oponga al movimiento. Una criatura enmarañada se mueve a la mitad de velocidad, no puede correr ni cargar y, además, sufre un -2 en las tiradas de ataque y un -4 en su puntuación efectiva de Destreza. Un personaje enmarañado que intente lanzar un conjuro debe realizar una prueba de Concentración (CD 15 + el nivel del conjuro) o perderlo.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 12,
+    "name": "Ensordecido",
+    "nameEn": "",
+    "description": "incapaz de oír. Un personaje ensordecido sufrirá un penalizador -4 en la iniciativa, fallará automáticamente las pruebas de Escuchar y tendrá un 20% de posibilidades de sufrir un fallo de conjuro cuando lance un sortilegio con componente verbal.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 13,
+    "name": "Enzarzado",
+    "nameEn": "",
+    "description": "amenazar a un enemigo o estar amenazado por él (los personajes inconscientes o inmovilizados de alguna otra manera sólo se consideran enzarzados cuando son víctimas de un ataque).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 14,
+    "name": "Estable",
+    "nameEn": "",
+    "description": "personaje inconsciente, aunque no moribundo, al que le quedan entre -1 y -9 puntos de golpe actuales. Un personaje moribundo que logre estabilizarse no recuperará puntos de golpe, pero dejará de perderlos al ritmo de 1 por asalto.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 15,
+    "name": "Estremecido",
+    "nameEn": "",
+    "description": "ligeramente temeroso. Un personaje estremecido sufre un penalizador -2 en las tiradas de ataque, pruebas de característica y habilidad, y en los tiros de salvación.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 16,
+    "name": "Exhausto",
+    "nameEn": "",
+    "description": "cansado hasta el punto de sufrir un deterioro importante. Un personaje exhausto se mueve a la mitad de su velocidad y sufre un penalizador -6 tanto en la Fuerza como en la Destreza. Tras 1 hora de descanso completo, el personaje exhausto pasará a estar fatigado. Un personaje fatigado pasa a estar exhausto cuando hace algo más que normalmente produce fatiga.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 17,
+    "name": "Expulsado",
+    "nameEn": "",
+    "description": "afectado por un intento de expulsión de muertos vivientes. Los muertos vivientes expulsados huirán durante 10 asaltos (1 minuto completo) lo más rápido que puedan y con todos los medios de que dispongan. Cuando no puedan huir, quedarán aterrados.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 18,
+    "name": "Fascinado",
+    "nameEn": "",
+    "description": "sumido en trance por un efecto de conjuro o sobrenatural. Una criatura fascinada permanece de pie o sentada tranquilamente, sin llevar a cabo ninguna otra acción que no sea prestar atención al efecto que la fascina durante todo el tiempo que este dure. Por ello sufre un penalizador - 4 en las pruebas de habilidad realizadas como reacciones, como las pruebas de Avistar y Escuchar. Cualquier amenaza potencial, como una criatura hostil aproximándose, permite a la criatura fascinada un nuevo tiro de salvación contra el efecto que la fascina. Cualquier amenaza obvia, como alguien desenvainando un arma, lanzando un conjuro o apuntando un arma a distancia a la criatura fascinada, romperá automáticamente el efecto. Un aliado de una criatura fascinada puede sacudirla para liberarla de los efectos mediante una acción estándar.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 19,
+    "name": "Fatigado",
+    "nameEn": "",
+    "description": "cansado hasta el punto de sufrir un deterioro. Un personaje fatigado no puede correr ni cargar y sufre penalizador -2 tanto en la Fuerza como en la Destreza. Hacer cualquier cosa que normalmente causaría fatiga hace que un personaje fatigado pase a estar exhausto. Los personajes fatigados vuelven a su estado normal tras 8 horas de completo descanso.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 20,
+    "name": "Frenado",
+    "nameEn": "",
+    "description": "incapaz de moverse hacia delante por una fuerza aplicada, como el viento. Las criaturas frenadas que se encuentren en el suelo simplemente se detienen, pero las que estén volando se mueven hacia atrás una distancia especificada en la descripción del efecto.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 21,
+    "name": "Grogui",
+    "nameEn": "",
+    "description": "personaje que ha acumulado un daño atenuado exactamente igual a sus puntos de golpe actuales. Un personaje grogui puede realizar una única acción de movimiento o acción estándar cada salto (pero no ambas, ni tampoco acciones de asalto completo).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 22,
+    "name": "Incapacitado",
+    "nameEn": "",
+    "description": "situación en la que se encuentra quien tenga exactamente 0 puntos de golpe, o con puntos negativos pero estable y consciente. Un personaje incapacitado puede llevar a cabo una única acción de movimiento o acción estándar cada asalto (pero no ambas, ni tampoco acciones de asalto completo). Se mueve a la mitad de su velocidad, y las acciones de movimiento no le producen mayores heridas, pero realizar cualquier acción estándar (o alguna otra acción que el DM considere extenuante, incluyendo algunas acciones gratuitas como lanzar un conjuro apresurado) le inflige 1 punto de daño después de terminar la acción. Salvo que la acción aumente los puntos de golpe del personaje incapacitado, tras ello se encontrará en puntos de golpe negativos y moribundo.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 23,
+    "name": "Inconsciente",
+    "nameEn": "",
+    "description": "sin sentido e indefenso. La inconsciencia puede deberse a tener entre -1 y-9 puntos de golpe actuales o a que el daño no letal acumulado por el personaje exceda sus puntos de golpe actuales. Un personaje inconsciente como resultado de tener entre -1 y -9 puntos de golpe que esté estable tiene un 10% de posibilidades cada hora de vol-· ver a estar consciente. Un personaje que esté inconsciente porque ha sufrido un daño no letal superior a sus puntos de golpe actuales tiene un 10 de posibilidades cada minuto de despertarse y estar grogui.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 24,
+    "name": "Indefenso",
+    "nameEn": "",
+    "description": "el personaje está paralizado, atado, inmovilizado, dormido, inconsciente o de algún otro modo a completa merced de su oponente. Se considera que un objetivo indefenso tiene una Destreza de 0 (modificador -5), y los ataques cuerpo a cuerpo contra él obtienen un bonificador +4. Un atacante puede dar un golpe de gracia a una víctima indefensa.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 25,
+    "name": "Indispuesto",
+    "nameEn": "",
+    "description": "ligeramente enfermo. Un personaje indispuesto sufre un penalizador -2 en la tiradas de taque, tiradas de daño con arma, tiros de salvación y en las pruebas de habilidades y características.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 26,
+    "name": "Invisible",
+    "nameEn": "",
+    "description": "imposible de detectar visualmente. Las criaturas invisibles obtienen un bonificador +2 en las tiradas de ataque y anulan el bonificador de Destreza a la CA de sus oponentes (la invisibilidad no tiene efecto contra las criaturas cegadas o que carecen de vista por cualquier otro motivo). La localización de una criatura invisible no puede ser determinada por medios visua les. Tiene ocultación total; incluso aunque un atacante adivine de manera co rrecta el lugar donde se encuentra la criatura invisible, seguirá teniendo un 50% de posibilidades de fallar en combate. Una criatura invisible obtiene un bonificador +40 a las pruebas de Esconderse si permanece inmóvil, y de +20 si se mueve. Localizar la casilla que ocupa una criatura invisible requiere una prueba de Avistar (CD 40 si la criatura está inmóvil, o CD 20 si la criatura se movió durante su último turno), modificada por los factores apropiados (como un penalizador de armadura o un penalizador por movimiento).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 27,
+    "name": "Moribundo",
+    "nameEn": "",
+    "description": "inconsciente y prácticamente muerto. Un personaje moribundo tendrá entre-1 y -9 puntos de golpe actuales y no podrá llevar a cabo acción alguna. Cada asalto debe tirar d% para ver si se estabiliza. Tiene un 10% de posibilidades de quedar estable, y si no lo consigue perderá 1 punto de golpe. Si un personaje moribundo alcanza los -- 10 puntos de golpe, habrá muerto.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 28,
+    "name": "Muerto",
+    "nameEn": "",
+    "description": "un personaje muere cuando sus puntos de golpe llegan a -10 o una cifra inferior, o cuando su Constitución queda reducida a 0. Además, existen ciertos conjuros o efectos (como fallar un tiro de salvación de Fortaleza al sufrir daño masivo) que también pueden matarlo en el acto. La muerte hace que el alma del personaje abandone su cuerpo y viaje hasta un plano Exterior. Los personajes muertos no se benefician de la curación (ni normal ni mágica), pero pueden ser devueltos a la vida por medio de la magia. El cadáver se pudrirá en su totalidad si no se ponen medios para conservarlo mágicamente, pero la magia que devuelva la vida al personaje hará que se recupere hasta estar en plena forma, o que vuelva al estado en que estuviera antes de morir (dependiendo del conjuro u objeto utilizado).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 29,
+    "name": "Nauseado",
+    "nameEn": "",
+    "description": "(también: \"mareado\") víctima de náuseas y malestar en el vientre. Las criaturas nauseadas no pueden atacar, lanzar conjuros, concentrarse en sus sortilegios ni hacer cualquier otra cosa que requiera su atención. La única acción que el personaje podrá llevar a cabo será una única acción de movimiento por turno, además de acciones gratuítas (salvo lanzar conjuros aprestirados).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 30,
+    "name": "Paralizado",
+    "nameEn": "",
+    "description": "incapaz de moverse o actuar físicamente, como por el conjuro de inmovilizar persona. Los personajes paralizados pasan a tener una puntuación efectiva de 0 tanto en Fuerza como en Destreza y se consideran indefensos, aunque pueden realizar acciones puramente mentales. Una criatura alada que estuviese volando en el momento en que quede paralizada no puede batir sus alas, y caerá. Un nadador paralizado no puede nadar, y se hundirá. Una criatura puede moverse a través del espacio ocupado por una criatura paralizada, sea o no su aliada; no obstante, cada casilla ocupada por una criatura paraliza cuenta como 2 casillas.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 31,
+    "name": "Petrificado",
+    "nameEn": "",
+    "description": "convertido en piedra. Los personajes petrificados son considerados inconscientes. Si un personaje petrificado se rompe o agrieta, pero las piezas rotas vuelven a unirse al cuerpo antes de que vuelva a la carne, no sufre daño alguno. En los demás casos, el DM debe asignar una pérdida permanente de puntos de golpe y/o alguna forma de debilitamiento.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "id": 32,
+    "name": "Tumbado",
+    "nameEn": "",
+    "description": "tirado en el suelo. Un atacante que esté tumbado sufrirá un penalizador -4 en las tiradas de ataque cuerpo a cuerpo y no podrá utilizar armas de ataque a distancia (a excepción de una ballesta). Un defensor tumbado obtiene un bonificador +4 a la CA contra ataques a distancia, pero sufre un penalizador - 4 a la CA contra ataques cuerpo a cuerpo.",
+    "source": "Manual del Jugador 3.5"
+  }
+]

@@ -13,11 +13,13 @@ const norm = (s: string) =>
 
 /** Clases con conjuros en el SRD. Fijas: no hace falta traerlas del servidor. */
 const CLASES_CONJURO = ['Mago', 'Hechicero', 'Clérigo', 'Bardo', 'Druida', 'Paladín', 'Explorador'];
-/** Clases marciales con aptitudes (no lanzan conjuros). */
-const CLASES_APTITUD = ['Bárbaro', 'Guerrero', 'Monje'];
-/** Tipos de dote del SRD. La dote no es de nadie: la elige quien cumpla el
- *  prerrequisito, así que se agrupan por tipo y no por clase. */
-const TIPOS_DOTE = ['General', 'Metamágica', 'Creación de objetos', 'Especial'];
+/** Clases con aptitudes de clase en el compendio (Manual del Jugador 3.5). No
+ *  todas lanzan conjuros: la aptitud es lo que sabe hacer la clase por sí sola. */
+const CLASES_APTITUD = ['Bárbaro', 'Bardo', 'Clérigo', 'Druida', 'Explorador',
+                        'Guerrero', 'Hechicero', 'Monje', 'Paladín', 'Pícaro'];
+/** Tipos de dote del SRD/compendio. La dote no es de nadie: la elige quien
+ *  cumpla el prerrequisito, así que se agrupan por tipo y no por clase. */
+const TIPOS_DOTE = ['General', 'Metamágica', 'Creación de objetos', 'Especial', 'Salvaje'];
 
 /** Estado de una clase en el formulario de alta: si está marcada y a qué nivel. */
 interface ClaseForm { sel: boolean; level: number; }
@@ -61,6 +63,7 @@ interface ClaseForm { sel: boolean; level: number; }
               <option value="invocacion:Warlock">Warlock</option>
             </optgroup>
             <optgroup label="Aptitudes de clase">
+              <option value="aptitud:">Todas las clases</option>
               @for (c of clasesAptitud; track c) {
                 <option [value]="'aptitud:' + c">{{ c }}</option>
               }
@@ -149,7 +152,7 @@ interface ClaseForm { sel: boolean; level: number; }
             <li class="hoja hechizo hechizo--apt">
               <div class="fila">
                 <h2>{{ a.name }}</h2>
-                <span class="nivel">{{ a.clazz }} · nivel {{ a.level }}</span>
+                <span class="nivel">{{ a.clazz }}@if (a.level > 0) { · nivel {{ a.level }} }</span>
               </div>
               <p class="escuela">{{ a.kind }}</p>
               <p class="desc">{{ a.description }}</p>
@@ -673,9 +676,11 @@ export class HabilidadesPage implements OnInit {
       next: ps => {
         const clase = ps.find(p => p.id === this.personajeId())?.role ?? '';
         const n = norm(clase);
+        // Un lanzador arranca en su lista de conjuros; las clases sin conjuros
+        // (Bárbaro, Guerrero, Monje, Pícaro) arrancan en sus aptitudes.
         if (n.includes('warlock') || n.includes('brujo')) this.vista.set('invocacion:Warlock');
-        else if (CLASES_APTITUD.some(c => norm(c) === n)) this.vista.set('aptitud:' + clase);
         else if (CLASES_CONJURO.some(c => norm(c) === n)) this.vista.set('hechizo:' + clase);
+        else if (CLASES_APTITUD.some(c => norm(c) === n)) this.vista.set('aptitud:' + clase);
         this.recargar();
       },
       error: () => this.recargar(),   // da igual: se queda en conjuros/Todas

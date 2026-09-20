@@ -1,0 +1,562 @@
+[
+  {
+    "clazz": "Bárbaro",
+    "name": "Movimiento rápido",
+    "kind": "Extraordinaria",
+    "description": "la velocidad de los bárbaros es 10' superior a la de otros miembros de su raza, siempre que vayan sin armadura o con armadura ligera o intermedia, y no lleven una carga pesada. Aplica este bonificador antes de modificar la velocidad del bárbaro por causa de cualquier carga transportada o armadura que lleve. Por ejemplo, un bárbaro humano tendría una velocidad de 40 en vez de 30', siempre que vaya sin armadura o con armadura ligera. Cuando lleve una armadura intermedia o una carga mediana, su velocidad desciende a 30'. Un mediano que sea bárbaro tiene una velocidad de 30', en lugar de 20', con armadura ligera o sin armadura. Cuando lleve una armadura intermedia o transporte una carga mediana, su velocidad bajará a 20'.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Bárbaro",
+    "name": "Furia",
+    "kind": "Extraordinaria",
+    "description": "un bárbaro puede dejarse llevar por una furia sedienta de sangre varias veces al día. Cuando está enfurecido, adquiere una fuerza y una resistencia asombrosas, pero también se vuelve temerario y disminuye su capacidad para defenderse. El bárbaro obtiene temporalmente un bonificador +4 a la Fuerza, un bonifica- dor +4 a la Constitución y un bonificador +2 de moral a los TS de Voluntad, pero también sufre un penalizador -2 a la CA La mejora de la Constitución incrementa los puntos de golpe del bárbaro en 2 por nivel, pero éstos desaparecerán al finalizar la furia, cuando la puntuación de la característica sea de nuevo la normal (a diferencia de lo que sucede con los puntos de golpe temporales, estos puntos adicionales no son los primeros en perderse al sufrir daño; consulta 'Puntos de golpe temporales', en la pág. 146). Mientras esté inmerso en su furia, un bárbaro no podrá utilizar ninguna habilidad basada en el Carisma, la Destreza o la Inteligencia (salvo Equilibrio, Escapismo, Intimidar y Montar), la habilidad de Concentración ni cualquier otra habilidad o característica que requiera paciencia o concentración; tampoco podrá lanzar conjuros o activar un objeto mágico que requiera una palabra de mando, un desencadenante de conjuro (como una varita), o finalización de conjuro (como un rollo de pergamino) para funcionar. Puede utilizar cualquier dote que posea, excepto Pericia en combate, dotes de creación de objetos y dotes metamágicas. Un ataque de furia dura una cantidad de asaltos igual a 3 + el (recién mejorado) modificador de Constitución del personaje. El bárbaro podrá poner fin a su furia voluntariamente antes de tiempo. Al finalizar el ataque de furia, el personaje estará fatigado (penalizador -2 a Fuerza, penalizador -2 a Destreza y no podrá correr ni cargar) durante el resto del encuentro (a no ser que el bárbaro haya alcanzado el nivel 17.º, momento en que ya no se aplicará la ish + + + ] 9 limitación, ver más adelante). 2000 Un bárbaro sólo puede entrar en un estado de furia una vez por encuentro. A 1.ª nivel puede utilizar su aptitud de furia una vez al día. A 4.º nivel y cada cuatro niveles adicionales, puede utilizarla una vez adicional por día (hasta un máximo de seis veces al día a nivel 20.º). Iniciar el ataque de furia no Krusk consumirá tiempo de por sí, pero el bárbaro sólo podrá hacerlo durante su acción (consulta 'Iniciativa', en la pág. 136), no como respuesta a la acción de otra persona. Si, por ejemplo, el bárbaro fuera golpeado | | TABLA 3-3: EL BARBARO | | | | | |-------|-----------------------|-------|-------|-------|-----------------------------------------------| | | Ataque | S. de | S. de | S. de | | | Nivel | base | Fort. | Ref. | Vol. | Especial | | 1. | +] | +2 | +0 | +0 | Analfabetismo, furia 1/día; movimiento rápido | | 2. | +2 | +3 | 40 | +0 | Esquiva asombrosa | | 3: | +3 | +3 | 手机 | +1 | Sentido de las trampas +1 | | 4° | +4 | +4 | +1 | +1 | Furia 2/día | | 5: | +5 | +4 | +1 | +1 | Esquiva asombrosa mejorada | | 6. | +6/+1 | +5 | +2 | +2 | Sentido de las trampas +2 | | 7. | +7/+2 | +5 | +2 | +2 | Reducción del daño 1/- | | 8. | +8/+3 | +6 | +2 | +2 | Furia 3/día | | 9: | +9/+4 | +6 | +3 | +3 | Sentido de las trampas +3 | | 10.º | +10/+5 | +7 | +3 | +3 | Reducción del daño 2/- | | 11. | +11/+6/+1 | +7 | +3 | +3 | Furia mayor | | 12. | +12/+7/+2 | +8 | +4 | +4 | Furia 4/día, sentido de las trampas +4 | | 13. | +13/48/43 | +8 | +4 | +4 | Reducción del daño 3/- | | 14: | +14/+9/+4 | +9 | +4 | +4 | Voluntad indomable | | 15. | +15/+10/+5 | +9 | +5 | +5 | Sentido de las trampas +5 | | 16. | +16/+11/+6/+1 | +10 | +5 | +5 | Furia 5/día, reducción del daño 4/ | | 17: | +77/+12/+7/+2 | +10 | +5 | +5 | Furia incansable | | 18. | +18/+13/+8/+3 | + 1 | +6 | +6 | Sentido de las trampas +6 | | 195 | +19/+14/+9/+4 | +17 | +6 | 46 | Reducción del daño 5/- | | 20.ª | +20/+15/+10/+5 | +12 | +6 | +6 | Furia 6/día, Furia poderosa | por una flecha, no podría dejarse llevar por la furia para ganar los puntos de golpe adicionales correspondientes al incremento en Constitución (se hubiera beneficiado de tales puntos en caso de haberse enfurecido en un momento anterior del combate, antes de ser golpeado por la flecha).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Bárbaro",
+    "name": "Esquiva asombrosa",
+    "kind": "Extraordinaria",
+    "description": "a 2.º nivel, el bárbaro adquiere la aptitud de reaccionar ante el peligro antes de lo que sus sentidos le permitirían normalmente. Por ello retiene su bonificador de Destreza a la CA (en caso de tenerlo) incluso aunque le tomen desprevenido o sea atacado por un enemigo invisible. A pesar de ello seguirá perdiendo el bonificador de Destreza a la CA en caso de quedar inmovilizado. Si un bárbaro ya poseía esquiva asombrosa de una clase diferente (un bárbaro con al menos cuatro niveles de pícaro, por ejemplo), automáticamente obtiene esquiva asombrosa mejorada (ver más adelante) en su lugar.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Bárbaro",
+    "name": "Sentido de las trampas",
+    "kind": "Extraordinaria",
+    "description": "comenzando a 3.ª nivel, el bárbaro adquiere un sentido intuitivo que le advierte de las trampas, lo que le concede un bonificador +1 a los TS de Reflejos realizados a fin de evitarlas, y un bonificador +1 de esquiva a la CA contra los ataques procedentes de ellas. Estos bonificadores aumentan en +1 por cada tres niveles de bárbaro posteriores (a nivel 6.º, 9.º, 12º, 15.ºy 18.º). Los bonificadores de sentido de las trampas ob tenidos de diferentes clases se apilan.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Bárbaro",
+    "name": "Esquiva asombrosa mejorada",
+    "kind": "Extraordinaria",
+    "description": "a partir del 5.º nivel, un bárbaro ya | no puede ser flanqueado, pues reaccionará ante oponentes situados a ambos lados con la misma facilidad que si tuviera que hacerlo ante un solo atacante. Esta defensa impedirá que un pícaro pueda atacar furtivamente al bárbaro cuando lo esté flanqueando, a no ser que el atacante tenga al menos cuatro niveles de pícaro más que los niveles de bárbaro del objetivo. Si un personaje ya tenía esquiva asombrosa (ver más arriba) de una segunda clase, automáticamente obtiene esquiva asombrosa mejorada en su lugar, y los niveles de todas las clases que proporcionan esquiva asombrosa se apilan para determinar el nivel mínimo de pícaro necesario para flanquear al personaje.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Bárbaro",
+    "name": "Reducción del daño",
+    "kind": "Extraordinaria",
+    "description": "a partir del nivel 7.º, un bárbaro obtiene la aptitud de ignorar parte del daño de cada golpe o ataque que reciba. Cada vez que el bárbaro sufra daño de un arma o ataque natural, resta 1 a la cantidad de puntos de golpe perdidos. A nivel 10.º y cada tres niveles de bárbaro adicionales (nivel 13.º, 16.ºy 19.º), la reducción del daño aumenta en 1 punto. Esta aptitud puede reducir el daño sufrido a 0, pero no a una cantidad inferior a 0.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Bárbaro",
+    "name": "Furia mayor",
+    "kind": "Extraordinaria",
+    "description": "a 11.º nivel, los bonificadores a Fuerza y Constitución de un bárbaro durante su furia aumentan a +6, y su bonificador de moral a las salvaciones de Voluntad aumenta a +3. El penalizador a la CA sigue siendo-2.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Bárbaro",
+    "name": "Voluntad indomable",
+    "kind": "Extraordinaria",
+    "description": "mientras esté enfurecido, un bárbaro de nivel 14.º o mayor obtiene un bonificador +4 a las salvaciones de Voluntad para resistir conjuros de encantamiento. Este bonificador se apila con todos los demás bonificadores, incluyendo el bonificador de moral a las salvaciones de Voluntad que recibe de manera normal durante la furia.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Bárbaro",
+    "name": "Furia incansable",
+    "kind": "Extraordinaria",
+    "description": "a nivel 17.º y superiores, un bárbaro ya no queda fatigado al concluir su furia.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Bárbaro",
+    "name": "Furia poderosa",
+    "kind": "Extraordinaria",
+    "description": "a 20º nivel, un bárbaro recibe un bonificador +8 a Fuerza y Constitución durante su furia, y su bonificador de moral a las salvaciones de Voluntad aumenta hasta +4. El penalizador a la CA sigue siendo -2.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Bardo",
+    "name": "Contraoda",
+    "kind": "Sobrenatural",
+    "description": "un bardo con 3 o más rangos en Interpretar puede utilizar su música o su poesía para contrarrestar efectos mágicos que dependan del sonido (no así conjuros que simplemente tengan componente verbal). Cada asalto que dure la contraoda, el bardo deberá realizar una prueba de Interpretar. Toda criatura situada a 30' o menos del bardo (incluido el propio bardo) que resulte afectada por un ataque mágico de naturaleza sónica o dependiente del idioma (como los conjuros explosión de sonido u orden imperiosa) podrá utilizar el resultado de la prueba de Interpretar del bardo en lugar de su TS habitual si, después de tirar la salvación, el resultado de la prueba de Interpretar es mayor. Si una criatura dentro del alcance de la contraoda ya estaba bajo el efecto de un ataque mágico sónico o dependiente del idioma no instantáneo, obtiene otro TS contra el efecto por cada asalto que escuche la contraoda, pero debe utilizar el resultado de la prueba de Interpretar del bardo para éste. La contraoda es inútil contra efectos que no permitan un TS. El bardo puede mantener este efecto durante 10 asaltos. Fascinar (St): un bardo con 3 o más rangos en Interpretar puede utilizar su música o su poesía para hacer que una o más criaturas queden fascinadas con él. Toda criatura a la que se desee afectar debe ser capaz de ver y oír al bardo y no encontrarse a más de 90' de éste; además, el bardo debe estar viéndola y la criatura debe ser capaz de prestarle atención. La distracción de un combate cercano u otros peligros para la criatura impedirán que la aptitud funcione. Por cada tres niveles de bardo más allá del 1.º, puede seleccionar como objetivo a una criatura adicional con el mismo uso de esta aptitud (dos a 4.º nivel, tres a 7.º nivel, etc.). Para usar esta aptitud, el bardo realiza una prueba de Interpretar, y la víctima puede anular el efecto mediante un TS de Voluntad con una CD igual al resultado que el bardo obtenga en la prueba. Si el TS tiene éxito, el bardo no podrá volver a intentar fascinar a esa misma criatura durante las siguientes 24 horas. Si el tiro resulta fallido, la criatura se sentará tranquilamente a escuchar la canción durante tanto tiempo como el bardo continúe tocando y manteniendo la concentración (hasta un máximo de 1 asalto por nivel de bardo), sin llevar a cabo ninguna otra acción. Mientras la criatura esté fascinada, sufrirá un penalizador -4 en las pruebas realizadas como reacción, tales como Avistar y Escuchar. Toda posible amenaza (como un aliado del bardo poniéndose a la espalda de la víctima) permitirá que la criatura afectada pueda realizar otro TS contra una CD igual al resultado de una nueva prueba de Interpretar. Toda amenaza clara, como lanzar un conjuro, desenvainar una espada o apuntar con un arma de proyectil al objetivo, romperá automáticamente el electo. Fascinar es una aptitud enajenadora de encantamiento (compulsión).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Bardo",
+    "name": "Infundir valor",
+    "kind": "Sobrenatural",
+    "description": "un bardo con 3 o más rangos en Interpretar podrá utilizar su canto o su poesía para infundir valor a sus aliados (incluido él mismo), fortaleciéndolos frente al miedo y mejorando sus aptitudes de combate. Para resultar afectado, el aliado debe oír la canción del bardo. El efecto se mantendrá mientras el bardo siga cantando y hasta 5 asaltos después de que termine de hacerlo. Los aliados afectados recibirán un bonificador +1 de moral a sus TS contra efectos de hechizar y miedo, y un bonificador +1 de moral a sus tiradas de ataque y daño. A 8.º nivel, y cada seis niveles de bardo adicionales, este bonificador aumenta en 1 (+2 a 8.9 +3 a 14.º y +4 a 20.º). Infundir valor es una aptitud enajenadora.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Bardo",
+    "name": "Infundir gran aptitud",
+    "kind": "Sobrenatural",
+    "description": "un bardo de nivel 3.º o superior con 6 o más rangos en Interpretar puede utilizar su música o su poesía para ayudar a un aliado a tener éxito en una tarea. El aliado debe ser capaz de verle y oírle, y no debe encontrarse a más de 30 de éste; además, el bardo debe estar viendo a su objetivo. Dependiendo de la tarea a realizar, el bardo puede valerse de su música mágica para ensalzar el espíritu de su aliado, hacer que se concentre o ayudarle de alguna otra forma. Mientras siga escuchando la música del bardo, el aliado de éste recibirá un bonificador +2 de capacidad en sus pruebas con una habilidad concreta. El DM puede decidir que algunos usos de esta aptitud son inverosímiles (cantar para que un pícaro se mueva mejor en silencio es una idea que cae por su propio peso ). El bardo puede mantener el efecto mientras se concentre, hasta un máximo de 2 minutos. No es posible que un bardo utilice esta aptitud sobre sí mismo. Infundir gran aptitud es una aptitud enajenadora. Sugestión (St): un bardo de 6.º nivel o superior con 9 o más rangos en Interpretar puede lanzar una sugestión (como el conjuro) sobre una criatura que previamente haya sido fascinada (ver más arriba). Utilizar esta aptitud no rompe la concentración del bardo sobre el efecto de fascinar, ni permite un segundo TS contra ese efecto. Realizar una sugestión no cuenta a la hora de calcular el límite de veces que el personaje puede utilizar la música de bardo cada día. Un IS de Voluntad (CD 10 + 1/2 del nivel de bardo + el modificador de Carisma del bardo) niega el efecto. Esta aptitud afecta a una única criatura (pero consulta sugestión en grupo, más adelante). Sugestión es una aptitud de encantamiento (compulsión), enajenadora y dependiente del idioma.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Bardo",
+    "name": "Infundir grandeza",
+    "kind": "Sobrenatural",
+    "description": "un bardo de 9.º nivel o superior con 12 o más rangos en Interpretar puede valerse del canto o de la poesía para infundir grandeza en sí mismo o en un único aliado voluntario en un radio de 30', concediéndole una mayor capacidad para la lucha. El bardo podrá afectar con un mismo uso. de esta aptitud a una criatura adicional por cada tres niveles en que supere el 9º (dos a nivel 12º, tres a 15º, cuatro a 18.º). Para infundir grandeza, el bardo debe cantar y el aliado debe escucharle. El efecto dura todo el tiempo que el aliado escuche cantar al bardo y los 5 asaltos siguientes. Una criatura a la que se infunda grandeza obtiene 2 DG adicionales (d10), el número correspondiente de puntos de golpe temporales (a estos DG adicionales se les debe aplicar el modificador de Constitución del objetivo, si existe), un bonificador +2 de competencia a las tiradas de ataque, y un bonificador +1 de competencia a las salvaciones de Fortaleza. Los DG adicionales cuentan como DG normales para determinar el efecto de conjuros como el de dormir. Infundir grandeza es una aptitud enajenadora. Canción de libertad (St): un bardo de 12.º nivel o superior con 15 o más rangos en Interpretar puede valerse del canto o de la poesía para crear un efecto equivalente al conjuro de romper encantamiento (el nivel de lanzador sería igual al nivel de bardo del personaje). Utilizar esta aptitud requiere 1 minuto de concentración ininterrumpida y música, y funciona sobre un único objetivo a no más de 30'. Un bardo no puede utilizar canción de libertad sobre sí mismo.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Bardo",
+    "name": "Infundir heroicidad",
+    "kind": "Sobrenatural",
+    "description": "un bardo de 15.º nivel o superior con 18 o más rangos en Interpretar puede valerse del canto o de la poesía para infundir un tremendo heroísmo en sí mismo o en un único aliado voluntario a no más de 30', que permite a esa criatura luchar arrojadamente contra una oposición abrumadora. Por cada tres niveles de bardo que el personaje obtenga más allá del 15.º, puede infundir heroicidad en una criatura adicional. Para utilizar esta aptitud, el bardo debe cantar y el aliado debe escucharle durante un asalto completo. Una criatura a la que se le ha infundido heroicidad obtiene un bonificador +4 de moral en los TS y un bonificador +4 de esquiva a la CA. El efecto dura mientras el aliado escuche cantar al bardo y durante los 5 asaltos siguientes. Infundir heroicidad es una aptitud enajenadora. Sugestión en grupo (St): esta aptitud funciona como la de sugestión descrita antes, salvo en que un bardo de nivel 18.º o superior con 21 o más rangos en Interpretar puede realizar la sugestión simultáneamente sobre todas las criaturas que ya haya fascinado (ver más arriba). Sugestión en grupo es una aptitud de encantamiento (compulsión), enajenadora y dependiente del idioma.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Clérigo",
+    "name": "Aura",
+    "kind": "Extraordinaria",
+    "description": "un clérigo de una deidad buena, caótica, legal o maligna tiene un aura especialmente poderosa correspondiente al alineamiento de la deidad (ver el conjuro detectar el mal para los detalles). Los clérigos que no adoran a una deidad específica que elijan los dominios de Bien, Caos, Ley o Mal tienen un aura similar del alineamiento correspondiente. Conjuros: un clérigo lanza conjuros divinos (el mismo tipo de conjuros disponible para druidas, exploradores y paladines), elegidos de la lista de conjuros de clérigo (pág. 183). Sin embargo, su alineamiento puede impedirle lanzar ciertos conjuros opuestos a sus creencias morales o éticas (consulta 'Conjuros buenos, caóticos, legales y malignos', más adelante). Un clérigo debe elegir y preparar sus conjuros con antelación (ver más abajo). Para poder preparar o lanzar un conjuro, el clérigo ha de tener una puntuación de Sabiduría de al menos 10 + el nivel del conjuro a ejecutar (Sab 10 para conjuros de nivel 0, Sab 11 para conjuros de 1.4ª nivel, etc.). La CD de los TS contra los conjuros de clérigo equivale a 10 + el nivel del conjuro + el modificador de Sabiduría del clérigo. Como otros lanzadores de conjuros, un clérigo sólo puede lanzar un número determinado de conjuros de cada nivel por día. Su asignación diaria de conjuros se da en la tabla 3-6: el clérigo. Además, recibe conjuros diarios adicionales si tiene una puntuación alta de Sabiduría (ver la tabla 1-1: modificadores de característica y conjuros adicionales, pág. 8). Además de la cantidad normal, un clérigo dispone de un conjuro adicional de dominio por cada nivel de conjuro, empezando a partir del 1.º nivel. Cuando un clérigo prepara un conjuro de dominio, éste debe pertenecer a uno de sus dos dominios (ver 'Deidades, dominios y conjuros de dominio, a continuación, para los detalles). Los clérigos no aprenden sus conjuros a partir de libros o rollos de pergamino, ni los preparan por medio del estudio. En lugar de ello, meditan o rezan para conseguirlos, recibiéndolos gracias a la fuerza de su fe o por medio de la inspiración divina. Cada día, el clérigo debe elegir un momento en el que pasar una hora implorando a su dios o dedicándose a la contemplación, para recuperar su asignación diaria de conjuros (normalmente, esta hora suele ser al alba o al mediodía, en el caso de los clérigos buenos; y en el ocaso o a medianoche, en el caso de los malvados). El tiempo dedicado al descanso no afectará en absoluto al modo en que los clérigos preparan sus conjuros. Un clérigo puede preparar y lanzar cualquier conjuro de la lista de conjuros de clérigo (pág. 183), suponiendo que pueda lanzar conjuros de ese nivel, pero durante la meditación de ese día deberá elegir qué conjuros va a preparar. Deidad, dominios y conjuros de dominio: elige un dios para tu clérigo; hay varios ejemplos en la tabla 3-7: deidades, descritos en las págs. 106-108. El dios que elijas influirá en el alineamiento de tu clérigo, en el tipo de magia que podrá realizar, en sus valores y la imagen que los demás tendrán de él. También puedes decidir que tu clérigo no tenga ninguna deidad. Si los adoradores típicos de una deidad incluyen a los miembros de una raza, un clérigo debe ser de una de las razas citadas para poder escoger la deidad en cuestión (el dios podría tener algún fiel de otras razas, pero no clérigos). Una vez elegida una deidad y un alineamiento, elige dos entre los do minios de esa deidad (tabla 3-7) como los dominios del clérigo. Si bien los clérigos de una religión particular están unidos en reverenciar a su dios, cada clérigo pone énfasis en diferentes aspectos de los intereses de la deidad. Sólo puedes elegir un dominio de alineamiento (Bien, Caos, Ley o Mal) para tu clérigo si su alineamiento se corresponde con ese dominio. Si tu clérigo no es devoto de ninguna deidad en particular, tendrás que elegir dos dominios para representar sus aptitudes y sus inclinaciones espirituales. Las restricciones de alineamiento de los dominios siguen aplicándose. Cada dominio proporciona a tu clérigo acceso a un conjuro de dominio por cada nivel de conjuro (a partir de primero, no de nivel 0), así como un poder concedido. Tu clérigo obtendrá los poderes concedidos de los dos dominios seleccionados. Aunque tenga acceso a dos conjuros de dominio por nivel de conjuro, sólo podrá preparar uno u otro cada día. Si un conjuro de dominio no se encuentra en la lista de conjuros de clérigo (pág. 183), el clérigo sólo podrá prepararlo utilizando su espacio de dominio. Los conjuros de dominio y los poderes concedidos están agrupados en la sección ·Dominios de clérigo, págs. 185-189. Por ejemplo, Jozan es un clérigo de Pelor de 1.5 nivel. Escoge Bien y Curación como sus dos dominios y obtiene sendos poderes concedidos por haberlos elegido. El dominio del Bien le otorga un poder concedido con el que puede ejecutar con un +1 al nivel de lanzador todos los conjuros con descriptor de bueno (es decir, como si tuviera un nivel de experiencia más como clérigo); además, le concede acceso a protección contra el mal como conjuro de dominio de 1.6º nivel. El dominio de Curación le otorga un poder concedido con el que puede ejecutar con un +1 al nivel de lanzador todos los conjuros de la subescuela de curación (perteneciente a conjuración); ade más, le concede acceso a curar heridas leves como conjuro de dominio de 1.ª nivel. Cuando Jozan prepara sus conjuros, obtiene uno de 1.5 nivel por ser clérigo de 1.ª nivel, otro de 1.ª nivel por tener una Sabiduría elevada (15) y otro más como conjuro de dominio. Este último ha de ser uno de los a los que tiene acceso, ya sea protección contra el mal o curar heridas leves. Lanzamiento espontáneo: los clérigos buenos (y los neutrales que vene ren a deidades del bien) pueden canalizar energía mágica almacenada en forma de conjuros de curación no preparados de antemano. El clérigo puede \"cambiar\" cualquier conjuro preparado que no sea un conjuro de dominio para lanzar otro de curar que sea de nivel igual o inferior (un conjuro de curar es cualquiera que lleve la palabra \"curar\" en su nombre). Por ejemplo, un clérigo de alineamiento bueno que hubiera preparado orden imperiosa (un conjuro de 1.5 nivel), podría renunciar a él con el fin de lanzar un curar heridas leves (también de 1.4 nivel). Los clérigos de los dioses del bien pueden lanzar conjuros de curar así porque son especialmente eficaces a la hora de manipular la energía positiva. Por el contrario, un clérigo maligno (o uno neutral que venere a una deidad maligna) no puede cambiar conjuros preparados por otros de curar, pero sí por otros de infligir (un conjuro de infligir es cualquiera que lleve la palabra \"infligir\" en su título). Tales clérigos son especialmente hábiles a la hora de manipular la energía negativa. Un clérigo que no sea bueno ni maligno (y cuya deidad tampoco lo sea) podrá convertir sus conjuros preparados en sortilegios de curar o de infligir dependiendo de si se le da mejor manipular energía positiva o negativa. Esto queda a elección del jugador, que no tendrá posibilidad de volverse atrás una vez decida. Esta elección también determinará si el clérigo puede expulsar o comandar muertos vivientes (ver más adelante). Excepciones: todos los clérigos legales neutrales de Wee Jas (diosa de la muerte y la magia) convierten sus conjuros en sortilegios de infligir, nunca de curar. Todos los clérigos de San Cuthbert (dios del justo castigo) y los clérigos no malignos de Obad-Hai (dios de la naturaleza) los convierten en conjuros de curar, nunca de infligir. Conjuros buenos, caóticos, legales y malignos: ningún clérigo puede lanzar conjuros de un alineamiento opuesto al suyo o al de su deidad (si tiene). Por ejemplo, un clérigo bueno (o uno neutral de una deidad de alineamiento bueno) no puede lanzar conjuros malignos. Los conjuros asociados a un alineamiento determinado lo indican mediante un descriptor de bien, caos, ley o mal en la descripción del conjuro (ver el Capítulo 11: conjuros). Expulsar o reprender muertos vivientes: cualquier clérigo, sin importar su alineamiento, tiene el poder de afectar a las criaturas muertas vivientes (como esqueletos, zombis, fantasmas y vampiros) canalizando el poder de su fe mediante su símbolo sagrado (o sacrílego) (ver 'Expulsar o reprender muertos vivientes', pág. 156). Un clérigo bueno (o uno neutral que venere a una deidad de ese alineamiento) puede expulsar o destruir criaturas muertas vivientes. Un clérigo maligno (y uno neutral que venere a una deidad maligna) en lugar de ello reprende o comanda a estas criaturas, forzándolas a encogerse de terror ante su poder. Si tu personaje es un clérigo neutral de un dios también neutral, debes elegir si la habilidad de expulsión funciona como la de un clérigo bueno o como la de un clérigo maligno. Una vez que realizas esta elección, no puede volverse atrás. Esta elección también determinará si el clérigo neutral puede lanzar conjuros espontáneos de curar o de infligir (véase más arriba). Excepciones: todos los clérigos legales neutrales de Wee Jas (diosa de la muerte y la magia) reprenden o comandan a los muertos vivientes en lugar de expulsarlos. Todos los clérigos de San Cuthbert (dios del justo castigo) y todos los clérigos no malignos de Obad-Hai (dios de la naturaleza) expulsan o destruyen a los muertos vivientes. Un clérigo sólo puede intentar expulsar a muertos vivientes un número de veces al día igual a 3 + su modificador de Carisma. Un clérigo con 5 o más rangos en Saber (religión) obtiene un bonificador +2 en la pruebas de expulsión contra muertos vivientes. Idiomas adicionales: la lista de idiomas adicionales de los clérigos incluye celestial, abisal e infernal (los idiomas de los ajenos buenos, caóticos malignos y legales malignos, respectivamente), además de los idiomas adicionales del personaje gracias a su raza (consulta 'Raza e idiomas', pág. 12; y la habilidad Hablar un idioma, pág. 75.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Druida",
+    "name": "Compañero animal",
+    "kind": "Extraordinaria",
+    "description": "un druida puede empezar a jugar con un compañero animal, elegido de la siguiente lista: águila, búho, caballo (ligero o pesado), camello, halcón, lobo, perro, perro de monta, poni, rata terrible, serpiente (víbora Pequeña o Mediana) o tejón. Si la campaña del DM tiene lugar parcial o totalmente en un entorno acuático, este puede añadir las siguientes criaturas a la lista de opciones del druida: calamar, marsopa y tiburón Mediano. Este animal es un camarada leal que acompaña al druida en sus aventuras tal y como sea apropiado para su especie. El compañero de un druida de 1.ª nivel es completamente normal para su especie, salvo en lo que se indica en la barra lateral de la pág. 36. Conforme el druida va subiendo de nivel, el poder del animal aumenta tal y como se muestra en la tabla de esa barra lateral. Si un druida libera a su compañero de su servicio, puede obtener uno nuevo realizando una ceremonia que requiere 24 horas ininterrumpidas de oración. Esta ceremonia también sirve para reemplazar a un compañero animal que haya muerto. Un druida de 4.º nivel o superior puede elegir de una lista alternativa de animales (ver la barra lateral). Si elige un compañero animal de una de estas listas alternativas, la criatura obtiene aptitudes como si el nivel de druida del personaje fuese menor a su valor real. Resta el valor indicado en el encabezamiento de la lista apropiada del nivel de druida del personaje y compara el resultado con la entrada de nivel de druida de la tabla de la barra lateral para determinar los poderes del compañero animal. Si estos ajustes reducirían el nivel efectivo del druida a 0 o menos, no es posible que el personaje tenga a ese compañero animal. Por ejemplo, un druida de 6.º nivel podría elegir a un leopardo como compañero animal. El leopardo tendría entonces las características y aptitudes especiales apropiadas para el compañero de un druida de 3.6 nivel (teniendo en cuenta el ajuste de -3) en lugar de las de un compañero de un druida de 6.º nivel.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Druida",
+    "name": "Sentido de la naturaleza",
+    "kind": "Extraordinaria",
+    "description": "un druida obtiene un bonificador +2 en las pruebas de Saber (naturaleza) y Supervivencia.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Druida",
+    "name": "Empatía salvaje",
+    "kind": "Extraordinaria",
+    "description": "un druida puede utilizar el lenguaje corporal, la vocalización y el comportamiento para mejorar la actitud de un animal (como un oso o un lagarto gigante). Esta aptitud funciona tal y como una prueba de Diplomacia realizada para mejorar la actitud de una persona (ver el Capítulo 4: habilidades). El druida tira 1d20 y suma su nivel de druida y su modificador de Carisma para determinar el resultado de la prueba de empatía salvaje. Un animal doméstico típico tiene una actitud inicial indiferente, mientras que los animales salvajes normalmente son malintencionados. Para utilizar la empatía animal, el druida y el animal deben ser capaces de estudiarse mutuamente, lo cual implica que en condiciones normales deben estar a un máximo de 30 pues el uno del otro. Generalmente, influenciar a un animal de este modo requiere 1 minuto pero, tal y como sucede al influenciar a personas, es posible que se requiera más o menos tiempo. Un druida también puede utilizar esta aptitud para influenciar a bestias mágicas con una puntuación de Inteligencia de 1 ó 2 (como un basilisco o un guiralón), pero en ese caso el druida recibe un penalizador -4 a la prueba.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Druida",
+    "name": "Zancada forestal",
+    "kind": "Extraordinaria",
+    "description": "a partir de 2.º nivel, el druida podrá atravesar diversos terrenos naturales (arbustos espinosos, brezos, lugares cubiertos por la maleza y terreno similar) a velocidad normal y sin",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Druida",
+    "name": "Vínculo",
+    "kind": "Extraordinaria",
+    "description": "un druida puede controlar a su compañero animal como acción gratuita, o presionarle como una acción de movimiento, incluso aunque no tenga ningún rango en la habilidad de Trato con animales. El druida obtiene un bonificador +4 de circunstancia en todas las pruebas de empatía salvaje y Trato con animales realizadas con relación a un compañero animal.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Druida",
+    "name": "Compartir conjuros",
+    "kind": "Extraordinaria",
+    "description": "si el druida así lo decide, puede hacer que cualquier coniuro (pero no cualquier aptitud sortílega) que lance sobre sí mismo afecte también a su compañero animal. Para recibir el beneficio, el compañero animal no puede estar a más de 5' del druida en el momento de lanzar el conjuro. Si el conjuro o efecto tiene una duración distinta a instantáneo, deja de afectar al compañero animal si este se mueve a más de 5' de distancia (en este caso no volverá a afectarle aunque vuelva junto al druida antes de que expíre la duración del conjuro). Además, sufrir daño, o verse perjudicado de otro modo. Sin embargo, los terrenos que estén encantados o hayan sido manipulados mágicamente seguirán obstaculizando normalmente el avance del druida.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Druida",
+    "name": "Pisada sin rastro",
+    "kind": "Extraordinaria",
+    "description": "a partir del 3.6 nivel, el druida no dejará huellas cuando se mueva por entornos naturales y, por tanto, no podrá ser rastreado. Si lo desea, puede decidir dejar un rastro. el druida puede lanzar un conjuro con un objetivo de \"tú\" sobre su compañero animal (como si fuese un conjuro con alcance de toque) en lugar de sobre sí mismo. Un druida y su compañero animal pueden compartir conjuros incluso si el conjuro no afectaría normalmente a criaturas del tipo del compañero (animal).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Druida",
+    "name": "Evasión",
+    "kind": "Extraordinaria",
+    "description": "si un compañero animal sufre un ataque que normalmente permite un TS de Reflejos para medio daño, no recibe ningún daño si realiza la salvación con éxito.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Druida",
+    "name": "Devoción",
+    "kind": "Extraordinaria",
+    "description": "la devoción de un compañero animal por su amo es tan completa que obtiene un bonificador +4 de moral en las salvaciones de Vol contra conjuros y efectos de encantamiento. Ataque múltiple: un compañero animal obtiene Ataque múltiple como dote adicional si tiene tres o más ataques naturales (consulta el Manual de monstruos para los detalles de esta dote) y todavía no la poseía. Si no tiene el requisito de poseer tres o más ataques naturales, el compañero animal obtiene en su lugar un segundo ataque con su arma natural principal, aunque con un penalizador de -5.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Druida",
+    "name": "Evasión mejorada",
+    "kind": "Extraordinaria",
+    "description": "cuando sufra un ataque que normalmente permite un TS de Reflejos para medio daño, un compañero animal no recibe daño alguno si supera el TS y sólo recibe medio daño si lo falla.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Druida",
+    "name": "Forma salvaje",
+    "kind": "Sobrenatural",
+    "description": "a nivel 5.º, un druida adquiere la aptitud de transformarse en un animal Pequeño o Mediano y volver después a la forma humana una vez al día. Las posibles nuevas formas incluyen a todas las criaturas con el tipo \"animal\" (consulta el Manual de monstruos). Esta aptitud funciona como el conjuro de polimorfarse, salvo en lo que se señala aquí. El efecto dura 1 hora por nivel de druida, o hasta que el druida vuelve a su forma original. Cambiar de forma (a forma animal o de vuelta) es una acción estándar y no provoca ataques de oportunidad. La forma elegida debe ser la de un animal con el druida esté familiarizado. Por ejemplo, un druida que nunca haya estado fuera de un bosque templado no puede convertirse en un oso polar. Un druida pierde su capacidad para hablar mientras esté en forma animal, debido a que queda limitado a los sonidos que podría realizar un animal normal y no entrenado, aunque puede comunicarse de manera normal con otros animales del grupo general al que pertenezca su nueva forma (el sonido normal que hace un loro salvaje es un graznido, así que cambiar a esta forma no permite el habla. Tal y como se indica en la tabla 3-8: el druida, los de esta clase podrán utilizar esta aptitud más veces al día a medida que vayan alcanzando los niveles 6º, 7º, 10º, 14º y 18º. Además, a 8.º nivel el druida ganará la capacidad de adoptar la forma de un animal Grande; a 11.º, la de uno Menudo; y a 15., la de uno Enorme. Los Dados de golpe de la nueva forma no podrán exceder el nivel de druida del personaje. Por ejemplo, un druida no puede adoptar la forma de un oso terrible (una criatura Grande que siempre tiene 12 DG) hasta alcanzar el nivel 12, aunque puede comenzar a adoptar formas Grandes a 8.º nivel. A partir de nivel 12.º, un druida se vuelve capaz de utilizar forma salvaje paracambiar a la de una criatura tipo planta, como una broza movediza, con la misma restricción de tamaños que tenga para las formas animales (un druida no puede utilizar esta aptitud para adoptar la forma de una planta que no sea una criatura, como un árbol o un rosal). A nivel 16.º un druida también podrá utilizar esta aptitud para adoptar una vez al día la forma de un elemental de agua, aire, fuego o tierra, de tamaño Pequeño, Mediano o Grande. Estas formas elementales son un añadido a sus usos normales de forma salvaje. Además de los efectos normales de forma salvaje, el druida obtiene todas las aptitudes extraordinarias, sobrenaturales y sortílegas del elemental en cuestión. También obtiene las dotes del elemental mientras mantenga la forma salvaje, pero mantiene su propio tipo de criatura (humanoide, en la mayoría de los casos). A nivel 18.º un druida es capaz de asumir forma elemental dos veces por día, y a nivel 20.º puede hacerlo tres veces por día. A nivel 20.º, un druida puede utilizar su aptitud de forma salvaje para transformarse en un elemental Enorme.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Druida",
+    "name": "Inmunidad al veneno",
+    "kind": "Extraordinaria",
+    "description": "a 9.º nivel, un druida se vuelve inmune a todos los venenos.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Druida",
+    "name": "Las mil caras",
+    "kind": "Sobrenatural",
+    "description": "al alcanzar el nivel 13°, un druida obtiene la aptitud de cambiar su aspecto a voluntad como si estuviera utilizando el conjuro alterar el propio aspecto (pág. 199), pero sólo mientras esté en su forma normal.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Druida",
+    "name": "Cuerpo eterno",
+    "kind": "Extraordinaria",
+    "description": "a partir de nivel 15.º, el druida ya no sufre penalizadores a las características por causa de la edad (consulta la tabla 6-5: efectos del envejecimiento, en la pág. 109) y tampoco se le puede hacer envejecer utilizando medios mágicos; sin embargo, no se librará de los penalizadores que ya sufriera. El personaje seguirá acumulando los bonificadores debidos al envejecimiento y morirá de viejo cuando le llegue la hora.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Explorador",
+    "name": "Enemigo predilecto",
+    "kind": "Extraordinaria",
+    "description": "en el 1.ª nivel, el explorador puede escoger un tipo de criatura de entre las de la tabla 3-10: enemigos predilectos. del explorador. Gracias al minucioso estudio de sus enemigos y al entrenamiento en las técnicas adecuadas para combatirlos, el explorador gana un bonificador +2 en las pruebas de Averiguar intenciones, Avistar, Engañar, Escuchar y Supervivencia cuando utiliza tales habilidades contra las criaturas de ese tipo. De un modo similar, recibe un bonificador +2 en las tiradas de daño con armas contra ese tipo de criaturas. Al alcanzar el 5.º nivel, y cada cinco niveles a partir de entonces (10.º, 15.º y 20.º), el explorador podrá elegir un nuevo enemigo predilecto de los de la tabla. Además, en cada una de estas ocasiones, el bonificador que posea contra un único tipo de enemigo predilecto (incluido el que acaba de elegit, si así lo desea) se incrementará en +2. Por ejemplo, un explorador de 5.º nivel tiene dos enemigos predilectos; contra uno obtiene un bonificador +4 en las pruebas de Averiguar intenciones, Avistar, Engañar, Escuchar y Supervivencia y en las tiradas de daño, y contra el otro tiene un +2. A nivel 10.º tiene tres enemigos predilectos, y obtiene un bonificador +2 adicional que puede adjudicar a cualquiera de sus tres enemigos predilectos. Así, los bonificadores podrían ser +4, +4, +2 o +6, +2, +2. Si el explorador elige humanoides o ajenos como enemigos predilectos, también debe elegir un subtipo asociado, tal y como se indica en la tabla. Si una criatura específica cae dentro de más de una categoría de enemigo predilecto (por ejemplo, los diablos son tanto ajenos malignos como ajenos legales), los bonificadores del explorador no se apilan, sino que se limita a utilizar el bonificador mayor. Consulta el Manual de monstruos para obtener más información sobre los tipos de criaturas.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Explorador",
+    "name": "Empatía salvaje",
+    "kind": "Extraordinaria",
+    "description": "un explorador puede utilizar el lenguaje corporal, la vocalización y el comportamiento para mejorar la actitud de un animal (como un oso o un lagarto gigante). Esta aptitud funciona como una prueba de Diplomacia realizada para mejorar la actitud de una persona (ver pág. 71). El explorador tira 1d20 y suma su nivel de explorador y su modificador de Carisma para determinar el resultado de la prueba de empatía salvaje. Un animal doméstico típico tiene una actitud inicial de indiferente, mientras que los animales salvajes normalmente son malintencionados. Para utilizar la empatía salvaje, el explorador y el animal deben ser capaces de estudiarse mutuamente, lo cual implica que en condiciones normales deben estar a un máximo de 30' el uno del otro. Generalmente, influenciar a un animal de este modo requiere 1 minuto pero, como sucede al influenciar a personas, es posible que se requiera más o menos tiempo. Un explorador también puede utilizar esta aptitud para influenciar a bestias mágicas con una puntuación de Inteligencia de 1 ó 2 (como un basilisco o un guiralón), pero en ese caso el explorador recibe un penalizador de - 4 a la prueba.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Explorador",
+    "name": "Estilo de combate",
+    "kind": "Extraordinaria",
+    "description": "a 2.º nivel, un explorador debe elegir qué estilo de combate desea seguir de entre dos opciones: tiro con arco o combate con dos armas. Esta elección afecta a los rasgos de clase del personaje pero no restringe su selección de dotes o aptitudes especiales de modo alguno. Si el explorador elige tiro con arco, se considera que posee la dote Disparo rápido, incluso si no reúne los prerrequisitos normales de esta. Si elige combate con dos armas, se considera que posee la dote Comba- te con dos armas, incluso si no reúne los prerrequisitos normales de esta. Los beneficios del estilo elegido por el explorador sólo se aplican cuando éste lleva armadura ligera o va sin armadura. Pierde todos los beneficios de su estilo de combate si lleva armadura intermedia o pesada. Aguante: un explorador obtiene Aguante (pág. 89) como dote adicional a 3.ª nivel.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Explorador",
+    "name": "Compañero animal",
+    "kind": "Extraordinaria",
+    "description": "a 4.º nivel, un explorador obtiene un compañero animal, elegido de la siguiente lista: águila, búho, caballo (ligero o pesado), camello, halcón, lobo, perro, perro de monta, poni, rata terrible, serpiente (víbora Pequeña o Mediana) o tejón. Si la campaña del DM tiene lugar parcial o totalmente en un entorno acuático, este puede añadir las siguientes criaturas a la lista de opciones del explorador: calamar, marsopa y tiburón Mediano. Este animal es un camarada leal que acompaña al explorador en sus aventuras tal y como sea apropiado para su especie (por ejemplo, una criatura acuática no puede acompañar al explorador en aventuras terrestres y no debería ser elegida por un personaje no acuático sin que medien circunstancias excepcionales). En la mayoría de los casos, el compañero animal actúa como una montura, centinela, batidor o animal de caza, más que como protector. Esta aptitud funciona como la aptitud de druida del mismo nombre (ver pág. 35), salvo en que el nivel efectivo de druida del explorador es la mitad de su nivel de explorador. Por ejemplo, el compañero animal de un explorador de 4.º nivel sería el equivalente al compañero animal de un druida de 2.º nivel. Un explorador puede elegir de una lista alternativa de compañeros animales tal y como pueden hacer los druidas, aunque de nuevo su nivel efectivo de druida es la mitad de su nivel de explorador. Así, debe ser al menos un explorador de 8.º nivel para elegir de la lista de druida de compañeros animales para 4.º nivel, y si elige uno de estos animales su nivel efectivo de druida se verá reducido en 3, hasta 1.4 nivel. Como les sucede a los druidas, un explorador no puede elegir un animal alternativo si su elección reduciría su nivel efectivo de druida por debajo del 1.º. Conjuros: a partir del 4.º nivel, el explorador adquiere la aptitud de lanzar una pequeña cantidad de conjuros de magia divina (el mismo tipo disponible al clérigo, druida y paladín), elegidos de la lista de conjuros del explorador (pág. 191). Un explorador debe elegir y preparar sus conjuros con ante ación (ver más adelante). Para preparar o lanzar un conjuro, el personaje ha de tener una puntuación en Sabiduría igual o superior a 10 + el nivel del conjuro (Sab 10 para conjuros de 1.ª nivel, Sab 12 para conjuros de 2.º nivel, etc). La Clase de dificultad de las salvaciones contra los conjuros de explorador es 10 + el nivel del conjuro + el modificador de Sabiduría del explorador. Como otros lanzadores de conjuros, un explorador sólo puede lanzar un número determinado de conjuros de cada nivel por día. Su asignación diaria de conjuros se da en la tabla 3-9: el explorador. Además, recibe con- juros diarios adicionales si tiene una puntuación alta de Sabiduría (ver la tabla 1-1: modificadores de característica y conjuros adicionales, pág. 8). Cuando la tabla 3-6 indica que el explorador obtiene 0 conjuros por día de un determinado nivel de conjuros (por ejemplo, conjuros de 1.5 nivel para un explorador de 4.º nivel), solamente obtiene los conjuros adicionales para ese nivel correspondientes a su puntuación de Sabiduría. A diferencia del clérigo, el explorador no tiene acceso a ningún conjuro ni poder garantizado de dominio. Un explorador prepara y lanza conjuros del mismo modo que lo hace un clérigo, aunque no puede perder un conjuro preparado para lanzar un conjuro de curar en su lugar. Un explorador puede preparar y lanzar cualquier conjuro de la lista de conjuros de explorador, suponiendo que pueda lanzar conjuros de ese nivel, aunque durante la meditación de ese día deberá elegir qué conjuros va a preparar. Hasta 3.ª nivel un explorador no tiene nivel de lanzador, y a partir de 4.º nivel su nivel de lanzador es la mitad de su nivel de explorador.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Explorador",
+    "name": "Estilo de combate mejorado",
+    "kind": "Extraordinaria",
+    "description": "a 6.º nivel, las capacidades de un explorador en el estilo de combate elegido (tiro con arco o combate con dos armas) mejoran. Si eligió tiro con arco a 2.º nivel, se considera que posee la dote Disparos múltiples (pág. 96), incluso aunque no reúna los prerrequisitos normales para ella. Si el explorador eligió combate con dos armas a 2.º nivel, se considera como si tuviese la dote Combate con dos armas mejorado (pág. 92), incluso aunque no reúna los prerrequisitos necesarios para ella. Como antes, los beneficios del estilo elegido por el explorador sólo se aplican cuando lleva armadura ligera o va sin armadura. Pierde todos los beneficios si lleva armadura intermedia o pesada.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Explorador",
+    "name": "Zancada forestal",
+    "kind": "Extraordinaria",
+    "description": "a partir de 7.º nivel, el explorador podrá atravesar diversos terrenos naturales (arbustos espinosos, brezos, lugares cubiertos por la maleza, etc.) a velocidad normal y sin sufrir daños, o verse perjudicado de otro modo. Sin embargo, los terrenos citados que estén encantados o hayan sido manipulados mágicamente seguirán obstaculizando normalmente el avance del explorador.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Explorador",
+    "name": "Rastreador veloz",
+    "kind": "Extraordinaria",
+    "description": "comenzando a 8.º nivel, un explorador puede moverse a su velocidad normal mientras esté siguiendo rastros sin sufrir el penalizador -5 normal. Solamente recibe un penalizador-10 (en lugar del-20 normal) cuando se mueve al doble de su velocidad normal mientras rastrea.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Explorador",
+    "name": "Evasión",
+    "kind": "Extraordinaria",
+    "description": "a 9.º nivel, un explorador puede evitar incluso los ataques mágicos o insólitos gracias a su gran agilidad. El explorador no sufre daño alguno cuando pasa un TS de Reflejos contra un ataque que normalmente infligiría la mitad del daño con un tiro con éxito (como el terrible aliento de un dragón rojo o una bola de fuego). Esta aptitud extraordinaria sólo puede utilizarse cuando el explorador viste armadura ligera o no lleva ninguna. Un explorador indefenso (paralizado o inconsciente, por ejemplo) no obtiene el beneficio de evasión. Maestría con el estilo de combate (Ex): a 11.º nivel, las habilidades del explorador en el estilo de combate elegido (tiro con arco o combate con dos armas) mejoran de nuevo. Si eligió tiro con arco a 2.º nivel, se considera que posee la dote Disparo preciso mejorado (pág. 95), incluso aunque no reúna los prerrequisitos normales para ella. Si el explorador eligió combate con dos armas a 2.º nivel, se considera como si tuviese la dote Combate con dos armas mayor (pág. 92), incluso aunque no reúna los prerrequisitos necesarios para ella. Como antes, los beneficios del estilo elegido por el explorador sólo se aplican cuando lleva armadura ligera o va sin armadura. Pierde todos los beneficios si lleva una armadura intermedia o pesada. LOCKWOOD",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Explorador",
+    "name": "Camuflaje",
+    "kind": "Extraordinaria",
+    "description": "un explorador de nivel 13.º o superior puede utilizar la habilidad de Esconderse en cualquier tipo de terreno natural, incluso si el terreno no proporciona cobertura ni ocultación.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Explorador",
+    "name": "Esconderse a plena vista",
+    "kind": "Extraordinaria",
+    "description": "mientras esté en algún tipo de terre no natural, un explorador de nivel 17.º o superior puede utilizar la aptitud de Esconderse incluso mientras esté siendo observado.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Hechicero",
+    "name": "Alerta",
+    "kind": "Extraordinaria",
+    "description": "la presencia del familiar agudiza los sentidos de su amo. Cuando e animal esté al alcance de la mano de su amo, éste ganará la dote Alerta (pág. 89). A diferencia de un mago o un clérigo, un hechicero no necesita preparar sus conjuros con antelación. Puede lanzar cualquier conjuro que conozca en cualquier momento, asumiendo que no haya utilizado toda su asignación de conjuros diarios para el nivel del conjuro. Por ejemplo, a 1.5 nivel, el hechicero Hennet puede lanzar cuatro conjuros de 1.ºº nivel por día: tres por ser de 1.ª nivel (ver la tabla 3-12: el hechicero), más uno gracias a su puntuación de Carisma de 15 (ver la tabla 1-1: modificadores de característica y conjuros adicionales, pág. 8). No obstante, solamente conoce dos conjuros de 1.4 nivel: dormir y proyectil mágico (ver la tabla 3-13: conjuros conocidos por el hechicero). Así, en un día normal, puede lanzar cualquier combinación de esos dos conjuros un total de cuatro veces. No tiene que decidir con antelación qué conjuros lanzará. Familiar: un hechicero puede obtener un familiar, cosa que le llevará 24 horas y exigirá el gasto de materiales mágicos por valor de 100 po. Los familiares son bestias mágicas que parecen animales pequeños y son inusualmente fuertes e inteligentes. Estas criaturas hacen las veces tanto de compañeros como de sirvientes. El hechicero puede escoger el tipo de animal que desea conseguir, y el poder de éste aumentará a medida que el hechicero vaya subiendo de nivel. Si el familiar muere (o su amo decide abandonarlo), el hechicero deberá realizar un TS de Fortaleza (CD 15). Si falla, perderá 200 PX por nivel de hechicero; un tiro con éxito reducirá a la mitad esa pérdida de puntos de experiencia. Sin embargo, el total de puntos de experiencia del hechicero nunca puede quedar por debajo de 0 como resultado de la pérdida o abandono de un familiar. Por ejemplo, Hennet es un hechicero de 3.5 nively tiene 3.230 PX cuando su familiar búho muere a manos de un osgo. El personaje pasa la salvación y, por tanto, pierde 300 PX, quedando por debajo de los 3.000 PX y volviendo a 2.º nivel (consulta la Guía del Dungeon Master para las reglas sobre la pérdida de niveles). Un familiar muerto o abandonado no puede ser reemplazado hasta haber transcurrido un año y un día. Los familiares muertos pueden ser revividos igual que los personajes, pero no perderán ni un nivel ni un punto de Constitución cuando tenga lugar tan afortunado acontecimiento. Un personaje con más de una clase que proporcione un familiar sigue pudiendo tener sólo uno en cualquier momento dado.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Hechicero",
+    "name": "Evasión mejorada",
+    "kind": "Extraordinaria",
+    "description": "esta aptitud funciona cuando el familiar sufre un ataque que normalmente permitiría un TS de Reflejos para recibir sólo la mitad del daño; si el animal tiene éxito en el tiro, no sufrirá daño en absoluto; si falla, sufrirá sólo la mitad del daño.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Hechicero",
+    "name": "Vínculo de empatía",
+    "kind": "Sobrenatural",
+    "description": "el amo comparte con su familiar un vínculo de empatía con un alcance máximo de una milla. El personaje no podrá ver a través de los ojos de su animal, pero ambos podrán comunicarse empáticamente. Debido a la naturaleza limitada del vínculo, sólo se pueden comunicar emociones generales (como miedo, hambre, felicidad, curiosidad). Nótese que la escasa Inteligencia de un familiar cuyo amo sea de bajo nivel limitará lo que el animal es capaz de comunicar o comprender; hasta los familiares inteligentes ven el mundo de forma distinta a la de los humanos, por lo que los malentendidos siempre son posibles. Debido al vínculo de empatía, el amo poseerá la misma relación que tenga su animal con los objetos o lugares. Por ejemplo, si el familiar de un personaje hubiera visto una habitación, su amo podría teleportarse hasta ella como si la hubiera visto con sus propios ojos.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Hechicero",
+    "name": "Transmitir conjuros de toque",
+    "kind": "Sobrenatural",
+    "description": "si el amo es de 3.er nivel o superior, el familiar puede transmitir los conjuros de toque de su amo. Cuando el amo lanza un sortilegio de este tipo, puede designar a su familiar como \"el que toca\", aunque para ello el amo y el familiar deben estar en contacto en el momento de lanzar el conjuro. A continuación, el familiar podrá transmitir el conjuro de toque igual que podría hacer su amo. Igual que en condiciones normales, el conjuro de toque se disipará si el amo lanza otro sortilegio.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Hechicero",
+    "name": "Comunicarse con su amo",
+    "kind": "Extraordinaria",
+    "description": "si el amo es de nivel 5.º o superior, él y su familiar pueden comunicarse verbalmente como si estuvieran hablando en un idioma común. Las demás criaturas no entenderán lo que digan si no es mediante ayuda mágica. Comunicarse con animales de su mismo tipo (Ex): si el amo es al menos de 7.º nivel, el familiar puede comunicarse con animales que sean más o menos de su mismo tipo (incluyendo la variedad terrible de ese animal): los búhos, cuervos y halcones con los pájaros; las comadrejas con criaturas de la familia de los mustélidos (comadrejas, visones, turones, armiños, mofetas, glotones y tejones); los gatos con los felinos; los lagartos y las serpientes con los reptiles, los murciélagos con los murciélagos; las ratas con los roedores; los sapos con los anfibios. La conversación se verá limitada por la Inteligencia de las criaturas con las que hable el familiar.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Hechicero",
+    "name": "Resistencia a conjuros",
+    "kind": "Extraordinaria",
+    "description": "si el amo es de nivel 11.º o superior, el familiar obtiene una resistencia a conjuros igual al nivel de su dueño +5. Para afectar a un familiar con un conjuro, el lanzador debe realizar una prueba de nivel de lanzador (1d20 + nivel del lanzador; ver 'Resistencia a conjuros', pág. 177) que iguale o supere la resistencia a conjuros del animal. Escudriñar por medio del familiar (St): cuando el amo es de nivel 13.º o superior, puede escudriñar por medio del familiar (como si estuviera lanzando el conjuro escudriñamiento) una vez al día. | Nivel de<br>clase del amo | Ajuste de<br>armadura natural | Int | Especial | |---------------------------|-------------------------------|-----|---------------------------------------------------------------------| | 18-2° | +1 | 6 | Alerta, compartir conjuros, evasión<br>mejorada, vínculo de empatía | | 3.040 | +2 | 7 | Transmitir conjuros de toque | | 5-6. | ਜ ਤੋਂ | 8 | Comunicarse con su amo | | 7.8.80 | 44 | g | Comunicarse con animales de su<br>mismo tipo | | 9 - 10 ° | +5 | 10 | | | 11:22 2.0 | +6 | 11 | Resistencia a conjuros | | 13 °-14° | +7 | 12 | Escudriñar por medio del familiar | | 15.2-16.º | +8 | 13 | | | 17/24 13:0 | 19 | 14 | | | 19.20.º | +10 | 15 | | - Dote: Dureza. - Dote adicional: Conjurar en combate. Conjuros conocidos: conjuros de nivel 0: detectar magia, leer magia, luz, sonido fantasma. Conjuros de 1.6ª nivel: dormir, proyectil mágico. Equipo: mochila con odre de agua, raciones de viaje para un día, petate, saco y pedernal y acero. Linterna sorda, 5 pintas de aceite. Bolsa para componentes de conjuro. Estuche con 10 virotes. Oro: 3d4 po. Unas cuantas palabras ininteligibles y una breve gesticulación bastan para obtener un poder mayor que el de los tajos de un hacha de batalla; al menos, cuando tales palabras y gestos proceden de un mago. Estas acciones tan sencillas hacen que la magia parezca cosa fácil, pero en realidad sólo indican vagamente la gran cantidad de tiempo que los magos deben pasar estudiando sus libros para preparar los conjuros que deseen lanzar, y los años dedicados al aprendizaje de las artes mágicas. Los magos dependen del estudio minucioso para poder crear su magia. Se dedican a examinar volúmenes viejos y mohosos, discuten la teoría de la magia con sus colegas y practican las artes menores siempre que pueden. Para un mago, la magia no es un talento, sino un arte complejo y gratificante. Aventuras: los magos emprenden sus aventuras siendo precavidos y previsores. Cuando están preparados, puede utilizar sus conjuros con efectos devastadores, pero cuando les pillan por sorpresa, los seguidores de esta clase son muy vulnerables. Normalmente buscan conocimiento, poder y recursos para poder llevar a cabo sus estudios, pero nada impide que compartan las mismas motivaciones que el resto de los aventureros, ya sean nobles o viles. Peculiaridades: la fuerza del mago reside en sus conjuros; todo lo demás es secundario. Estos personajes van conociendo nuevos sortilegios a medida que experimentan y adquieren experiencia, además de poder aprenderlos gracias a otros magos. Aparte de ir conociendo nuevos conjuros, los magos pueden aprender a manipularlos con el tiempo, consiguiendo que lleguen más lejos, funcionen mejor o, de alguna otra forma, mejoren. Algunos magos prefieren especializarse en un tipo concreto de magia. Tal especialización hace que el personaje sea más poderoso en la materia escogida, pero le impide ejecutar algunos de los conjuros ajenos a su campo (consulta 'Especialización en una escuela', en la pág. 48). Como un hechicero, un mago puede llamar a un familiar: un pequeño compañero animal de naturaleza mágica que se pondrá a su servicio. Estas criaturas son los únicos amigos de verdad que tienen algunos magos. Alineamiento: en general, los magos tienden más a la ley que al caos porque el estudio de la magia recompensa a aquellos que son disciplinados. Sin embargo, los ilusionistas y transmutadores son maestros, respectivamente del engaño y el cambio; por tanto, suelen preferir el caos a la ley. Religión: normalmente, los magos veneran a Boccob, dios de la magia. Algunos, en especial los nigromantes (o, simplemente los misántropos), prefieren a Wee Jas, diosa de la muerte y la magia. Se sabe que los nigromantes malignos adoran a Nerull, dios de la muerte. Sin embargo, el conjunto de los magos se preocupa más por sus estudios que por su vida espiritual. Trasfondo: los magos consideran camaradas o rivales a los demás seguidores de esta clase. Los magos tienen mucho en común aunque pertenezcan a culturas o tradiciones mágicas muy distintas, pues todos ellos se basan en las leyes universales de la magia. Al contrario que los guerreros o los pícaros, los magos se consideran parte de un grupo diverso, pero inconfundible. En las tierras civilizadas, donde estudian en academias, escuelas o cofradías, los magos suelen identificarse, tanto a sí mismos como los unos a los otros, en base a su pertenencia a una organización concreta. Aunque un mago perteneciente a una cofradía podría mirar con aires de superioridad a un mago rural que hubiera aprendido sus artes gracias a un ermitaño senil, jamás le negaría su identidad como seguidor de esta clase. Razas: los humanos empiezan a practicar la magia por diversas razones: curiosidad, ambición, ansia de poder o, simplemente, gusto personal. Los magos humanos tienden a ser prácticos e innovadores, creando nuevos conjuros o utilizando los viejos de forma creativa. Los elfos se sienten fascinados por la magia, y muchos de ellos se convierten en magos por puro amor al arte. Los magos de esta raza se consideran artistas, y tienen en gran estima a la magia, considerándola un misterio maravilloso (al contrario que los magos humanos, mucho más pragmáticos, para los que la magia se parece más a un conjunto de trucos y herramientas). La magia de ilusión resulta tan sencilla para los gnomos que convertirse en ilusionista es prácticamente natural para los más brillantes y dotados de talento de la raza. Hay muy pocos magos gnomos que no se especialicen en la escuela de ilusión, pero los que no lo hacen tampoco están mal vistos. Los magos semielfos sienten tanto la atracción por la magia de los elfos como el impulso de conquista y comprensión de los humanos. Algunos de los magos más poderosos son de esta raza. | | Ataque | S. de | S. de | S. de | | | | | | | Conjuros diarios | | | | | |-------|--------|-------|-------|-------|---------------------------------------------------------|--------|-----|-----|------|-----|------------------|-----|-----|-----|-----| | Nivel | base | Fort. | Ref. | Vol. | Especial | 0 | 1.º | 2.º | 3.º | 4.º | 5.º | 6.º | 7.º | 8.º | 9.º | | 1. | +0 | +0 | +0 | +2 | Convocar a un familiar,<br>Inscribir rollo de pergamino | 3 | | | | | | | | | | | 2.0 | +7 | +0 | +0 | +3 | | 4 | 2 | | | | | | | | | | 3.º | +7 | +1 | +1 | +3 | | 4 | 2 | | | | | | | | | | 40 | +2 | +1 | +7 | +4 | | র্ব | 3 | 2 | | | | | | | | | 5.9 | +2 | +1 | +1 | +4 | Dote adicional | 4 | 3 | 2 | 1999 | | | | | | | | રિંગ | +3 | +2 | +2 | +5 | | 4 | 3 | 3 | 2 | | | | | | | | 7. | +3 | +2 | +2 | ન્ડિ | | 4 | 4 | 3 | 2 | | | | | | | | 8: | +4 | +2 | +2 | +6 | | 4 | 4 | 3 | 3 | 2 | | | | | | | 9. | +4 | +3 | +3 | +6 | | র্যা | 4 | 4 | 3 | 2 | | | | | | | 10.° | +5 | +3 | +3 | +7 | Dote adicional | 4<br>1 | 4 | র্ব | 3 | 3 | 2 | | | | | | 11. | +5 | +3 | 13 | +7 | | 4 | 4 | 4 | 4 | 3 | 2 | | | | | | 12. | +6/+7 | +4 | 44 | +8 | | র্ব | 4 | 4 | 4 | 3 | 3 | 2 | | | | | 13.º | +6/+7 | +4 | +4 | +8 | | র্ব | 4 | র্ব | 4 | র্ব | 3 | 2 | 3 | | | | 14.º | +7/+2 | +4 | +4 | +9 | | 4 | 4 | 4 | র্ব | 4 | 3 | 3 | 2 | | | | 15.° | +7/+2 | +5 | +5 | +9 | Dote adicional | 4 | 4 | র্ব | 4 | 4 | 4 | 3 | 2 | | | | 16. | +8/+3 | +5 | +5 | +10 | | র্ব | 4 | 4 | 4 | 4 | র্ব | 3 | 3 | 2 | | | 17.º | +8/+3 | +5 | +5 | +10 | | 4 | 4 | 4 | র্ব | 4 | 4 | 4 | 3 | 2 | | | 18. | +9/+4 | +6 | +6 | +11 | | 4 | 4 | 4 | 4 | 4 | 4 | র্ব | 3 | 3 | 2 | | 19. | +9/+4 | +6 | +6 | +11 | | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 3 | 3 | | 20.º | +10/+5 | +6 | +6 | +12 | Dote adicional | র্ম | 4 | বা | 4 | 4 | র্ব | 4 | 4 | 4 | ধ |",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Bonificador a la CA",
+    "kind": "Extraordinaria",
+    "description": "los monjes están excelentemente entrenados para esquivar golpes, y desarrollan un \"sexto sentido\" que les permite apartarse incluso ante ataques inesperados. Cuando van sin armadura y no es tán cargados, los monjes añaden a la CA su bonificador de Sabiduría (en caso de tenerlo). Además, obtienen un bonificador +1 a la CA en el 5.º nivel, que aumenta en 1 por cada 5 niveles de monje posteriores (+2 a 10.º, +3 a 15. y +4 a 20.º). Estos bonificadores a la CA se aplican incluso contra ataques de toque o cuando el monje está desprevenido. Los bonificadores se pierden cuando un monje está inmovilizado o indefenso, o cuando lleva una carga mediana o pesada.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Ráfaga de golpes",
+    "kind": "Extraordinaria",
+    "description": "cuando no lleva armadura, un monje puede impactar con una ráfaga de golpes a costa de perder precisión. Al hacerlo, el personaje podrá realizar un ataque adicional con su ataque base más alto, pero tanto este golpe como cualquier otro de ese mismo asalto sufrirán un penalizador -2. El ataque base modificado resultante se da en la co lumna de 'Ataque base de ráfaga de golpes' en la tabla 3-15: el monje. Este penalizador se aplica durante 1 asalto, por lo que también afecta a los ataques de oportunidad que pueda realizar el monje antes de su siguiente ac- ción. Cuando un monje alcanza 5.º nivel, el penalizador se reduce a -1, y a 9.º nivel desaparece por completo. Un monje debe utilizar una acción de ataque completo (ver pág. 143) para impactar con una ráfaga de golpes. Cuando utiliza la ráfaga de golpes, un monje puede atacar solamente con impactos sin armas o con las armas especiales de los monjes (bastón, kama, nunchaku, sai, shuriken y siangham). Puede entremezclar estos dos tipos de ataques a voluntad. Por ejemplo, a 6.º nivel, la monje Ember (NdC: por razones obvias, hemos renunciado en este caso a utilizar el sustantivo en femenino) puede realizar un ataque sin armas con un bonificador de ataque de +3 y otro ataque con un arma especial de monje, también con un bonificador de ataque de +3. Cuando utiliza armas como parte de una ráfaga de golpes, un monje aplica su bonificador de Fuerza (no el bonificador de Fue ×1 1/2 o ×1/2) a las tiradas de daño de todos los ataques que tengan éxito, independiente de si esgrime un arma en una o ambas manos. El monje sólo puede utilizar las armas especiales de monje como parte de una ráfaga de golpes. En el caso del bastón, a efectos de utilizar la aptitud de ráfaga de golpes cada extremo cuenta como un arma independiente. Incluso aunque el bastón requiere dos manos para ser utilizado, un monje puede intercalar impactos sin arma con golpes del bastón, suponiendo que tenga suficientes ataques en su ráfaga de golpes como para hacerlo. Por ejemplo, un monje de 8.º nivel podría realizar dos ataques con el bastón (uno con cada extremo) con un bonificador de ataque de +5 y un impacto sin armas con un bonificador de ataque de +0; o podría atacar con un extremo del bastón y con un impacto sin arma, ambos con un boníficador de ataque de +5, y con el otro extremo del bastón a +0. No obstante, no puede esgrimir ninguna otra arma al mismo tiempo que utiliza un bastón. Cuando un monje alcanza nivel 11.º, su aptitud de ráfaga de golpes mejora. Además del ataque adicional que obtiene de la ráfaga, recibe un segundo ataque adicional con un bonificador igual a su ataque base total. Impacto sin arma: los monjes poseen un excelente entrenamiento en el combate sin armas, lo que les concede considerables ventajas a la hora de recurrir a él. A 1.ª nivel, un monje obtiene Impacto sin arma mejorado como dote adicional. Los ataques de un monje pueden ser de cualquiera de sus dos puños indistintamente, o incluso de los codos, rodillas y pies. Esto implica que un monje puede realizar impactos sin arma incluso con las manos ocupadas. No existe el ataque con la mano torpe para un monje que ataque sin armas, por lo que siempre aplica su bonificador de Fuerza total a las tiradas de daño de todos sus impactos sin arma. Normalmente el impacto sin arma de un monje inflige daño letal, pero puede decidir causar en su lugar daño no letal sin que se aplique por ello ningún penalizador a la tirada de ataque. Así mismo, cuando está participando en una presa puede decidir si causa daño letal o no letal (ver pág. 156). El impacto sin arma de un monje se considera al mismo tiempo arma manufacturada y arma natural en lo que respecta a los conjuros y efectos que mejoran unas u otras (como los conjuros colmillo mágico y arma mágica). Además, un monje inflige más daño con sus impactos sin armas del que haría una persona normal, tal y como se muestra en la tabla 3-15: el monje. Este daño sin arma es para los monjes Medianos. Un monje Pequeño infligirá menos daño que la cantidad indicada, mientras que un monje Grande causará más daño; consulta la tabla 3-16: daño de los monjes Pequeños y Grandes. | | | | | ABLA 3-16: DAÑO DE LOS MONJES PEQUEÑOS Y GRANDES | | | |--|--|--|--|--------------------------------------------------|--|--| |--|--|--|--|--------------------------------------------------|--|--| | Nivel | Daño (monje Pequeño) | Daño (monje Grande) | |-----------|----------------------|---------------------| | 1.33. | 1d4 | 1 48 | | 4-70 | 1d6 | 2d6 | | 8.11. | 198 | 2d8 | | 12°-15° | 1d10 | 3d6 | | 16.º-19.º | 2d6 | 368 | | 200 | 2d8 | 4d8 | Dote adicional: a 1.ª nivel, un monje debe elegir Presa mejorada o Puñetazo aturdidor como dote adicional. A 2.º nivel, debe elegir entre Reflejos de combate y Desviar flechas como dote adicional. A 6.º nivel, debe elegir Derribo mejorado o Desarme mejorado como dote adicional (consulta el Capítulo 5: dotes, para las descripciones). Un monje no necesita reunir los prerrequisitos normalmente necesarios para adquirir estas dotes.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Evasión",
+    "kind": "Extraordinaria",
+    "description": "a partir de 2.º nivel, un monje puede evitar hasta los ataques mágicos o insólitos gracias a su gran agilidad. Los monjes no sufren daño alguno cuando pasan un TS de Reflejos contra un ataque que normalmente infligiría la mitad del daño con un tiro con éxito (como el terrible aliento de un dragón rojo o una bola de fuego). La evasión sólo puede utilizarse cuando el monje viste armadura ligera o ninguna armadura. Un monje indefenso (si está inconsciente o paralizado, por ejemplo), no l puede beneficiarse de esta aptitud.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Movimiento rápido",
+    "kind": "Extraordinaria",
+    "description": "a partir de 3.5 nivel, un monje obtiene un bonificador de mejora a su velocidad, tal y como se muestra en la tabla 3-15. Un monje que vista armadura (aunque sea ligera) o lleve una carga intermedia o pesada perderá esta velocidad adicional.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Mente en calma",
+    "kind": "Extraordinaria",
+    "description": "al alcanzar el 3.6 nivel, un monje gana un bonificador +2 en sus TS contra conjuros y efectos de la escuela de encantamiento, pues su meditación y su entrenamiento le permiten oponer mayor resistencia a los ataques enajenadores.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Impacto ki",
+    "kind": "Sobrenatural",
+    "description": "al alcanzar el 4.º nivel, el ataque sin arma del monje se ve potenciado con el ki. Sus ataques sin arma son considerados como armas mágicas a efectos de causar daño a criaturas con reducción del daño (ver 'Reducción del daño' en la Guía del Dungeon Master). El impacto ki mejora con el nivel del monje. A 10.º nivel, sus impactos sin armas se consideran también armas legales a efectos de infligir daño a criaturas con reducción del daño. A nivel 16.º, sus impactos sin arma son considerados armas adamantinas a efectos de causar daño a criaturas con reducción del daño y para superar la dureza (consulta 'Hacer pedazos un objeto', pág. 165).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Caída ralentizada",
+    "kind": "Extraordinaria",
+    "description": "al alcanzar el 4.º nivel y superiores, los monjes pueden aprovechar las paredes que tengan a su alcance para ralentizar sus caídas, sufriendo daño como si la caída en cuestión tuviera 20 menos de los que tiene en realidad. La aptitud del monje para ralentizar las caídas (es decir, reducir la altura efectiva de las caídas cuando se encuentra cerca de una pared) mejora nivel a nivel hasta que, al alcanzar el 20.º, el personaje puede valerse de los muros próximos para ralentizar su caída y caer desde cualquier altura sin sufrir daño alguno. Para obtener más detalles, consulta la columna \"Especial' de la tabla 3-15.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Pureza corporal",
+    "kind": "Extraordinaria",
+    "description": "al alcanzar el 5.º nivel, un monje adquiere el control de su sistema inmunológico; por tanto, su organismo se inmuniza contra todas las enfermedades, exceptuando aquellas que tengan naturaleza mágica, como la putridez de momia o la licantropía.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Plenitud corporal",
+    "kind": "Sobrenatural",
+    "description": "al alcanzar el 7.º nivel, un monje puede curar sus propias heridas. Esta aptitud le permite recuperar al día una cantidad de puntos de golpe equivalente al doble de su nivel de experiencia, pudiendo repartir el efecto curativo entre varios usos.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Evasión mejorada",
+    "kind": "Extraordinaria",
+    "description": "al alcanzar el 9.º nivel, la aptitud de evasión del monje mejora. Seguirá sin suftir daño cuanto tenga éxito en un TS contra ataques como el arma de aliento de un dragón o una bola de fuego, pero a partir de ahora sólo sufrirá la mitad de daño aunque falle las tiradas. Un monje indefenso (si está inconsciente o paralizado, por ejemplo), no puede beneficiarse de esta aptitud.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Cuerpo diamantino",
+    "kind": "Sobrenatural",
+    "description": "al alcanzar el 11.º nivel, un monje posee tal control sobre su metabolismo que se inmuniza contra todo tipo de venenos.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Paso abundante",
+    "kind": "Sobrenatural",
+    "description": "al alcanzar el 12.º nivel, un monje puede deslizarse mágicamente entre espacios, como al utilizar el conjuro puerta dimensional, una vez al día. Su nivel de lanzador para este efecto es la mitad de su nivel de monje (redondeando a la baja).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Alma diamantina",
+    "kind": "Extraordinaria",
+    "description": "a 13.ª niyel, un monje adquiere una resistencia a conjuros equivalente a su nivel de experiencia + 10. Para poder afectarlo con un sortilegio, el lanzador debe igualar o superar la RC del monje con una prueba de nivel de lanzador (1d20 + el nivel del lanzador; consulta 'Resistencia a conjuros', en la pág. 177).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Palma temblorosa",
+    "kind": "Sobrenatural",
+    "description": "a partir del 15.º nivel, un monje puede crear dentro del cuerpo de otra criatura unas vibraciones que, de así quererlo el monje, pueden resultar letales. El monje puede utilizar esta aptitud una vez a la semana y debe anunciar el intento antes de realizar la tirada de ataque. Constructos, cienos, plantas, muertos vivientes, criaturas incorporales y criaturas inmunes a los golpes críticos son inmunes a este ataque. En los demás casos, si el monje logra impactar y la víctima sufre daño a consecuencia del golpe, se considerará que el ataque de palma temblorosa ha tenido éxito. A partir de ese momento, y hasta haber pasado un día por nivel del monje, éste podrá intentar matar a la víctima cuando lo desee. Para realizar este intento, el monje sólo tiene que desear que el objetivo muera (una acción gratuita), y salvo que este supere un TS de Fortaleza (CD 10 + la mitad del nivel del monje + el modificador de Sabiduría del monje), morirá. Si pasa este tiro, la víctima dejará de estar amenazada por ese ataque de palma temblorosa, 1 pero nada impedirá que resulte afectado por un ataque posterior.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Cuerpo eterno",
+    "kind": "Extraordinaria",
+    "description": "a partir del nivel 17.º, el monje ya no sufre penalizadores a las características por causa de la edad y tampoco se le puede hacer envejecer utilizando medios mágicos (sin embargo, no se librará de los penalizadores que sufriera de antemano). El personaje seguirá acumulando los bonificadores debidos al envejecimiento y morirá de viejo cuando le llegue la hora. Lengua del sol y la luna (Ex): los monjes de nivel 17.º o superior pueden hablar con cualquier criatura viviente.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Monje",
+    "name": "Cuerpo vacío",
+    "kind": "Sobrenatural",
+    "description": "a partir del nivel 19.º, un monje puede adoptar cada día el estado etéreo durante un asalto por nivel de monje que posea (como el efecto del conjuro etereidad). El personaje podrá volverse etéreo varias veces a lo largo del día, siempre y cuando la cantidad total de asaltos que pase en esa forma no exceda su nivel de monje. Yo perfecto: al alcanzar el 20.º nivel, el monje habrá armonizado de tal manera su cuerpo con sus habilidad y aptitudes cuasimágicas que se convertirá en una criatura mágica. A partir de entonces, se le considerará un ajeno (una criatura de otros planos) y no un humanoide en lo referente a conjuros y efectos mágicos. Por ejemplo, hechizar persona ya no le afecta. Además, el monje gana una reducción del daño de 10/magia; es decir, que ignorará (regenerará instantáneamente) los primeros 10 puntos de daño de todo ataque realizado por un arma no mágica o por un ataque natural realizado por una criatura que no tenga una reducción del daño similar (consulta 'Reducción del daño' en la Guía del Dungeon Master). A diferencia de otros ajenos, el monje sí puede ser devuelto de entre los muertos como si fuese un miembro de su anterior tipo de criatura.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Paladín",
+    "name": "Aura de bien",
+    "kind": "Extraordinaria",
+    "description": "el poder del aura de bien (conulta el conjuro de detectar el bien) del paladín es igual a su nivel en esa clase, igual que sucede con el aura de bien de un clérigo de una deidad buena. Detectar el mal (St): a voluntad, el paladín puede utilizar detectar el mal (como el conjuro).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Paladín",
+    "name": "Castigar al mal",
+    "kind": "Sobrenatural",
+    "description": "una vez al día, un paladín puede intentar castigar al mal con un ataque normal de cuerpo a cuerpo; al hacerlo, el personaje añadirá su bonificador de Carisma (en caso de tenerlo) a su tirada de ataque e infligirá un punto de daño adicional por nivel de experiencia que posea. Por ejemplo, un paladín de 13.ª nivel armado con una espada larga infligiría 1d8+13 puntos de daño, además de añadir los posibles bonificadores correspondientes a una Fuerza elevada o a los efectos mágicos que aplicaría normalmente. Si el paladín intentara castigar por accidente a una criatura que no fuera maligna, esta aptitud no surtiría efecto, pero aun así contaría como un intento disponible gastado para ese día. A nivel 5.º y cada cinco niveles adicionales, el paladín puede castigar al mal una vez adicional por día, tal y como se indica en la tabla 3-17: el paladín, hasta un máximo de cinco veces al día a nivel 20.º. | Ataque | | S. de<br>S. de | | S. de | | | - Conjuros diarios -- | | | | | |--------|----------------|----------------|------|-------|-----------------------------------------------------------------------------------------------------------------------|-----|-----------------------|-----|----|--|--| | Nivel | base | Fort. | Ref. | Vol. | Especial | 1.º | 2. | 3.º | 4. | | | | 1.º | +1 | +2 | +0 | +0 | Aura de bien, castigar al mal 1/día detectar el mal | | | | | | | | 2º | +2 | +3 | +0 | +0 | Imposición de manos, gracia divina | | | | | | | | 3° | +3 | +3 | +1 | +1 | Aura de valor, salud divina | | | | | | | | 4. | +4 | +4 | +1 | +1 | Expulsar muertos vivientes | 0 | | | | | | | 5.0 | +5 | +4 | +7 | +1 | Castigar al mal 2/día, montura especial | 0 | | | | | | | 6. | +6/+1 | +5 | +2 | +2 | Quitar enfermedad 1/semana | 1 | | | | | | | 7. | +7/+2 | 45 | +2 | +2 | | | | | | | | | 8.0 | +8/+3 | +6 | +2 | +2 | | | 0 | | | | | | 9. | +9/44 | +6 | +3 | +3 | Quitar enfermedad 2/semana | | 0 | | | | | | 10. | +10/+5 | +7 | +3 | +3 | Castigar al mal 3/día | | | | | | | | 11.º | +11/+6/+1 | +7 | +3 | +3 | | | | 0 | | | | | 12. | +12/+//+2 | +8 | +4 | +4 | Quitar enfermedad 3/semana | | | | | | | | 13. | +13/+8/+3 | 48 | +4 | +4 | | | | | | | | | 14: | +14/+9/+4 | +9 | +4 | +4 | | | | | 0 | | | | 15.º | +15/+10/+5 | +9 | +5 | +15 | Castigar al mal 4/día, quitar enfermedad 4/semana | 2 | | | | | | | 16: | +16/+11/+6/+1 | +10 | +5 | +5 | | 2 | | | | | | | 17. | +17/+12/+7/+2 | +10 | 45 | +5 | | 2 | 2 | 2 | | | | | 18.º | +18/+13/+8/+3 | +77 | +6 | +6 | Quitar enfermedad 5/semana | 3 | N | 2 | 1 | | | | 19. | +19/+14/+9/+4 | +11 | +6 | +6 | | 3 | 3 | 3 | 2 | | | | 20.° | +20/+15/+10/+5 | +12 | +6 | 46 | Castigar al mal 5/día<br>Designed on the comments of the first of the first of the first of the first of the first of | 3 | 3 | 3 | 3 | | | Albandra",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Paladín",
+    "name": "Gracia divina",
+    "kind": "Sobrenatural",
+    "description": "a 2.º nivel, un paladín obtiene un bonificador igual a su modificador de Carisma (en caso de ser positivo) en todos sus TS.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Paladín",
+    "name": "Imposición de manos",
+    "kind": "Sobrenatural",
+    "description": "comenzando a 2.º nivel, un paladín con una puntuación de Carisma de 12 o mayor puede curar heridas (las suyas o las de otros) por medio de su toque. Cada día, puede curar una cantidad de puntos de golpe equivalente a su nivel de experiencia multiplicado por su bonificador de Carisma. Por ejemplo, un paladín de 7.º nivel con un Carisma de 16 (bonificador +3) podría curar un máximo de 21 puntos diarios. Un paladín puede dividir su curación entre varias criaturas, y no tiene por qué aprovechar toda su capacidad de una sola vez. Utilizar la imposición de manos es una acción estándar. De manera alternativa, un paladín puede utilizar parte o la totalidad de su poder curativo para infligir daño a criaturas muertas vivientes. Utilizar la imposición de manos de este modo requiere un ataque de toque cuerpo a cuerpo con éxito, y no provoca ataques de oportunidad. El paladín decide cuántos puntos de su asignación diaria desea utilizar como daño después de lograr tocar con éxito a una criatura muerta viviente. Aura de valor: a partir de 3.6 nivel, el paladín es inmune al miedo (mágico o de cualquier otra naturaleza). Todos los aliados que se encuentren a 10' o menos de él ganarán un bonificador +4 de moral en todos sus TS contra efectos de miedo. Esta aptitud funciona mientras el paladín esté consciente, pero no si está inconsciente o muere.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Paladín",
+    "name": "Evasión mejorada",
+    "kind": "Extraordinaria",
+    "description": "esta aptitud funciona cuando la montura sufre un ataque que normalmente permitiría un TS de Reflejos para recibir sólo la mitad del daño; si el animal tiene éxito en el tiro no sufrirá daño en absoluto; si falla, sufrirá sólo la mitad del daño.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Paladín",
+    "name": "Vínculo de empatía",
+    "kind": "Sobrenatural",
+    "description": "el paladín comparte con su montura un vínculo de empatía con un alcance máximo de una milla. El personaje no podrá ver a través de los ojos de su animal, pero ambos podrán comunicarse empáticamente. Ten en cuenta que hasta las monturas inteligentes ven el mundo de forma distinta a los humanos; por tanto, siempre puede haber malentendidos. Debido al vínculo de empatía que hay entre el paladín y su montura, el personaje poseerá la misma relación que su animal con los objetos o lugares, igual que sucede entre un familiar y su amo (consulta 'Familiares', en la pág. 44).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Paladín",
+    "name": "Velocidad mejorada",
+    "kind": "Extraordinaria",
+    "description": "la velocidad de la montura aumenta en 10'. Dar órdenes (St): una vez por día por cada dos niveles de paladín de su amo, una montura puede utilizar esta aptitud para dar órdenes a otras criaturas de aproximadamente su especie (en el caso de los caballos y ponis de guerra, esto incluye a burros, mulos y ponís), siempre y cuando el objetivo tenga menos DG que ella. Esta aptitud funciona como el conjuro de orden imperiosa, aunque la montura debe realizar una prueba de Concentración (CD 21) en caso de que alguien cabalgue sobre ella al mismo tiempo (como, por ejemplo, en combate). Si la prueba resulta fallida, la aptitud habrá fracasado, pero el intento contará contra la cantidad máxima de sus usos diarios. Cada objetivo puede intentar una salvación de Vol (CD 10 + la mitad del nivel de paladín + el modificador de Car del paladín) para negar el efecto.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Paladín",
+    "name": "Resistencia a conjuros",
+    "kind": "Extraordinaria",
+    "description": "la resistencia a conjuros de la montura equivale al nivel de experiencia de paladín de su amo +5. Para afectar a la montura con un conjuro, el lanzador debe realizar una prueba de nivel de lanzador (1d20 + nivel del lanzador) que iguale o supere a la resistencia a conjuros del animal.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Paladín",
+    "name": "Salud divina",
+    "kind": "Extraordinaria",
+    "description": "a 3.5 nivel, un paladín se vuelve inmune a todas las enfermedades, incluyendo las enfermedades sobrenaturales y mágicas (como la putridez de momia y la licantropía).",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Paladín",
+    "name": "Expulsar muertos vivientes",
+    "kind": "Sobrenatural",
+    "description": "cuando un paladín llega al 4.º nivel, adquiere la aptitud sobrenatural de expulsar muertos vivientes, pudiendo usarla cada día un número de veces igual a 3 + su modificador de Carisma. Los paladines expulsan muertos vivientes como lo haría un clérigo con tres niveles menos (consulta 'Expulsar y reprender muertos vivientes', en la pág. 156). Conjuros: a partir del 4.º nivel, un paladín adquiere la aptitud de lanzar una pequeña cantidad de conjuros de magia divina (el mismo tipo disponible para los clérigos, druidas y exploradores), elegidos de la lista de conjuros de paladín (pág. 195). Un paladín debe elegir y preparar sus conjuros con antelación. Para preparar o lanzar un sortilegio, el personaje ha de tener una puntuación en Sabiduría de al menos 10 + el nivel del conjuro (Sab 11 para conjuros de 1.5 nivel, Sab 12 para conjuros de 2.º nivel, etc). La CD para los TS contra los conjuros de paladín es 10 + el nivel del conjuro + el modificador de Sabiduría del paladín. Como otros lanzadores de conjuros, un paladín sólo puede lanzar un número determinado de conjuros de cada nivel por día. Su asignación diaria de conjuros figura en la tabla 3-17: el paladín. Además, recibe conjuros diarios adicionales si tiene una puntuación alta de Sabiduría (ver la tabla 1-1: modificadores de característica y conjuros adicionales, pág. 8). Cuando la tabla 3-17 indica que el paladín obtiene 0 conjuros por día de un determinado nivel de conjuros (por ejemplo, conjuros de 1.ª nivel para un paladín de 4.º nivel), solamente obtiene los conjuros adicionales para ese nivel correspondientes a su puntuación de Sabiduría. A diferencia del clérigo, un paladín no tiene acceso a ningún conjuro ni poder garantizado de dominio. Un paladín prepara y lanza conjuros del mismo modo que lo hace un clérigo, aunque no puede perder un conjuro preparado para lanzar un conjuro de curar en su lugar. Un paladín puede preparar y lanzar cualquier conjuro de la lista de conjuros de paladín (pág. 195), suponiendo que pueda lanzar conjuros de ese nivel, aunque durante la meditación de ese día deberá elegir qué conjuros va a preparar. Aunque hasta el 3.6 nivel el paladín carece de nivel de lanzador, a partir del 4.º este valor equivaldrá a la mitad del nivel de paladín poseído por el personaje. Montura especial (St): al llegar a 5.º nivel, un paladín obtiene el servicio de un leal corcel, de fuerza e inteligencia insólitas, que le ayudará en su cruzada contra el mal (consulta la barra lateral). Normalmente, esta montura será un caballo de guerra pesado (si el paladín es de tamaño Mediano) o un poni de guerra (si es Pequeño). Una vez al día, como acción de asalto completo, un paladín puede llamar a su montura de los reinos celestiales en los que reside. La montura aparece inmediatamente junto al paladín y permanece durante dos horas por nivel del mismo. Puede ser despedida en cualquier momento como acción gratuita. La montura que es convocada siempre es la misma criatura, aunque el paladín puede liberar a una montura determinada de su servicio (si se ha hecho demasiado vieja como para unirse a su cruzada, por ejemplo). Cada vez que es llamada, la montura aparece totalmente sana, sin importar el daño que pudiera haber recibido previamente. Además, la montura aparece llevando o transportando cualquier cosa que tuviese al ser despedida (incluyendo barda, silla de montar, alforjas, etc). Llamar a una montura es un efecto de conjuración (llamada). Si la montura del paladín muere, desaparece al instante, dejando tras de sí cualquier equipo que transportara. El paladín no puede convocar a otra montura durante treinta días o hasta que obtenga un nuevo nivel de paladín, lo que suceda primero, incluso aunque la montura sea devuelta a la vida de algún modo. Durante este periodo de treinta días, el paladín recibe un penalizador -1 a las tiradas de ataque y daño con armas. Quitar enfermedad (St): a 6.º nivel, un paladín puede producir un efecto de quitar enfermedad (igual que si usara el conjuro del mismo nombre) una vez a la semana. Puede utilizar esta aptitud una vez adicional por semana por cada tres niveles posteriores al 6.º (dos veces por semana a 9.º, tres veces a 12.º, etc.). Código de conducta: un paladín ha de ser de alineamiento legal bueno y perderá todas sus aptitudes especiales de clase si realiza voluntaria- mente cualquier acto maligno. Además, el código del paladín exige que respete toda autoridad legítima, que actúe con honor (sin mentir, engañar, utilizar venenos, etc.), que ayude a los necesitados (siempre y cuando éstos no empleen la ayuda para fines maléficos o caóticos) y que castigue a los que hagan daño o amenacen a los inocentes. Acompañantes: aunque un paladín puede ir de aventuras con personajes de cualquier alineamiento neutral o bueno, jamás se asociará a sabiendas con gente maligna. Además, no continuará relacionándose con nadie que atente continuamente contra su código moral. Un paladín sólo contratará personal o aceptará seguidores si esas personas son de alineamiento legal bueno.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Pícaro",
+    "name": "Evasión",
+    "kind": "Extraordinaria",
+    "description": "a 2.º nivel y posteriores, un pícaro puede evitar incluso los ataques mágicos e inusuales con su gran agilidad. Desde ese momento, no sufrirá daño alguno cuando tenga éxito en un TS de Reflejos contra un ataque que normalmente infligiría la mitad del daño con un tiro con éxito (como el terrible aliento de un dragón rojo o una bola de fuego). Esta apti- tud extraordinaria sólo puede utilizarse cuando el pícaro viste armadura ligera o ninguna armadura en absoluto. Un pícaro indefenso (inconsciente o paralizado, por ejemplo) no puede beneficiarse de la evasión.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Pícaro",
+    "name": "Sentido de las trampas",
+    "kind": "Extraordinaria",
+    "description": "a 3.6 nivel, un pícaro obtiene un sentido intuitivo que le advierte de las trampas, lo que le concede un bonificador +1 a los TS de Reflejos realizados a fin de evitarlas, y un bonificador +1 de esquiva a la CA contra los ataques procedentes de ellas. Estos bonificadores aumentan en +2 cuando el personaje alcanza 6.º nivel, a +3 cuando alcanza 9.º nivel, a +4 cuando llega a 12.º, a +5 a nivel 15.º y finalmente a +6 a nivel 18.º. Los bonificadores de sentido de las trampas obtenidos de diferentes clases se apilan.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Pícaro",
+    "name": "Esquiva asombrosa",
+    "kind": "Extraordinaria",
+    "description": "a 4.º nivel, el pícaro adquiere la apti- tud de reaccionar ante el peligro antes de lo que sus sentidos le permitirían normalmente. Por ello retiene su bonificador de Destreza a la CA (en caso de tenerlo) incluso aunque le tomen desprevenido o sea atacado por un enemigo invisible. A pesar de ello seguirá perdiendo el bonificador de Destreza a la CA en caso de quedar inmovilizado. Si un pícaro ya poseía esquiva asombrosa de una clase diferente (un picaro con al menos dos niveles de bárbaro, por ejemplo), automáticamente obtiene esquiva asombrosa mejorada (ver más adelante) en su lugar.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Pícaro",
+    "name": "Esquiva asombrosa mejorada",
+    "kind": "Extraordinaria",
+    "description": "a partir del 8.º nivel, un pícaro ya no puede ser flanqueado, pues reacciona ante oponentes situados a ambos lados con la misma facilidad que si tuviera que haerlo ante un solo atacante. Esta defensa impide que otro pícaro pueda atacar furtivamente al pícaro cuando lo esté flanqueando, a no ser que el atacante tenga al menos cuatro niveles de pícaro más que los niveles de pícaro del objetivo. > Si un personaje ya tenía esquiva asombrosa (ver más arriba) de una segunda clase, automáticamente obtiene esquiva asombrosa mejorada en su lugar, y los niveles de todas las clases que la proporcionan se apilan para determinar el nivel mínimo de pícaro necesario para flanquear al personaje. Aptitudes especiales: al alcanzar el 10.º nivel, y a cada tres niveles (13.º, 16.º y 19.º), un pícaro obtiene una de las siguientes aptitudes especiales (a su elección):",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Pícaro",
+    "name": "Evasión mejorada",
+    "kind": "Extraordinaria",
+    "description": "esta aptitud funciona igual que la evasión, aunque es más beneficiosa: el pícaro seguirá sin sufrir daño al pasar un TS contra ataques como el arma de aliento de un dragón o una bola de fuego, pero a partir de ahora sólo sufrirá la mitad de daño aunque falle las tiradas (los reflejos del personaje le permitirán apartarse del peligro con increíble velocidad). Un pícaro indefenso (inconsciente o paralizado, por ejemplo) no se puede beneficiar de la evasión mejorada.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Pícaro",
+    "name": "Lisiar con un impacto",
+    "kind": "Extraordinaria",
+    "description": "con esta aptitud extraordinaria, el pícaro puede atacar furtivamente a sus oponentes con tal precisión que sus golpes los debilitarán. Cuando golpee a un oponente con un ataque furtivo, la víctima sufrirá también 2 puntos de daño temporal en su Fuerza. Los puntos de característica así perdidos se recuperan por sí mismos a un ritmo de 1 al día en cada característica dañada. Maestría en habilidades: el pícaro se vuelve tan seguro en el uso de algunas habilidades que puede utilizarlas de forma eficaz incluso en circunstancias adversas. Al obtener esta aptitud, el pícaro elige una cantidad de habilidades equivalente a 3 + su modificador de Int. Siempre que realice Itustracton de 3. Foster una prueba de habilidad con cualquiera de ellas, el personaje podrá elegir 10 aunque la tensión y las distracciones le impidiesen hacerlo en circunstancias normales. El pícaro puede adquirir varias veces esta aptitud especial, seleccionando distintas habilidades cada vez.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Pícaro",
+    "name": "Mente escurridiza",
+    "kind": "Extraordinaria",
+    "description": "esta aptitud representa la capacidad del pícaro de librarse de los efectos mágicos que puedan controlarlo u obligarle a obrar de una forma concreta. Cuando un pícaro con mente escurridiza es afectado por un encantamiento y falla su TS, puede intentar salvar de nuevo un asalto después con la misma CD. Sólo dispone de esta oportunidad adicional.",
+    "source": "Manual del Jugador 3.5"
+  },
+  {
+    "clazz": "Pícaro",
+    "name": "Oportunismo",
+    "kind": "Extraordinaria",
+    "description": "una vez por asalto, el pícaro puede realizar un ataque de oportunidad contra un oponente al que otro personaje acaba de infligir daño de cuerpo a cuerpo. Este golpe se considerará el ataque de oportunidad del pícaro durante el asalto en curso. Ni siquiera un pícaro con la dote Reflejos de combate podrá utilizar la aptitud de oportunismo más de una vez por asalto. Rodar a la defensiva (Ex); el pícaro puede echar a rodar para apartarse de un golpe potencialmente mortal y hacer que éste le inflija menos daño. Una vez al día, cuando los puntos de golpe del pícaro vayan a quedar reducidos a 0 o menos en combate (por culpa de un arma u otro tipo de golpe, no por un conjuro ni por una aptitud especial), el personaje puede intentar echarse a rodar para sufrir menos daño; hará un TS Reflejos (CD = daño sufrido) y, en caso de tener éxito, sólo perderá la mitad de puntos de golpe indicados en la tirada de daño. Para poder rodar a la defensiva el pícaro tiene que ser consciente del ataque y debe poder reaccionar ante él; si no dispusiera de su bonificador de Destreza, le resultaría imposible utilizar esta aptitud. Ya que este efecto normalmente no permite que el pícaro haga TS de Reflejos para sufrir sólo la mitad del daño, la aptitud de evasión no podrá aplicarse cuando un pícaro ruede a la defensiva. Dote: el pícaro puede ganar una dote en lugar de una aptitud especial.",
+    "source": "Manual del Jugador 3.5"
+  }
+]
