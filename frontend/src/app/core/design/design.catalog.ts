@@ -46,6 +46,13 @@ export const CATALOGO_POR_DEFECTO: CatalogoDisenos = [
         cargar: () => import('../../features/sheet/designs/celeste')
           .then(m => m.FichaCeleste),
       },
+      {
+        id: 'acero',
+        nombre: 'Mesa Acero',
+        resumen: 'La mesa de noche en frío: placas de acero azulado, cifras en Cormorant y el rojo reservado para el daño.',
+        cargar: () => import('../../features/sheet/designs/acero')
+          .then(m => m.FichaAcero),
+      },
     ],
   },
 ];
